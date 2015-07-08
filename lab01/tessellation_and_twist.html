@@ -25,7 +25,44 @@
                         <h2>Parameters</h2>
                     </header>
                     <section>
-                    ...
+                        <div class="w3-group tall">
+                            <label for="subdivision">#Subdivision:&nbsp;</label><span>5</span><br />
+                            <input class="w3-range" type="range" name="subdivision" id="subdivision" min="0" max="10" step="1" value="5">
+                            <span class="left_align">0</span>
+                            <span class="right_align">10</span>
+                        </div>
+                        <div class="w3-group tall">                        
+                            <label for="angle">Angle:&nbsp;</label><span>0</span><br />
+                            <input class="w3-range" type="range" name="angle" id="angle" min="0" max="359" step="1" value="0">
+                            <span class="left_align">0</span>
+                            <span class="right_align">359</span>
+                        </div>
+                        <div class="w3-group">                        
+                            <label class="w3-checkbox">
+                                Tessellation:
+                                <input type="checkbox" name="tessellation" id="tessellation" checked />
+                                <span class="w3-checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="w3-group">                                               
+                            Style:<br/>
+                            <label class="w3-checkbox" style="margin-left:10%">
+                                <input type="radio" name="style" id="style" value="wireframe" checked />
+                                <span class="w3-checkmark"></span> Wireframe                                
+                            </label>                            
+                            <label class="w3-checkbox" style="margin-left:10%">
+                                <input type="radio" name="style" id="style" value="partially filled" />
+                                <span class="w3-checkmark"></span> Partially filled                                
+                            </label>                            
+                            <label class="w3-checkbox" style="margin-left:10%">
+                                <input type="radio" name="style" id="style" value="filled" />
+                                <span class="w3-checkmark"></span> Filled                             
+                            </label>   
+                        </div>
+                        <div class="w3-group">                        
+                            <label for="color">Color:</label>
+                            <input type="color" name="color" id="color" value="#000000" />
+                        </div>
                     </section>
                 </section>
             </div>
