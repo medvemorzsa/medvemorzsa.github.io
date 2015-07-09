@@ -9,7 +9,7 @@ function App(maxSubdivision) {
     if (Object.freeze)
         Object.freeze(this.styles);
     
-    var maxSubdivision = (typeof maxSubdivision !== 'undefined') ?  maxSubdivision : 10;
+    var maxSubdivision = (typeof maxSubdivision !== 'undefined') ?  maxSubdivision : 8;
     
     // User-modifiable parameters
     var subdivision = 5;
@@ -118,7 +118,7 @@ function App(maxSubdivision) {
     var points = [];
     
     // WebGL initialization
-    this.init = function() {
+    this.initWebGL = function() {
         // Configure canvas and WebGL
         canvas = document.getElementById("gl-canvas");
         gl = WebGLUtils.setupWebGL(canvas);
@@ -161,6 +161,14 @@ function App(maxSubdivision) {
         points = [];       
     }
     
+    // User interface initialization
+    this.initUI = function() {
+        $("#subdivision").change(function() {
+            subdivision = $(this).val();
+            document.app.render();
+        });
+    }
+    
     // Add triangle to points
     var addTriangle = function(p1, p2, p3) {
         points.push(p1, p2, p3);
@@ -191,6 +199,7 @@ Number.isInteger = Number.isInteger || function(value) {
 
 $(document).ready(function(){
     document.app = new App();
-    document.app.init();
+    document.app.initWebGL();
+    document.app.initUI();
     document.app.render();
 });
