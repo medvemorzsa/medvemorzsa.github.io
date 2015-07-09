@@ -8,6 +8,7 @@
         <link rel="stylesheet" href="../css/w3.css" />
         <link rel="stylesheet" href="../css/w3-theme-teal.css" />
         <link rel="stylesheet" href="tessellation_and_twist.css" />
+        
     </head>
     <body>
         <div class="w3-row">
@@ -71,9 +72,17 @@
                     <h2>Result</h2>
                 </header>
                 <section>
-                ...
+                    <canvas id="gl-canvas" width="512" height="512">
+                    Oops ... your browser doesn't support the HTML5 canvas element
+                    </canvas>
                 </section>
             </section>
         </div>
+        
+        <script type="text/javascript" src="../common/webgl-utils.js"></script>
+        <script type="text/javascript" src="../common/initShaders.js"></script>
+        <script type="text/javascript" src="../common/MV.js"></script>
+        <script type="text/javascript" src="tessellation_and_twist.js"></script>
+        
     </body>
 </html>
