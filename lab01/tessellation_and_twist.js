@@ -63,6 +63,7 @@ function App(maxSubdivision) {
             throw "Tessellation must be boolean value!"
         tessellation = value;
     });    
+
     // Getter for style parameter
     this.__defineGetter__("style", function() {
         return style;
@@ -82,7 +83,33 @@ function App(maxSubdivision) {
         if (!(validProp))
             throw "Style must be one of WIREFRAMED, PARTIALLY_FILLED, FILLED constants!"
         style = value;
-    });    
+    }); 
+
+    // Getter for color parameter
+    this.__defineGetter__("color", function() {
+        _red = (color[0] * 255).toString(16);
+        if (_red.length == 1)
+            _red = "0" + _red
+        _green = (color[1] * 255).toString(16);
+        if (_green.length == 1)
+            _green = "0" + _green
+        _blue = (color[2] * 255).toString(16);
+        if (_blue.length == 1)
+            _blue = "0" + _blue
+        return "#" + _red + _green + _blue;
+    });
+    
+    // Setter for color parameter
+    this.__defineSetter__("color", function(value) {
+        if (typeof value === "undefined")
+            throw "Color is required!";
+        if (typeof value !== "string")
+            throw "Color must be filled #RRGGBB format!";
+        if (!(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.test(value)))
+            throw "Color must be filled #RRGGBB format!";
+        var components = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
+        color = vec4(parseInt(components[1], 16) / 255.0, parseInt(components[2], 16) / 255.0, parseInt(components[3], 16) / 255.0, 1.0);
+    });
 }
 
 Number.isInteger = Number.isInteger || function(value) {
