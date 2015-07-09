@@ -63,7 +63,26 @@ function App(maxSubdivision) {
             throw "Tessellation must be boolean value!"
         tessellation = value;
     });    
+    // Getter for style parameter
+    this.__defineGetter__("style", function() {
+        return style;
+    });
     
+    // Setter for style parameter
+    this.__defineSetter__("style", function(value) {
+        if (typeof value === "undefined")
+            throw "Style is required!";
+        if ((isNaN(value)) || (!(Number.isInteger(value))))
+            throw "Style must be one of WIREFRAMED, PARTIALLY_FILLED, FILLED constants!"
+        validProp = false;
+        for (var prop in this.styles) { 
+            if ((this.styles.hasOwnProperty(prop)) && (this.styles[prop] == value))
+                validProp = true;
+        }
+        if (!(validProp))
+            throw "Style must be one of WIREFRAMED, PARTIALLY_FILLED, FILLED constants!"
+        style = value;
+    });    
 }
 
 Number.isInteger = Number.isInteger || function(value) {
