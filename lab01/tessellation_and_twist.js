@@ -1,13 +1,13 @@
 function App(maxSubdivision) {
     // Constants
-    this.types = {
+    this.styles = {
         WIREFRAMED: 0,
         PARTIALLY_FILLED: 1,
         FILLED: 2
     }
     
     if (Object.freeze)
-        Object.freeze(this.types);
+        Object.freeze(this.styles);
     
     var maxSubdivision = (typeof maxSubdivision !== 'undefined') ?  maxSubdivision : 10;
     
@@ -15,7 +15,7 @@ function App(maxSubdivision) {
     var subdivision = 5;
     var angle = 0;
     var tessellation = true;
-    var style = this.types.WIREFRAMED;
+    var style = this.styles.WIREFRAMED;
     var color = vec4( 0.0, 0.0, 0.0, 1.0 );    
     
     // Getter for subdivision parameter
@@ -50,6 +50,19 @@ function App(maxSubdivision) {
         angle = value;
     });
 
+    // Setter for tessellation parameter
+    this.__defineGetter__("tessellation", function() {
+        return tessellation;
+    });
+    
+    // Getter for tessellation parameter
+    this.__defineSetter__("tessellation", function(value) {
+        if (typeof value === "undefined")
+            throw "Tessellation is required!";
+        if (typeof value !== "boolean")
+            throw "Tessellation must be boolean value!"
+        tessellation = value;
+    });    
     
 }
 
