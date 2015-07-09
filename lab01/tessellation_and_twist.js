@@ -115,6 +115,7 @@ function App(maxSubdivision) {
     var canvas = null;
     var gl = null;
     var bufferID = null;
+    var points = [];
     
     // WebGL initialization
     this.init = function() {
@@ -125,7 +126,7 @@ function App(maxSubdivision) {
             alert( "WebGL isn't available" );
             return;
         }
-        
+
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         
@@ -136,11 +137,35 @@ function App(maxSubdivision) {
         // Buffer
         bufferID = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, bufferID);
+//        gl.bufferData(gl.ARRAY_BUFFER, 8*Math.pow(3, 6), gl.STATIC_DRAW);
         
         // Associate out shader variables with our data buffer
         var vPosition = gl.getAttribLocation(program, "vPosition");
         gl.vertexAttribPointer(vPosition, 2, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(vPosition);
+    }
+    
+    // Render function
+    this.render = function() {
+        var vertices = [
+            vec2(-1, -1),
+            vec2( 0,  1),
+            vec2( 1, -1)
+        ];
+        points = [];
+        
+        addTriangle(vertices[0], vertices[1], vertices[2]);
+        console.log(points);
+        gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);        
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(points));
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, points.length);        
+        points = [];       
+    }
+    
+    // Add triangle to points
+    var addTriangle = function(p1, p2, p3) {
+        points.push(p1, p2, p3);
     }
 }
 
@@ -153,4 +178,5 @@ Number.isInteger = Number.isInteger || function(value) {
 $(document).ready(function(){
     document.app = new App();
     document.app.init();
+    document.app.render();
 });
