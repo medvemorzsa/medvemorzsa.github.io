@@ -137,7 +137,6 @@ function App(maxSubdivision) {
         // Buffer
         bufferID = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, bufferID);
-//        gl.bufferData(gl.ARRAY_BUFFER, 8*Math.pow(3, 6), gl.STATIC_DRAW);
         
         // Associate out shader variables with our data buffer
         var vPosition = gl.getAttribLocation(program, "vPosition");
@@ -154,8 +153,7 @@ function App(maxSubdivision) {
         ];
         points = [];
         
-        addTriangle(vertices[0], vertices[1], vertices[2]);
-        console.log(points);
+        genSierpinskiGasket(vertices[0], vertices[1], vertices[2], subdivision);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);        
         gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(points));
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -166,6 +164,22 @@ function App(maxSubdivision) {
     // Add triangle to points
     var addTriangle = function(p1, p2, p3) {
         points.push(p1, p2, p3);
+    }
+    
+    var genSierpinskiGasket = function(p1, p2, p3, level) {
+        if (level == 0)
+            addTriangle(p1, p2, p3);
+        else {
+            var p12 = mix(p1, p2, 0.5);
+            var p13 = mix(p1, p3, 0.5);
+            var p23 = mix(p2, p3, 0.5);
+
+            level--;
+
+            genSierpinskiGasket(p1, p12, p13, level);
+            genSierpinskiGasket(p3, p13, p23, level);
+            genSierpinskiGasket(p2, p23, p12, level);
+        }
     }
 }
 
