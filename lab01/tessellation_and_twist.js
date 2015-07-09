@@ -34,6 +34,23 @@ function App(maxSubdivision) {
         subdivision = value;
     });
     
+    // Getter for angle parameter
+    this.__defineGetter__("angle", function() {
+        return angle;
+    });
+    
+    // Setter for angle parameter
+    this.__defineSetter__("angle", function(value) {
+        if (typeof value === "undefined")
+            throw "Angle is required!";
+        if ((isNaN(value)) || (!(Number.isInteger(value))))
+            throw "Angle must be integer value!";
+        if ((value < 0) || (value > 359))
+            throw "Angle must be between 0 and 359!";
+        angle = value;
+    });
+
+    
 }
 
 Number.isInteger = Number.isInteger || function(value) {
