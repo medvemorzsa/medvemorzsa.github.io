@@ -17,6 +17,12 @@ function App(maxSubdivision) {
     var color = vec4( 0.0, 0.0, 0.0, 1.0 );    
 }
 
+Number.isInteger = Number.isInteger || function(value) {
+    return ((typeof value === "number") && 
+           (isFinite(value)) && 
+           (Math.floor(value) === value));
+};
+
 $(document).ready(function(){
     document.app = new App();
 });
