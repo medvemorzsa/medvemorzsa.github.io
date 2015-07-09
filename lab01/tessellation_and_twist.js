@@ -110,6 +110,23 @@ function App(maxSubdivision) {
         var components = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
         color = vec4(parseInt(components[1], 16) / 255.0, parseInt(components[2], 16) / 255.0, parseInt(components[3], 16) / 255.0, 1.0);
     });
+    
+    // Parameters for WebGL
+    var canvas = null;
+    var gl = null;
+    
+    this.init = function() {
+        canvas = $("#gl-canvas");
+        gl = WebGLUtils.setupWebGL( canvas );
+        if (!gl) {
+            alert( "WebGL isn't available" );
+            return;
+        }
+        
+        gl.viewport( 0, 0, canvas.width, canvas.height );
+        gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
+        
+    }
 }
 
 Number.isInteger = Number.isInteger || function(value) {
