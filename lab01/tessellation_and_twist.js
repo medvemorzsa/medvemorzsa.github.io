@@ -156,7 +156,7 @@ function App(maxDepth) {
         
         genSierpinskiGasket(vertices[0], vertices[1], vertices[2], depth);
         if (twist)
-            twist(angle);
+            twistRotation(angle);
         else
             rotation(angle);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);        
@@ -176,6 +176,11 @@ function App(maxDepth) {
         $("#angle").change(function() {
             angle = $(this).val();
             $("#curAngle").html(angle.toString());
+            document.app.render();
+        });
+
+        $("#twist").change(function() {
+            twist = $(this).is(':checked');
             document.app.render();
         });
     }
@@ -218,7 +223,7 @@ function App(maxDepth) {
     }
     
     // Twist
-    var twist = function(angle) {
+    var twistRotation = function(angle) {
         for (var idx = 0; idx < points.length; idx++) {
             var rAngle = radians(angle);
             var d = Math.sqrt(Math.pow(points[idx][0], 2) + Math.pow(points[idx][1], 2));
