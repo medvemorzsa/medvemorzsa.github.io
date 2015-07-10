@@ -167,6 +167,11 @@ function App(maxSubdivision) {
             subdivision = $(this).val();
             document.app.render();
         });
+
+        $("#angle").change(function() {
+            angle = $(this).val();
+            document.app.render();
+        });
     }
     
     // Add triangle to points
