@@ -183,6 +183,11 @@ function App(maxDepth) {
             twist = $(this).is(':checked');
             document.app.render();
         });
+
+        $("input[name=style]").change(function() {
+            style = $(this).val();
+            document.app.render();
+        });
     }
     
     // Add triangle to points
