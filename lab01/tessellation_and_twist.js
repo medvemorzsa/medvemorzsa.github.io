@@ -155,7 +155,10 @@ function App(maxDepth) {
         points = [];
         
         genSierpinskiGasket(vertices[0], vertices[1], vertices[2], depth);
-        rotation(angle);
+        if (twist)
+            twist(angle);
+        else
+            rotation(angle);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);        
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, points.length);
@@ -212,6 +215,17 @@ function App(maxDepth) {
     // Vertex rotation
     var vertexRotation = function(p, cosAngle, sinAngle) {
         return vec2([p[0] * cosAngle - p[1] * sinAngle, p[0] * sinAngle + p[1] * cosAngle]);
+    }
+    
+    // Twist
+    var twist = function(angle) {
+        for (var idx = 0; idx < points.length; idx++) {
+            var rAngle = radians(angle);
+            var d = Math.sqrt(Math.pow(points[idx][0], 2) + Math.pow(points[idx][1], 2));
+            var cosRAngle = Math.cos(d * rAngle);
+            var sinRAngle = Math.sin(d * rAngle);
+            points[idx] = vertexRotation(points[idx], cosRAngle, sinRAngle);
+        }
     }
 }
 
