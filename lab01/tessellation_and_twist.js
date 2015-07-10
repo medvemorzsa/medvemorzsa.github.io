@@ -161,7 +161,11 @@ function App(maxDepth) {
             rotation(angle);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);        
         gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.drawArrays(gl.TRIANGLES, 0, points.length);
+        if (style == this.styles.WIREFRAMED)
+            for (i = 0; i < points.length; i+= 3)
+                gl.drawArrays(gl.LINE_LOOP, i, 3);
+        else
+            gl.drawArrays(gl.TRIANGLES, 0, points.length);
         points = [];       
     }
     
@@ -209,6 +213,8 @@ function App(maxDepth) {
             genSierpinskiGasket(vec2(p1[0], p1[1]), vec2(p12[0], p12[1]), vec2(p13[0], p13[1]), level);
             genSierpinskiGasket(vec2(p3[0], p3[1]), vec2(p13[0], p13[1]), vec2(p23[0], p23[1]), level);
             genSierpinskiGasket(vec2(p2[0], p2[1]), vec2(p23[0], p23[1]), vec2(p12[0], p12[1]), level);
+            if (style == document.app.styles.FILLED)
+                genSierpinskiGasket(vec2(p12[0], p12[1]), vec2(p23[0], p23[1]), vec2(p13[0], p13[1]), level);
         }
     }
     
