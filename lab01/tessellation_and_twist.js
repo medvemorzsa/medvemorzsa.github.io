@@ -87,18 +87,9 @@ function App(maxDepth) {
 
     // Getter for color parameter
     this.__defineGetter__("color", function() {
-        _red = (color[0] * 255).toString(16);
-        if (_red.length == 1)
-            _red = "0" + _red
-        _green = (color[1] * 255).toString(16);
-        if (_green.length == 1)
-            _green = "0" + _green
-        _blue = (color[2] * 255).toString(16);
-        if (_blue.length == 1)
-            _blue = "0" + _blue
-        return "#" + _red + _green + _blue;
+        return color;
     });
-    
+        
     // Setter for color parameter
     this.__defineSetter__("color", function(value) {
         if (typeof value === "undefined")
@@ -116,6 +107,7 @@ function App(maxDepth) {
     var gl = null;
     var bufferID = null;
     var points = [];
+    var program = null;
     
     // WebGL initialization
     this.initWebGL = function() {
@@ -131,7 +123,7 @@ function App(maxDepth) {
         gl.clearColor(1.0, 1.0, 1.0, 1.0);
         
         // Init shaders
-        var program = initShaders( gl, "vertex-shader", "fragment-shader" );
+        program = initShaders( gl, "vertex-shader", "fragment-shader" );
         gl.useProgram(program);
         
         // Buffer
@@ -161,6 +153,9 @@ function App(maxDepth) {
             rotation(angle);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);        
         gl.clear(gl.COLOR_BUFFER_BIT);
+        var colorLocation = gl.getUniformLocation(program, "user_color");
+        gl.uniform4f(colorLocation, color[0], color[1], color[2], color[3]);
+        
         if (style == this.styles.WIREFRAMED)
             for (i = 0; i < points.length; i+= 3)
                 gl.drawArrays(gl.LINE_LOOP, i, 3);
@@ -194,7 +189,7 @@ function App(maxDepth) {
         });
 
         $("#color").change(function() {
-            color = $(this).val();
+            document.app.color = $(this).val();
             document.app.render();
         });
     }
