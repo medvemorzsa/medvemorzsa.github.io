@@ -14,7 +14,7 @@ function App(maxDepth) {
     // User-modifiable parameters
     var depth = 4;
     var angle = 0;
-    var tessellation = true;
+    var twist = true;
     var style = this.styles.WIREFRAMED;
     var color = vec4( 0.0, 0.0, 0.0, 1.0 );    
     
