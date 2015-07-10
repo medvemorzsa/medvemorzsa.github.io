@@ -50,18 +50,18 @@ function App(maxDepth) {
         angle = value;
     });
 
-    // Setter for tessellation parameter
-    this.__defineGetter__("tessellation", function() {
-        return tessellation;
+    // Setter for twist parameter
+    this.__defineGetter__("twist", function() {
+        return twist;
     });
     
-    // Getter for tessellation parameter
-    this.__defineSetter__("tessellation", function(value) {
+    // Getter for twist parameter
+    this.__defineSetter__("twist", function(value) {
         if (typeof value === "undefined")
-            throw "Tessellation is required!";
+            throw "twist is required!";
         if (typeof value !== "boolean")
-            throw "Tessellation must be boolean value!"
-        tessellation = value;
+            throw "twist must be boolean value!"
+        twist = value;
     });    
 
     // Getter for style parameter
