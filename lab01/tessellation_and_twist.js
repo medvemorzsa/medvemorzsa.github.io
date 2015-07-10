@@ -146,10 +146,11 @@ function App(maxSubdivision) {
     
     // Render function
     this.render = function() {
+        var r = 0.75;
         var vertices = [
-            vec2(-1, -1),
-            vec2( 0,  1),
-            vec2( 1, -1)
+            vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(240))),
+            vec2( 0,  r),
+            vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(120)))
         ];
         points = [];
         
