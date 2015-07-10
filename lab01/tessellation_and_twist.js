@@ -192,6 +192,11 @@ function App(maxDepth) {
             style = $(this).val();
             document.app.render();
         });
+
+        $("#color").change(function() {
+            color = $(this).val();
+            document.app.render();
+        });
     }
     
     // Add triangle to points
