@@ -44,13 +44,31 @@
                     <section>
                         <div class="w3-group tall">
                             <label for="depth">Depth:&nbsp;</label><span id="curDepth" name="curDepth">5&nbsp;levels</span><br />
-                            <input class="w3-range" type="range" name="depth" id="depth" min="0" max="8" step="1" value="5">
+                            <input class="w3-range" type="range" name="depth" id="depth" min="0" max="8" step="1" value="4" list="depthList">
+                            <datalist id="depthList" name="depthList">
+                                <option value="0">
+                                <option value="2">
+                                <option value="4">
+                                <option value="6">
+                                <option value="8">
+                            </datalist>
                             <span class="left_align">0</span>
                             <span class="right_align">8</span>
                         </div>
                         <div class="w3-group tall">                        
-                            <label for="angle">Angle:&nbsp;</label><span>0</span>&deg;<br />
-                            <input class="w3-range" type="range" name="angle" id="angle" min="0" max="359" step="1" value="0">
+                            <label for="angle">Angle:&nbsp;</label><span id="curAngle" name="curAngle">0</span>&deg;<br />
+                            <input class="w3-range" type="range" name="angle" id="angle" min="0" max="359" step="1" value="0" list="angleList">
+                            <datalist id="angleList" name="angleList">
+                                <option value="0">
+                                <option value="45">
+                                <option value="90">
+                                <option value="135">
+                                <option value="180">
+                                <option value="225">
+                                <option value="270">
+                                <option value="315">
+                                <option value="359">
+                            </datalist>
                             <span class="left_align">0&deg;</span>
                             <span class="right_align">359&deg;</span>
                         </div>

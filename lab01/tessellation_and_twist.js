@@ -12,7 +12,7 @@ function App(maxDepth) {
     var maxDepth = (typeof maxDepth !== 'undefined') ?  maxDepth : 8;
     
     // User-modifiable parameters
-    var depth = 5;
+    var depth = 4;
     var angle = 0;
     var tessellation = true;
     var style = this.styles.WIREFRAMED;
@@ -166,12 +166,13 @@ function App(maxDepth) {
     this.initUI = function() {
         $("#depth").change(function() {
             depth = $(this).val();
-            document.app.render();
             $("#curDepth").html(depth.toString() + "&nbsp;level" + ((depth > 1) ? "s" : ""));
+            document.app.render();
         });
 
         $("#angle").change(function() {
             angle = $(this).val();
+            $("#curAngle").html(angle.toString());
             document.app.render();
         });
     }
