@@ -12,7 +12,7 @@ function App(maxSubdivision) {
     var maxSubdivision = (typeof maxSubdivision !== 'undefined') ?  maxSubdivision : 8;
     
     // User-modifiable parameters
-    var subdivision = 5;
+    var subdivision = 1;
     var angle = 0;
     var tessellation = true;
     var style = this.styles.WIREFRAMED;
@@ -154,10 +154,10 @@ function App(maxSubdivision) {
         points = [];
         
         genSierpinskiGasket(vertices[0], vertices[1], vertices[2], subdivision);
+        rotation(angle);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);        
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, flatten(points));
         gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.drawArrays(gl.TRIANGLES, 0, points.length);        
+        gl.drawArrays(gl.TRIANGLES, 0, points.length);
         points = [];       
     }
     
@@ -174,6 +174,7 @@ function App(maxSubdivision) {
         points.push(p1, p2, p3);
     }
     
+    // Generate Sierpinski Gasket
     var genSierpinskiGasket = function(p1, p2, p3, level) {
         if (level == 0)
             addTriangle(p1, p2, p3);
@@ -184,10 +185,25 @@ function App(maxSubdivision) {
 
             level--;
 
-            genSierpinskiGasket(p1, p12, p13, level);
-            genSierpinskiGasket(p3, p13, p23, level);
-            genSierpinskiGasket(p2, p23, p12, level);
+            genSierpinskiGasket(vec2(p1[0], p1[1]), vec2(p12[0], p12[1]), vec2(p13[0], p13[1]), level);
+            genSierpinskiGasket(vec2(p3[0], p3[1]), vec2(p13[0], p13[1]), vec2(p23[0], p23[1]), level);
+            genSierpinskiGasket(vec2(p2[0], p2[1]), vec2(p23[0], p23[1]), vec2(p12[0], p12[1]), level);
         }
+    }
+    
+    // Rotation
+    var rotation = function(angle) {
+        var rAngle = radians(angle);
+        var cosRAngle = Math.cos(rAngle);
+        var sinRAngle = Math.sin(rAngle);
+        for (var idx = 0; idx < points.length; idx++) {
+            points[idx] = vertexRotation(points[idx], cosRAngle, sinRAngle);
+        }
+    }
+    
+    // Vertex rotation
+    var vertexRotation = function(p, cosAngle, sinAngle) {
+        return vec2([p[0] * cosAngle - p[1] * sinAngle, p[0] * sinAngle + p[1] * cosAngle]);
     }
 }
 
