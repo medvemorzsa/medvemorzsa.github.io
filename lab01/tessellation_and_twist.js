@@ -1,4 +1,4 @@
-function App(maxSubdivision) {
+function App(maxDepth) {
     // Constants
     this.styles = {
         WIREFRAMED: 0,
@@ -9,29 +9,29 @@ function App(maxSubdivision) {
     if (Object.freeze)
         Object.freeze(this.styles);
     
-    var maxSubdivision = (typeof maxSubdivision !== 'undefined') ?  maxSubdivision : 8;
+    var maxDepth = (typeof maxDepth !== 'undefined') ?  maxDepth : 8;
     
     // User-modifiable parameters
-    var subdivision = 1;
+    var depth = 5;
     var angle = 0;
     var tessellation = true;
     var style = this.styles.WIREFRAMED;
     var color = vec4( 0.0, 0.0, 0.0, 1.0 );    
     
-    // Getter for subdivision parameter
-    this.__defineGetter__("subdivision", function() {
-        return subdivision;
+    // Getter for depth parameter
+    this.__defineGetter__("depth", function() {
+        return depth;
     });
     
-    // Setter for subdivision parameter
-    this.__defineSetter__("subdivision", function(value) {
+    // Setter for depth parameter
+    this.__defineSetter__("depth", function(value) {
         if (typeof value === "undefined")
-            throw "Number of subdivision is required!";
+            throw "Depth is required!";
         if ((isNaN(value)) || (!(Number.isInteger(value))))
-            throw "Number of subdivision must be integer value!";
-        if ((value < 0) || (value > maxSubdivision))
-            throw "Number of subdivision must be between 0 and " + maxSubdivision + "!";
-        subdivision = value;
+            throw "Depth must be integer value!";
+        if ((value < 0) || (value > maxDepth))
+            throw "Depth must be between 0 and " + maxDepth + "!";
+        depth = value;
     });
     
     // Getter for angle parameter
@@ -154,7 +154,7 @@ function App(maxSubdivision) {
         ];
         points = [];
         
-        genSierpinskiGasket(vertices[0], vertices[1], vertices[2], subdivision);
+        genSierpinskiGasket(vertices[0], vertices[1], vertices[2], depth);
         rotation(angle);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);        
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -164,9 +164,10 @@ function App(maxSubdivision) {
     
     // User interface initialization
     this.initUI = function() {
-        $("#subdivision").change(function() {
-            subdivision = $(this).val();
+        $("#depth").change(function() {
+            depth = $(this).val();
             document.app.render();
+            $("#curDepth").html(depth.toString() + "&nbsp;level" + ((depth > 1) ? "s" : ""));
         });
 
         $("#angle").change(function() {
