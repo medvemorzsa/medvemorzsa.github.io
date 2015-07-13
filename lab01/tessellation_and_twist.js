@@ -234,6 +234,13 @@ function App(maxDepth) {
             
             window.addEventListener('resize', resizeCanvas, false);
             resizeCanvas();
+            
+            $("#depth").prop("disabled", false);
+            $("#angle").prop("disabled", false);
+            $("#twist").prop("disabled", false);
+            $("input[name=style]").prop("disabled", false);
+            $("#foreground_color").prop("disabled", false);
+            $("#background_color").prop("disabled", false);            
         }
         else {
             $("#depth").prop("disabled", true);
