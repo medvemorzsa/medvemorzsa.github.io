@@ -231,6 +231,9 @@ function App(maxDepth) {
                 document.app.background_color = $(this).val();
                 document.app.genScene();
             });
+            
+            window.addEventListener('resize', resizeCanvas, false);
+            resizeCanvas();
         }
         else {
             $("#depth").prop("disabled", true);
@@ -242,6 +245,15 @@ function App(maxDepth) {
             $("#canvas").html("<h1 align='center'>Your browser doesn't support WebGL!</h1>");
         }
     }
+    
+    var resizeCanvas = function(event) {
+        var canvasParent = $("#canvas");
+        var canvas = document.getElementById("gl-canvas");
+        var size = Math.min(canvasParent.innerWidth(), canvasParent.innerHeight());
+        canvas.width = size;
+        canvas.height = size;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+	}
     
     // Add triangle to points
     var addTriangle = function(p1, p2, p3) {
