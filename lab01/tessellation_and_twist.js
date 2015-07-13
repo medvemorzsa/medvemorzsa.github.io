@@ -318,10 +318,15 @@ Number.isInteger = Number.isInteger || function(value) {
            (isFinite(value)) && 
            (Math.floor(value) === value));
 };
-
+/*
 $(document).ready(function(){
     document.app = new App();
     document.app.initWebGL();
     document.app.initUI();
     document.app.genScene();
+});
+*/
+var app = angular.module("webGlLab01App", []);
+
+app.controller("webGlLab01Ctrl", function($scope) {
 });
