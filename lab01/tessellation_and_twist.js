@@ -17,6 +17,7 @@ function App(maxDepth) {
     var twist = true;
     var style = this.styles.WIREFRAMED;
     var foreground_color = vec4( 0.0, 0.0, 0.0, 1.0 );    
+    var background_color = vec4( 1.0, 1.0, 1.0, 1.0 );    
     
     // Getter for depth parameter
     this.__defineGetter__("depth", function() {
@@ -101,6 +102,24 @@ function App(maxDepth) {
         var components = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
         foreground_color = vec4(parseInt(components[1], 16) / 255.0, parseInt(components[2], 16) / 255.0, parseInt(components[3], 16) / 255.0, 1.0);
     });
+
+
+    // Getter for background color parameter
+    this.__defineGetter__("background_color", function() {
+        return background_color;
+    });
+        
+    // Setter for background color parameter
+    this.__defineSetter__("background_color", function(value) {
+        if (typeof value === "undefined")
+            throw "Color is required!";
+        if (typeof value !== "string")
+            throw "Color must be filled #RRGGBB format!";
+        if (!(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.test(value)))
+            throw "Color must be filled #RRGGBB format!";
+        var components = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
+        background_color = vec4(parseInt(components[1], 16) / 255.0, parseInt(components[2], 16) / 255.0, parseInt(components[3], 16) / 255.0, 1.0);
+    });
     
     // Parameters for WebGL
     var canvas = null;
@@ -120,7 +139,7 @@ function App(maxDepth) {
         }
 
         gl.viewport(0, 0, canvas.width, canvas.height);
-        gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        gl.clearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
         
         // Init shaders
         program = initShaders( gl, "vertex-shader", "fragment-shader" );
@@ -151,6 +170,8 @@ function App(maxDepth) {
             twistRotation(angle);
         else
             rotation(angle);
+
+        gl.clearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);        
         gl.clear(gl.COLOR_BUFFER_BIT);
         var colorLocation = gl.getUniformLocation(program, "foreground_user_color");
@@ -190,6 +211,11 @@ function App(maxDepth) {
 
         $("#foreground_color").change(function() {
             document.app.foreground_color = $(this).val();
+            document.app.render();
+        });
+
+        $("#background_color").change(function() {
+            document.app.background_color = $(this).val();
             document.app.render();
         });
     }
