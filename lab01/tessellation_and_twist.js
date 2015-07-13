@@ -132,6 +132,8 @@ function App(maxDepth) {
     this.initWebGL = function() {
         // Configure canvas and WebGL
         canvas = document.getElementById("gl-canvas");
+        if ((canvas == null) || (canvas == "undefined"))
+            return false;
         gl = WebGLUtils.setupWebGL(canvas);
         if (!gl) {
             alert( "WebGL isn't available" );
@@ -157,6 +159,8 @@ function App(maxDepth) {
     
     // Render function
     this.render = function() {
+        if (!(gl)) return;
+        
         gl.clearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);        
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -173,6 +177,8 @@ function App(maxDepth) {
     
     // Generate scene
     this.genScene = function() {
+        if (!(gl)) return;
+        
         var r = 0.75;
         var vertices = [
             vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(240))),
@@ -193,37 +199,48 @@ function App(maxDepth) {
     
     // User interface initialization
     this.initUI = function() {
-        $("#depth").change(function() {
-            depth = $(this).val();
-            $("#curDepth").html(depth.toString() + "&nbsp;level" + ((depth > 1) ? "s" : ""));
-            document.app.genScene();
-        });
+        if (gl) {
+            $("#depth").change(function() {
+                depth = $(this).val();
+                $("#curDepth").html(depth.toString() + "&nbsp;level" + ((depth > 1) ? "s" : ""));
+                document.app.genScene();
+            });
 
-        $("#angle").change(function() {
-            angle = $(this).val();
-            $("#curAngle").html(angle.toString());
-            document.app.genScene();
-        });
+            $("#angle").change(function() {
+                angle = $(this).val();
+                $("#curAngle").html(angle.toString());
+                document.app.genScene();
+            });
 
-        $("#twist").change(function() {
-            twist = $(this).is(':checked');
-            document.app.genScene();
-        });
+            $("#twist").change(function() {
+                twist = $(this).is(':checked');
+                document.app.genScene();
+            });
 
-        $("input[name=style]").change(function() {
-            style = $(this).val();
-            document.app.genScene();
-        });
+            $("input[name=style]").change(function() {
+                style = $(this).val();
+                document.app.genScene();
+            });
 
-        $("#foreground_color").change(function() {
-            document.app.foreground_color = $(this).val();
-            document.app.genScene();
-        });
+            $("#foreground_color").change(function() {
+                document.app.foreground_color = $(this).val();
+                document.app.genScene();
+            });
 
-        $("#background_color").change(function() {
-            document.app.background_color = $(this).val();
-            document.app.genScene();
-        });
+            $("#background_color").change(function() {
+                document.app.background_color = $(this).val();
+                document.app.genScene();
+            });
+        }
+        else {
+            $("#depth").prop("disabled", true);
+            $("#angle").prop("disabled", true);
+            $("#twist").prop("disabled", true);
+            $("input[name=style]").prop("disabled", true);
+            $("#foreground_color").prop("disabled", true);
+            $("#background_color").prop("disabled", true);
+            $("#canvas").html("<h1 align='center'>Your browser doesn't support WebGL!</h1>");
+        }
     }
     
     // Add triangle to points
