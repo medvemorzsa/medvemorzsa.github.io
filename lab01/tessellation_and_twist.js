@@ -135,7 +135,7 @@ function App(maxDepth) {
         gl = WebGLUtils.setupWebGL(canvas);
         if (!gl) {
             alert( "WebGL isn't available" );
-            return;
+            return false;
         }
 
         gl.viewport(0, 0, canvas.width, canvas.height);
@@ -157,20 +157,6 @@ function App(maxDepth) {
     
     // Render function
     this.render = function() {
-        var r = 0.75;
-        var vertices = [
-            vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(240))),
-            vec2( 0,  r),
-            vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(120)))
-        ];
-        points = [];
-        
-        genSierpinskiGasket(vertices[0], vertices[1], vertices[2], depth);
-        if (twist)
-            twistRotation(angle);
-        else
-            rotation(angle);
-
         gl.clearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
         gl.bufferData(gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW);        
         gl.clear(gl.COLOR_BUFFER_BIT);
@@ -185,38 +171,58 @@ function App(maxDepth) {
         points = [];       
     }
     
+    // Generate scene
+    this.genScene = function() {
+        var r = 0.75;
+        var vertices = [
+            vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(240))),
+            vec2( 0,  r),
+            vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(120)))
+        ];
+        points = [];
+        
+        genSierpinskiGasket(vertices[0], vertices[1], vertices[2], depth);
+        
+        if (twist)
+            twistRotation(angle);
+        else
+            rotation(angle);
+        
+        this.render();
+    }
+    
     // User interface initialization
     this.initUI = function() {
         $("#depth").change(function() {
             depth = $(this).val();
             $("#curDepth").html(depth.toString() + "&nbsp;level" + ((depth > 1) ? "s" : ""));
-            document.app.render();
+            document.app.genScene();
         });
 
         $("#angle").change(function() {
             angle = $(this).val();
             $("#curAngle").html(angle.toString());
-            document.app.render();
+            document.app.genScene();
         });
 
         $("#twist").change(function() {
             twist = $(this).is(':checked');
-            document.app.render();
+            document.app.genScene();
         });
 
         $("input[name=style]").change(function() {
             style = $(this).val();
-            document.app.render();
+            document.app.genScene();
         });
 
         $("#foreground_color").change(function() {
             document.app.foreground_color = $(this).val();
-            document.app.render();
+            document.app.genScene();
         });
 
         $("#background_color").change(function() {
             document.app.background_color = $(this).val();
-            document.app.render();
+            document.app.genScene();
         });
     }
     
@@ -281,5 +287,5 @@ $(document).ready(function(){
     document.app = new App();
     document.app.initWebGL();
     document.app.initUI();
-    document.app.render();
+    document.app.genScene();
 });
