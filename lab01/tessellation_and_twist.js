@@ -351,6 +351,11 @@ app.controller("webGlLab01Ctrl", function($scope) {
         FILLED: 2
     }
     
+    $scope.modelChange = function() {
+        if (!($scope.gl)) return;
+        $scope.genScene();
+    }
+    
     // WebGL initialization
     $scope.initWebGL = function() {
         // Configure canvas and WebGL

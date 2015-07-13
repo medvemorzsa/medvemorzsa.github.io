@@ -57,8 +57,8 @@
                 </header>
                 <section>
                     <div class="w3-group tall">
-                        <label for="depth">Depth:&nbsp;</label><span id="curDepth" name="curDepth">5&nbsp;levels</span><br />
-                        <input class="w3-range" type="range" ng-model="depth" name="depth" id="depth" min="0" max="8" step="1" value="4" list="depthList" ng-disabled="varLoading">
+                        <label for="depth">Depth:&nbsp;</label><span id="curDepth" name="curDepth" ng-model="curDepth">5&nbsp;levels</span><br />
+                        <input class="w3-range" type="range" ng-model="depth" name="depth" id="depth" min="0" max="8" step="1" value="4" list="depthList" ng-disabled="varLoading" ng-change="modelChange()">
                         <datalist id="depthList" name="depthList">
                             <option value="0">
                             <option value="2">
@@ -71,7 +71,7 @@
                     </div>
                     <div class="w3-group tall">                        
                         <label for="angle">Angle:&nbsp;</label><span id="curAngle" name="curAngle">0</span>&deg;<br />
-                        <input class="w3-range" type="range" ng-model="angle" name="angle" id="angle" min="0" max="359" step="1" value="0" list="angleList" ng-disabled="varLoading">
+                        <input class="w3-range" type="range" ng-model="angle" name="angle" id="angle" min="0" max="359" step="1" value="0" list="angleList" ng-disabled="varLoading" ng-change="modelChange()">
                         <datalist id="angleList" name="angleList">
                             <option value="0">
                             <option value="45">
@@ -89,32 +89,32 @@
                     <div class="w3-group">                        
                         <label class="w3-checkbox">
                             Twist:
-                            <input type="checkbox" ng-model="twist" name="twist" id="twist" checked ng-disabled="varLoading" />
+                            <input type="checkbox" ng-model="twist" name="twist" id="twist" checked ng-disabled="varLoading" ng-change="modelChange()" />
                             <span class="w3-checkmark"></span>
                         </label>
                     </div>
                     <div class="w3-group">                                               
                         Style:<br/>
                         <label class="w3-checkbox" style="margin-left:10%">
-                            <input type="radio" ng-model="style" name="style" id="style" value="0" checked ng-disabled="varLoading" />
+                            <input type="radio" ng-model="style" name="style" id="style" value="0" checked ng-disabled="varLoading" ng-change="modelChange()" />
                             <span class="w3-checkmark"></span> Wireframe                                
                         </label>                            
                         <label class="w3-checkbox" style="margin-left:10%">
-                            <input type="radio" ng-model="style" name="style" id="style" value="1" ng-disabled="varLoading" />
+                            <input type="radio" ng-model="style" name="style" id="style" value="1" ng-disabled="varLoading" ng-change="modelChange()" />
                             <span class="w3-checkmark"></span> Partially filled                                
                         </label>                            
                         <label class="w3-checkbox" style="margin-left:10%">
-                            <input type="radio" ng-model="style" name="style" id="style" value="2" ng-disabled="varLoading" />
+                            <input type="radio" ng-model="style" name="style" id="style" value="2" ng-disabled="varLoading" ng-change="modelChange()" />
                             <span class="w3-checkmark"></span> Filled                             
                         </label>   
                     </div>
                     <div class="w3-group">                        
                         <label for="foreground_color">Foreground color:</label>
-                        <input type="color" ng-model="foreground_color" name="foreground_color" id="foreground_color" value="#000000" ng-disabled="varLoading" />
+                        <input type="color" ng-model="foreground_color" name="foreground_color" id="foreground_color" value="#000000" ng-disabled="varLoading" ng-change="modelChange()" />
                     </div>
                     <div class="w3-group">                        
                         <label for="background_color">Background color:</label>
-                        <input type="color" ng-model="background_color" name="background_color" id="background_color" value="#FFFFFF" ng-disabled="varLoading" />
+                        <input type="color" ng-model="background_color" name="background_color" id="background_color" value="#FFFFFF" ng-disabled="varLoading" ng-change="modelChange()" />
                     </div>
                 </section>
             </section>
