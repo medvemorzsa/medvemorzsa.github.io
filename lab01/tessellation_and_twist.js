@@ -181,18 +181,18 @@ function App(maxDepth) {
         
         var r = 0.75;
         var vertices = [
-            vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(240))),
+            $scope.vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(240))),
             vec2( 0,  r),
-            vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(120)))
+            $scope.vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(120)))
         ];
         points = [];
         
-        genSierpinskiGasket(vertices[0], vertices[1], vertices[2], depth);
+        genSierpinskiGasket(vertices[0], vertices[1], vertices[2], $scope.depth);
         
-        if (twist)
-            twistRotation(angle);
+        if ($scope.twist)
+            $scope.twistRotation($scope.angle);
         else
-            rotation(angle);
+            $scope.rotation($scope.angle);
         
         this.render();
     }
@@ -269,6 +269,7 @@ function App(maxDepth) {
     
     // Generate Sierpinski Gasket
     var genSierpinskiGasket = function(p1, p2, p3, level) {
+        console.log(level);
         if (level == 0)
             addTriangle(p1, p2, p3);
         else {
@@ -343,6 +344,12 @@ app.controller("webGlLab01Ctrl", function($scope) {
     $scope.bufferID = null;
     $scope.points = [];
     $scope.program = null;
+
+    $scope.styles = {
+        WIREFRAMED: 0,
+        PARTIALLY_FILLED: 1,
+        FILLED: 2
+    }
     
     // WebGL initialization
     $scope.initWebGL = function() {
@@ -358,7 +365,7 @@ app.controller("webGlLab01Ctrl", function($scope) {
 
         $scope.gl.viewport(0, 0, $scope.canvas.width, $scope.canvas.height);
         //$scope.gl.clearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
-        $scope.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
         
         // Init shaders
         $scope.program = initShaders($scope.gl, "vertex-shader", "fragment-shader");
@@ -372,9 +379,104 @@ app.controller("webGlLab01Ctrl", function($scope) {
         var vPosition = $scope.gl.getAttribLocation($scope.program, "vPosition");
         $scope.gl.vertexAttribPointer(vPosition, 2, $scope.gl.FLOAT, false, 0, 0);
         $scope.gl.enableVertexAttribArray(vPosition);
+        
+        return true;
     }
     
-    $scope.initWebGL();
+    // Render function
+    $scope.render = function() {
+        if (!($scope.gl)) return;
+        
+        //gl.clearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
+        $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten($scope.points), $scope.gl.STATIC_DRAW);        
+        $scope.gl.clear($scope.gl.COLOR_BUFFER_BIT);
+        var colorLocation = $scope.gl.getUniformLocation($scope.program, "foreground_user_color");
+        $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
+        //gl.uniform4f(colorLocation, foreground_color[0], foreground_color[1], foreground_color[2], foreground_color[3]);
+        
+        if ($scope.style == $scope.styles.WIREFRAMED)
+            for (i = 0; i < $scope.points.length; i+= 3)
+                $scope.gl.drawArrays($scope.gl.LINE_LOOP, i, 3);
+        else
+            $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, $scope.points.length);
+        $scope.points = [];       
+    }
     
-    $scope.varLoading = false;
+    // Generate scene
+    $scope.genScene = function() {
+        if (!($scope.gl)) return;
+        
+        var r = 0.75;
+        var vertices = [
+            $scope.vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(240))),
+            vec2( 0,  r),
+            $scope.vertexRotation(vec2(0, r), Math.cos(radians(120)), Math.sin(radians(120)))
+        ];
+        $scope.points = [];
+        
+        $scope.genSierpinskiGasket(vertices[0], vertices[1], vertices[2], $scope.depth);
+        
+        if ($scope.twist)
+            $scope.twistRotation($scope.angle);
+        else
+            $scope.rotation($scope.angle);
+        
+        $scope.render();
+    }
+    
+    // Add triangle to points
+    $scope.addTriangle = function(p1, p2, p3) {
+        $scope.points.push(p1, p2, p3);
+    }
+    
+    // Generate Sierpinski Gasket
+    $scope.genSierpinskiGasket = function(p1, p2, p3, level) {
+        if (level == 0)
+            $scope.addTriangle(p1, p2, p3);
+        else {
+            var p12 = mix(p1, p2, 0.5);
+            var p13 = mix(p1, p3, 0.5);
+            var p23 = mix(p2, p3, 0.5);
+
+            level--;
+
+            $scope.genSierpinskiGasket(vec2(p1[0], p1[1]), vec2(p12[0], p12[1]), vec2(p13[0], p13[1]), level);
+            $scope.genSierpinskiGasket(vec2(p3[0], p3[1]), vec2(p13[0], p13[1]), vec2(p23[0], p23[1]), level);
+            $scope.genSierpinskiGasket(vec2(p2[0], p2[1]), vec2(p23[0], p23[1]), vec2(p12[0], p12[1]), level);
+            if ($scope.style == $scope.styles.FILLED)
+                $scope.genSierpinskiGasket(vec2(p12[0], p12[1]), vec2(p23[0], p23[1]), vec2(p13[0], p13[1]), level);
+        }
+    }
+    
+    // Rotation
+    $scope.rotation = function(angle) {
+        var rAngle = radians(angle);
+        var cosRAngle = Math.cos(rAngle);
+        var sinRAngle = Math.sin(rAngle);
+        for (var idx = 0; idx < $scope.points.length; idx++) {
+            $scope.points[idx] = $scope.vertexRotation($scope.points[idx], cosRAngle, sinRAngle);
+        }
+    }
+    
+    // Vertex rotation
+    $scope.vertexRotation = function(p, cosAngle, sinAngle) {
+        return vec2([p[0] * cosAngle - p[1] * sinAngle, p[0] * sinAngle + p[1] * cosAngle]);
+    }
+    
+    // Twist
+    $scope.twistRotation = function(angle) {
+        for (var idx = 0; idx < $scope.points.length; idx++) {
+            var rAngle = radians(angle);
+            var d = Math.sqrt(Math.pow($scope.points[idx][0], 2) + Math.pow($scope.points[idx][1], 2));
+            var cosRAngle = Math.cos(d * rAngle);
+            var sinRAngle = Math.sin(d * rAngle);
+            $scope.points[idx] = $scope.vertexRotation($scope.points[idx], cosRAngle, sinRAngle);
+        }
+    }
+    
+    if ($scope.initWebGL()) {    
+        $scope.genScene();
+        $scope.varLoading = false;
+    }
 });
