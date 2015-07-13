@@ -329,10 +329,14 @@ $(document).ready(function(){
 var app = angular.module("webGlLab01App", []);
 
 app.controller("webGlLab01Ctrl", function($scope) {
-    $scope.depth = 6;
+    $scope.varLoading = true;
+    
+    $scope.depth = 4;
     $scope.angle = 0;
     $scope.twist = true;
-    $scope.stype = true;
+    $scope.style = 0;
     $scope.foreground_color = "#000000";
     $scope.background_color = "#FFFFFF";
+    
+    $scope.varLoading = false;
 });
