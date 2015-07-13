@@ -338,5 +338,43 @@ app.controller("webGlLab01Ctrl", function($scope) {
     $scope.foreground_color = "#000000";
     $scope.background_color = "#FFFFFF";
     
+    $scope.canvas = null;
+    $scope.gl = null;
+    $scope.bufferID = null;
+    $scope.points = [];
+    $scope.program = null;
+    
+    // WebGL initialization
+    $scope.initWebGL = function() {
+        // Configure canvas and WebGL
+        $scope.canvas = document.getElementById("gl-canvas");
+        if (($scope.canvas == null) || ($scope.canvas == "undefined"))
+            return false;
+        $scope.gl = WebGLUtils.setupWebGL($scope.canvas);
+        if (!$scope.gl) {
+            alert( "WebGL isn't available" );
+            return false;
+        }
+
+        $scope.gl.viewport(0, 0, $scope.canvas.width, $scope.canvas.height);
+        //$scope.gl.clearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
+        $scope.gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        
+        // Init shaders
+        $scope.program = initShaders($scope.gl, "vertex-shader", "fragment-shader");
+        $scope.gl.useProgram($scope.program);
+        
+        // Buffer
+        $scope.bufferID = $scope.gl.createBuffer();
+        $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.bufferID);
+        
+        // Associate out shader variables with our data buffer
+        var vPosition = $scope.gl.getAttribLocation($scope.program, "vPosition");
+        $scope.gl.vertexAttribPointer(vPosition, 2, $scope.gl.FLOAT, false, 0, 0);
+        $scope.gl.enableVertexAttribArray(vPosition);
+    }
+    
+    $scope.initWebGL();
+    
     $scope.varLoading = false;
 });
