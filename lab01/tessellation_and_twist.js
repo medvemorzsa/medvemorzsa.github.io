@@ -356,6 +356,11 @@ app.controller("webGlLab01Ctrl", function($scope) {
         $scope.genScene();
     }
     
+    $scope.toRGB = function(value) {
+        var components = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
+        return vec4(parseInt(components[1], 16) / 255.0, parseInt(components[2], 16) / 255.0, parseInt(components[3], 16) / 255.0, 1.0);
+    }
+    
     // WebGL initialization
     $scope.initWebGL = function() {
         // Configure canvas and WebGL
@@ -369,8 +374,8 @@ app.controller("webGlLab01Ctrl", function($scope) {
         }
 
         $scope.gl.viewport(0, 0, $scope.canvas.width, $scope.canvas.height);
-        //$scope.gl.clearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
-        $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        var bg_color = $scope.toRGB($scope.background_color);
+        $scope.gl.clearColor(bg_color[0], bg_color[1], bg_color[2], bg_color[3]);
         
         // Init shaders
         $scope.program = initShaders($scope.gl, "vertex-shader", "fragment-shader");
@@ -392,13 +397,14 @@ app.controller("webGlLab01Ctrl", function($scope) {
     $scope.render = function() {
         if (!($scope.gl)) return;
         
-        //gl.clearColor(background_color[0], background_color[1], background_color[2], background_color[3]);
-        $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        var bg_color = $scope.toRGB($scope.background_color);
+        $scope.gl.clearColor(bg_color[0], bg_color[1], bg_color[2], bg_color[3]);
         $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten($scope.points), $scope.gl.STATIC_DRAW);        
         $scope.gl.clear($scope.gl.COLOR_BUFFER_BIT);
         var colorLocation = $scope.gl.getUniformLocation($scope.program, "foreground_user_color");
         $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
-        //gl.uniform4f(colorLocation, foreground_color[0], foreground_color[1], foreground_color[2], foreground_color[3]);
+        var fg_color = $scope.toRGB($scope.foreground_color);
+        $scope.gl.uniform4f(colorLocation, fg_color[0], fg_color[1], fg_color[2], fg_color[3]);
         
         if ($scope.style == $scope.styles.WIREFRAMED)
             for (i = 0; i < $scope.points.length; i+= 3)
