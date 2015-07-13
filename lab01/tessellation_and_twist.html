@@ -31,93 +31,93 @@
     </head>
     <body>
         <div class="w3-row">
-            <div class="w3-col s12 m4 l3">
+            <section class="w3-col s12 m12 l12">
+                <header class="w3-container w3-theme">
+                    <h2>Description</h2>
+                </header>
                 <section>
-                    <header class="w3-container w3-theme">
-                        <h2>Description</h2>
-                    </header>
-                    <section>
-                        <p>
-                            This lab was created for <a href="https://www.coursera.org/course/webgl" target="webgl">Interactive Computer Graphics with WebGL</a> course of <a href="https://www.coursera.org" target="coursera">Coursera</a>.
-                            In this webapp you can generate <a href="https://en.wikipedia.org/wiki/Sierpinski_triangle" target="wikipedia">Sierpinski Gasket</a>. 
-                        </p>
-                        <p>
-                            In <i>Depth</i> section you can set the depth of recursion between zero and eight. 
-                            You can rotate the gasket by <i>Angle</i> parameter. 
-                            Turning off <i>Twist</i> parameter means a simple rotation, otherwise you twist the gasket.
-                            In <i>Style</i> section you can set wireframe, partially or fully filled rendering. 
-                            You can change foreground and background color by color pickers.
-                        </p>
-                    </section>
+                    <p>
+                        This lab was created for <a href="https://www.coursera.org/course/webgl" target="webgl">Interactive Computer Graphics with WebGL</a> course of <a href="https://www.coursera.org" target="coursera">Coursera</a>.
+                        In this webapp you can generate <a href="https://en.wikipedia.org/wiki/Sierpinski_triangle" target="wikipedia">Sierpinski Gasket</a>. 
+                    </p>
+                    <p>
+                        In <i>Depth</i> section you can set the depth of recursion between zero and eight. 
+                        You can rotate the gasket by <i>Angle</i> parameter. 
+                        Turning off <i>Twist</i> parameter means a simple rotation, otherwise you twist the gasket.
+                        In <i>Style</i> section you can set wireframe, partially or fully filled rendering. 
+                        You can change foreground and background color by color pickers.
+                    </p>
                 </section>
+            </section>
+        </div>
+        <div class="w3-row">
+            <section class="w3-col s12 m4 l3">
+                <header class="w3-container w3-theme">
+                    <h2>Parameters</h2>
+                </header>
                 <section>
-                    <header class="w3-container w3-theme">
-                        <h2>Parameters</h2>
-                    </header>
-                    <section>
-                        <div class="w3-group tall">
-                            <label for="depth">Depth:&nbsp;</label><span id="curDepth" name="curDepth">5&nbsp;levels</span><br />
-                            <input class="w3-range" type="range" name="depth" id="depth" min="0" max="8" step="1" value="4" list="depthList">
-                            <datalist id="depthList" name="depthList">
-                                <option value="0">
-                                <option value="2">
-                                <option value="4">
-                                <option value="6">
-                                <option value="8">
-                            </datalist>
-                            <span class="left_align">0</span>
-                            <span class="right_align">8</span>
-                        </div>
-                        <div class="w3-group tall">                        
-                            <label for="angle">Angle:&nbsp;</label><span id="curAngle" name="curAngle">0</span>&deg;<br />
-                            <input class="w3-range" type="range" name="angle" id="angle" min="0" max="359" step="1" value="0" list="angleList">
-                            <datalist id="angleList" name="angleList">
-                                <option value="0">
-                                <option value="45">
-                                <option value="90">
-                                <option value="135">
-                                <option value="180">
-                                <option value="225">
-                                <option value="270">
-                                <option value="315">
-                                <option value="359">
-                            </datalist>
-                            <span class="left_align">0&deg;</span>
-                            <span class="right_align">359&deg;</span>
-                        </div>
-                        <div class="w3-group">                        
-                            <label class="w3-checkbox">
-                                Twist:
-                                <input type="checkbox" name="twist" id="twist" checked />
-                                <span class="w3-checkmark"></span>
-                            </label>
-                        </div>
-                        <div class="w3-group">                                               
-                            Style:<br/>
-                            <label class="w3-checkbox" style="margin-left:10%">
-                                <input type="radio" name="style" id="style" value="0" checked />
-                                <span class="w3-checkmark"></span> Wireframe                                
-                            </label>                            
-                            <label class="w3-checkbox" style="margin-left:10%">
-                                <input type="radio" name="style" id="style" value="1" />
-                                <span class="w3-checkmark"></span> Partially filled                                
-                            </label>                            
-                            <label class="w3-checkbox" style="margin-left:10%">
-                                <input type="radio" name="style" id="style" value="2" />
-                                <span class="w3-checkmark"></span> Filled                             
-                            </label>   
-                        </div>
-                        <div class="w3-group">                        
-                            <label for="foreground_color">Foreground color:</label>
-                            <input type="color" name="foreground_color" id="foreground_color" value="#000000" />
-                        </div>
-                        <div class="w3-group">                        
-                            <label for="background_color">Background color:</label>
-                            <input type="color" name="background_color" id="background_color" value="#FFFFFF" />
-                        </div>
-                    </section>
+                    <div class="w3-group tall">
+                        <label for="depth">Depth:&nbsp;</label><span id="curDepth" name="curDepth">5&nbsp;levels</span><br />
+                        <input class="w3-range" type="range" name="depth" id="depth" min="0" max="8" step="1" value="4" list="depthList">
+                        <datalist id="depthList" name="depthList">
+                            <option value="0">
+                            <option value="2">
+                            <option value="4">
+                            <option value="6">
+                            <option value="8">
+                        </datalist>
+                        <span class="left_align">0</span>
+                        <span class="right_align">8</span>
+                    </div>
+                    <div class="w3-group tall">                        
+                        <label for="angle">Angle:&nbsp;</label><span id="curAngle" name="curAngle">0</span>&deg;<br />
+                        <input class="w3-range" type="range" name="angle" id="angle" min="0" max="359" step="1" value="0" list="angleList">
+                        <datalist id="angleList" name="angleList">
+                            <option value="0">
+                            <option value="45">
+                            <option value="90">
+                            <option value="135">
+                            <option value="180">
+                            <option value="225">
+                            <option value="270">
+                            <option value="315">
+                            <option value="359">
+                        </datalist>
+                        <span class="left_align">0&deg;</span>
+                        <span class="right_align">359&deg;</span>
+                    </div>
+                    <div class="w3-group">                        
+                        <label class="w3-checkbox">
+                            Twist:
+                            <input type="checkbox" name="twist" id="twist" checked />
+                            <span class="w3-checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="w3-group">                                               
+                        Style:<br/>
+                        <label class="w3-checkbox" style="margin-left:10%">
+                            <input type="radio" name="style" id="style" value="0" checked />
+                            <span class="w3-checkmark"></span> Wireframe                                
+                        </label>                            
+                        <label class="w3-checkbox" style="margin-left:10%">
+                            <input type="radio" name="style" id="style" value="1" />
+                            <span class="w3-checkmark"></span> Partially filled                                
+                        </label>                            
+                        <label class="w3-checkbox" style="margin-left:10%">
+                            <input type="radio" name="style" id="style" value="2" />
+                            <span class="w3-checkmark"></span> Filled                             
+                        </label>   
+                    </div>
+                    <div class="w3-group">                        
+                        <label for="foreground_color">Foreground color:</label>
+                        <input type="color" name="foreground_color" id="foreground_color" value="#000000" />
+                    </div>
+                    <div class="w3-group">                        
+                        <label for="background_color">Background color:</label>
+                        <input type="color" name="background_color" id="background_color" value="#FFFFFF" />
+                    </div>
                 </section>
-            </div>
+            </section>
             <section class="w3-col s12 m8 l9">
                 <header class="w3-container w3-theme">
                     <h2>Sierpinski Gasket</h2>
