@@ -70,7 +70,7 @@
                         <span class="right_align">8</span>
                     </div>
                     <div class="w3-group tall">                        
-                        <label for="angle">Angle:&nbsp;</label><span ng-bind="angle"></span>&deg;<br />
+                        <label for="angle">Angle:&nbsp;</label><span ng-bind="angle + '&deg;'"></span><br />
                         <input class="w3-range" type="range" ng-model="angle" min="0" max="359" step="1" list="angleList" ng-disabled="varLoading" ng-change="modelChange()">
                         <datalist id="angleList" name="angleList">
                             <option value="0">
