@@ -3,7 +3,7 @@ var app = angular.module("webGlLab01App", []);
 app.controller("webGlLab01Ctrl", function($scope) {
     $scope.varLoading = true;
     
-    $scope.depth = 4;
+    $scope.depth = 5;
     $scope.angle = 0;
     $scope.twist = true;
     $scope.style = 0;
