@@ -57,7 +57,7 @@
                 </header>
                 <section>
                     <div class="w3-group tall">
-                        <label for="depth">Depth:&nbsp;</label><span id="curDepth" name="curDepth" ng-model="curDepth">5&nbsp;levels</span><br />
+                        <label for="depth">Depth:&nbsp;</label><span ng-bind="depth + '&nbsp;level' + ((depth < 2) ? '' : 's')"></span><br />
                         <input class="w3-range" type="range" ng-model="depth" min="0" max="8" step="1" list="depthList" ng-disabled="varLoading" ng-change="modelChange()">
                         <datalist id="depthList" name="depthList">
                             <option value="0">
@@ -70,7 +70,7 @@
                         <span class="right_align">8</span>
                     </div>
                     <div class="w3-group tall">                        
-                        <label for="angle">Angle:&nbsp;</label><span id="curAngle" name="curAngle">0</span>&deg;<br />
+                        <label for="angle">Angle:&nbsp;</label><span ng-bind="angle"></span>&deg;<br />
                         <input class="w3-range" type="range" ng-model="angle" min="0" max="359" step="1" list="angleList" ng-disabled="varLoading" ng-change="modelChange()">
                         <datalist id="angleList" name="angleList">
                             <option value="0">
