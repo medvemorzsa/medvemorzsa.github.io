@@ -23,3 +23,7 @@ span.right_align {
 .tall {
     margin-bottom: 30px;
 }
+
+#canvas {
+    height: 70vh;
+}

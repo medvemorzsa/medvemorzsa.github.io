@@ -252,7 +252,7 @@ function App(maxDepth) {
             $("#canvas").html("<h1 align='center'>Your browser doesn't support WebGL!</h1>");
         }
     }
-    
+
     var resizeCanvas = function(event) {
         var canvasParent = $("#canvas");
         var canvas = document.getElementById("gl-canvas");
@@ -327,6 +327,7 @@ $(document).ready(function(){
     document.app.genScene();
 });
 */
+
 var app = angular.module("webGlLab01App", []);
 
 app.controller("webGlLab01Ctrl", function($scope) {
@@ -485,9 +486,32 @@ app.controller("webGlLab01Ctrl", function($scope) {
             $scope.points[idx] = $scope.vertexRotation($scope.points[idx], cosRAngle, sinRAngle);
         }
     }
-    
+
     if ($scope.initWebGL()) {    
         $scope.genScene();
         $scope.varLoading = false;
     }
 });
+
+app.directive('resize', function ($window) {
+    return function (scope, element) {
+        var w = angular.element($window);
+
+        scope.getWindowDimensions = function () {
+            return {
+                'h': element.height(),
+                'w': element.width()
+            };
+        };
+        scope.$watch(scope.getWindowDimensions, function (newValue, oldValue) {
+            scope.canvas.width = Math.min(newValue.w, newValue.h);
+            scope.canvas.height = Math.min(newValue.w, newValue.h);
+            scope.gl.viewport(0, 0, scope.canvas.width, scope.canvas.height);
+            scope.genScene();
+        }, true);
+
+        w.bind('resize', function () {
+            scope.$apply();
+        });
+    }
+})    
