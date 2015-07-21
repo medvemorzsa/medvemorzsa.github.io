@@ -2,9 +2,14 @@ var app = angular.module("webGlLab02App", []);
 
 app.controller("webGlLab02Ctrl", function($scope) {
     $scope.varLoading = true;
+    
+    $scope.lineWidth = 1;
+    $scope.close = false;
+    $scope.color = "#000000";
+    
     $scope.varLoading = false;
 });
-    
+/*    
 app.directive('resize', function ($window) {
     return function (scope, element) {
         var w = angular.element($window);
@@ -27,3 +32,4 @@ app.directive('resize', function ($window) {
         });
     }
 });
+*/

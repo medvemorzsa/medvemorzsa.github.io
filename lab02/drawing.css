@@ -1,0 +1,29 @@
+input[type='range'] {
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+span.left_align {
+    float: left;
+    margin-left: 10%;
+}
+
+span.right_align {
+    float: right;
+    margin-right: 10%;
+}
+
+.w3-group {
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 10px;
+}
+
+.tall {
+    margin-bottom: 30px;
+}
+
+#canvas {
+    height: 70vh;
+}

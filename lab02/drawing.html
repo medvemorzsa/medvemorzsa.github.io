@@ -50,6 +50,30 @@
                     <h2>Parameters</h2>
                 </header>
                 <section>
+                    <div class="w3-group tall">
+                        <label for="lineWidth">Line width:&nbsp;</label><span ng-bind="lineWidth"></span><br />
+                        <input class="w3-range" type="range" ng-model="lineWidth" min="1" max="20" step="1" list="lineWidthList" ng-disabled="varLoading" ng-change="modelChange()">
+                        <datalist id="depthList" name="depthList">
+                            <option value="1">
+                            <option value="5">
+                            <option value="10">
+                            <option value="15">
+                            <option value="20">
+                        </datalist>
+                        <span class="left_align">1</span>
+                        <span class="right_align">20</span>
+                    </div>                
+                    <div class="w3-group">                        
+                        <label class="w3-checkbox">
+                            Close:
+                            <input type="checkbox" ng-model="close" ng-disabled="varLoading" ng-change="modelChange()" />
+                            <span class="w3-checkmark"></span>
+                        </label>
+                    </div>                
+                    <div class="w3-group">                        
+                        <label for="color">Color:</label>
+                        <input type="color" ng-model="color" ng-disabled="varLoading" ng-change="modelChange()" />
+                    </div>
                 </section>
             </section>
             <section class="w3-col s12 m8 l9">
