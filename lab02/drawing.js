@@ -13,6 +13,8 @@ app.controller("webGlLab02Ctrl", function($scope) {
     $scope.points = [];
     $scope.program = null;
     $scope.pMatrix = mat4();
+    $scope.shapes = [];
+    $scope.currentShape = null;
     
     $scope.toRGB = function(value) {
         var components = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
@@ -62,8 +64,6 @@ app.controller("webGlLab02Ctrl", function($scope) {
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
         var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
         $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
-        var color = $scope.toRGB($scope.color);
-        $scope.gl.uniform4f(colorLocation, color[0], color[1], color[2], color[3]);
 
         var vertices = [
             0, 0, 0, 
@@ -77,6 +77,33 @@ app.controller("webGlLab02Ctrl", function($scope) {
         var numItems = vertices.length / itemSize;
         
         $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, new Float32Array(vertices), $scope.gl.STATIC_DRAW);
+        $scope.gl.vertexAttribPointer($scope.program.vPosition, itemSize, $scope.gl.FLOAT, false, 0, 0);
+
+        $scope.gl.uniformMatrix4fv($scope.program.pMatrixLoc, 0, $scope.pMatrix);
+
+        $scope.gl.drawArrays($scope.gl.LINE_STRIP, 0, numItems); 
+        
+        for (var idx in $scope.shapes) 
+            $scope.renderShape($scope.shapes[idx]);
+        if ($scope.currentShape != null) 
+            $scope.renderShape($scope.currentShape);
+    }
+    
+    $scope.renderShape = function(shape) {
+        if (!($scope.gl)) return;
+        if (shape == null) return;
+
+        var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
+        $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
+        var color = $scope.toRGB(shape.color);
+        $scope.gl.uniform4f(colorLocation, color[0], color[1], color[2], color[3]);
+
+        $scope.gl.lineWidth(shape.lineWidth);
+        
+        var itemSize = 3;
+        var numItems = shape.points.length;
+        
+        $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(shape.points), $scope.gl.STATIC_DRAW);
         $scope.gl.vertexAttribPointer($scope.program.vPosition, itemSize, $scope.gl.FLOAT, false, 0, 0);
 
         $scope.gl.uniformMatrix4fv($scope.program.pMatrixLoc, 0, $scope.pMatrix);
@@ -109,6 +136,39 @@ app.controller("webGlLab02Ctrl", function($scope) {
         return dest;
     };    
 
+    $scope.shape = function(x, y, color, lineWidth) {
+        this.color = color;
+        this.lineWidth = parseInt(lineWidth);
+        this.points = [];
+        this.points.push(vec3(x, y, 0));
+        
+        this.addPoint = function(x, y, z) {
+            this.points.push(vec3(x, y, z));
+        }
+    }
+    
+    $scope.startDrawing = function($event) {
+        if ($scope.currentShape == null) {
+            $scope.currentShape = new $scope.shape($event.offsetX, $event.offsetY, $scope.color, parseInt($scope.lineWidth));
+            $scope.render();
+        }
+    }
+    
+    $scope.drawing = function($event) {
+        if ($scope.currentShape == null) return;
+        $scope.currentShape.addPoint($event.offsetX, $event.offsetY, 0.0);
+        $scope.render();
+    }
+    
+    $scope.endDrawing = function($event) {
+        if ($scope.currentShape == null) return;
+        if ($scope.close) $scope.currentShape.addPoint($scope.currentShape.points[0]);        
+        
+        $scope.shapes.push($scope.currentShape);
+        $scope.currentShape = null;
+        $scope.render();
+    }
+    
     if ($scope.initWebGL()) {   
         $scope.render();
         $scope.varLoading = false;

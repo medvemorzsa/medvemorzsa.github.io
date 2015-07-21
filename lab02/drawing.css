@@ -26,4 +26,5 @@ span.right_align {
 
 #canvas {
     height: 70vh;
+    cursor: crosshair;
 }

@@ -84,7 +84,7 @@
                     <h2>Canvas</h2>
                 </header>
                 <section id="canvas" name="canvas" resize>
-                    <canvas id="gl-canvas" name="gl-canvas">
+                    <canvas id="gl-canvas" name="gl-canvas" ng-mousedown="startDrawing($event)" ng-mousemove="drawing($event)" ng-mouseup="endDrawing($event)" >
                     Oops ... your browser doesn't support the HTML5 canvas element
                     </canvas>
                 </section>
