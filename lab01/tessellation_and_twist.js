@@ -184,4 +184,4 @@ app.directive('resize', function ($window) {
             scope.$apply();
         });
     }
-})    
+});
