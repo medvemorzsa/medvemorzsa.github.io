@@ -125,8 +125,8 @@ app.controller("webGlLab02Ctrl", function($scope) {
         this.triangles = [];
         if (this.thickness > 1) {
             var d = Math.sqrt(this.thickness * this.thickness / 2);
-            //this.triangles.push(vec3(x - d, y - d, 0), vec3(x + d, y - d, 0), vec3(x - d, y + d, 0));
-            //this.triangles.push(vec3(x + d, y - d, 0), vec3(x + d, y + d, 0),vec3(x - d, y + d, 0));
+            this.triangles.push(vec3(x - d, y - d, 0), vec3(x + d, y - d, 0), vec3(x - d, y + d, 0));
+            this.triangles.push(vec3(x + d, y - d, 0), vec3(x + d, y + d, 0),vec3(x - d, y + d, 0));
         }
         
         // Get distance between two points
@@ -151,7 +151,10 @@ app.controller("webGlLab02Ctrl", function($scope) {
             else {
                 this.points[this.points.length - 1] = newPoint;
                 if (this.points.length <= 1) return;
-                this.triangles.splice(this.triangles.length - 12, 12);
+                if (this.points.length == 2)
+                    this.triangles.splice(0, this.triangles.length);
+                else
+                    this.triangles.splice(this.triangles.length - 12, 12);
                 lastPoint = this.points[this.points.length - 2];
             }
             // Generate or modify segments
@@ -162,6 +165,19 @@ app.controller("webGlLab02Ctrl", function($scope) {
             var np1 = add(newPoint, v);
             var np2 = add(newPoint, vec3(-v[1], v[0], 0.0));
             var np3 = add(newPoint, vec3(v[1], -v[0], 0.0));
+            // When new point is the first (closed line)
+            if (newPoint == this.points[0]) {
+                v = this.getBisectingAngleStraight(this.points[1], newPoint, lastPoint);
+                np1 = newPoint;
+                np2 = add(newPoint, v);
+                np3 = subtract(newPoint, v);
+                this.triangles[0] = np1;
+                this.triangles[1] = np3;
+                this.triangles[3] = np1;
+                this.triangles[6] = np1;
+                this.triangles[9] = np1;
+                this.triangles[11] = np2;
+            }
             // When last is first
             if (this.points[0] == lastPoint) {
                 var lp1 = subtract(lastPoint, v);
@@ -172,9 +188,9 @@ app.controller("webGlLab02Ctrl", function($scope) {
                 v = this.getBisectingAngleStraight(newPoint, lastPoint, penultimatePoint);
                 
                 var lp1 = lastPoint;
-                var lp2 = add(lastPoint, vec3(v[0], v[1], 0.0));
-                var lp3 = add(lastPoint, vec3(-v[0], -v[1], 0.0));
-                
+                var lp2 = add(lastPoint, v);
+                var lp3 = subtract(lastPoint, v);
+
                 this.triangles[this.triangles.length - 2] = lp2;
                 this.triangles[this.triangles.length - 4] = lp2;
                 this.triangles[this.triangles.length - 5] = lp1;
@@ -191,9 +207,9 @@ app.controller("webGlLab02Ctrl", function($scope) {
         
         this.getBisectingAngleStraight = function(newPoint, lastPoint, penultimatePoint) {
             var tangent = normalize(add(normalize(subtract(newPoint, lastPoint)),normalize(subtract(lastPoint, penultimatePoint))));
-            var mitter = vec2(-tangent[1], tangent[0], 0.0);
+            var mitter = vec3(-tangent[1], tangent[0], 0.0);
             var l = subtract(newPoint, lastPoint);
-            var normal = normalize(vec2(-l[1], l[0]));
+            var normal = normalize(vec3(-l[1], l[0], 0.0));
             var length = this.thickness / dot(mitter, normal);
             return scale(length, mitter);
         }
