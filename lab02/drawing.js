@@ -3,8 +3,8 @@ var app = angular.module("webGlLab02App", []);
 app.controller("webGlLab02Ctrl", function($scope) {
     $scope.varLoading = true;
     
-    $scope.lineWidth = 10;
-    $scope.minStepDistance = 50;
+    $scope.thickness = 5;
+    $scope.minStepDistance = 10;
     $scope.close = false;
     $scope.color = "#000000";
     
@@ -117,14 +117,14 @@ app.controller("webGlLab02Ctrl", function($scope) {
     };    
 
     // Shape object
-    $scope.shape = function(x, y, color, lineWidth) {
+    $scope.shape = function(x, y, color, thickness) {
         this.color = color;
-        this.lineWidth = parseInt(lineWidth);
+        this.thickness = parseInt(thickness);
         this.points = [];
         this.points.push(vec3(x, y, 0));
         this.triangles = [];
-        if (this.lineWidth > 1) {
-            var d = Math.sqrt(this.lineWidth * this.lineWidth / 2);
+        if (this.thickness > 1) {
+            var d = Math.sqrt(this.thickness * this.thickness / 2);
             //this.triangles.push(vec3(x - d, y - d, 0), vec3(x + d, y - d, 0), vec3(x - d, y + d, 0));
             //this.triangles.push(vec3(x + d, y - d, 0), vec3(x + d, y + d, 0),vec3(x - d, y + d, 0));
         }
@@ -157,7 +157,7 @@ app.controller("webGlLab02Ctrl", function($scope) {
             // Generate or modify segments
             var v = subtract(newPoint, lastPoint);
             v = normalize(v);
-            v = scale(this.lineWidth, v);
+            v = scale(this.thickness, v);
 
             var np1 = add(newPoint, v);
             var np2 = add(newPoint, vec3(-v[1], v[0], 0.0));
@@ -194,7 +194,7 @@ app.controller("webGlLab02Ctrl", function($scope) {
             var mitter = vec2(-tangent[1], tangent[0], 0.0);
             var l = subtract(newPoint, lastPoint);
             var normal = normalize(vec2(-l[1], l[0]));
-            var length = this.lineWidth / dot(mitter, normal);
+            var length = this.thickness / dot(mitter, normal);
             return scale(length, mitter);
         }
 
@@ -207,10 +207,10 @@ app.controller("webGlLab02Ctrl", function($scope) {
             var color = $scope.toRGB(this.color);
             $scope.gl.uniform4f(colorLocation, color[0], color[1], color[2], color[3]);
             
-            $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten((this.lineWidth == 1) ? this.points : this.triangles), $scope.gl.STATIC_DRAW);
+            $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten((this.thickness == 1) ? this.points : this.triangles), $scope.gl.STATIC_DRAW);
             $scope.gl.uniformMatrix4fv($scope.program.pMatrixLoc, 0, $scope.pMatrix);
 
-            $scope.gl.drawArrays((this.lineWidth == 1) ? $scope.gl.LINE_STRIP : $scope.gl.TRIANGLES, 0, (this.lineWidth == 1) ? this.points.length : this.triangles.length); 
+            $scope.gl.drawArrays((this.thickness == 1) ? $scope.gl.LINE_STRIP : $scope.gl.TRIANGLES, 0, (this.thickness == 1) ? this.points.length : this.triangles.length); 
         }       
     }
 
@@ -222,7 +222,7 @@ app.controller("webGlLab02Ctrl", function($scope) {
     // Event listener for mousedown event to start drawing
     $scope.startDrawing = function($event) {
         if ($scope.currentShape == null) {
-            $scope.currentShape = new $scope.shape($event.offsetX, $event.offsetY, $scope.color, parseInt($scope.lineWidth));
+            $scope.currentShape = new $scope.shape($event.offsetX, $event.offsetY, $scope.color, parseInt($scope.thickness));
             $scope.render();
         }
     }
