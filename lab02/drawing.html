@@ -111,7 +111,7 @@
                     <h2>Canvas</h2>
                 </header>
                 <section id="canvas" name="canvas" resize>
-                    <canvas id="gl-canvas" name="gl-canvas" ng-mousedown="startDrawing($event)" ng-mousemove="drawing($event)" ng-mouseup="endDrawing($event)" >
+                    <canvas id="gl-canvas" name="gl-canvas" ng-mousedown="startDrawing($event)" ng-mousemove="drawing($event)" ng-mouseup="endDrawing($event)" ng-touchstart="startDrawing($event)" ng-touchmove="drawing($event)" ng-touchend="endDrawing($event)">
                     Oops ... your browser doesn't support the HTML5 canvas element
                     </canvas>
                 </section>
@@ -135,6 +135,9 @@
         <script type="text/javascript" src="../common/webgl-utils.js"></script>
         <script type="text/javascript" src="../common/initShaders.js"></script>
         <script type="text/javascript" src="../common/MV.js"></script>
+        <script type="text/javascript" src="../common/ngTouchstart.js"></script>
+        <script type="text/javascript" src="../common/ngTouchmove.js"></script>
+        <script type="text/javascript" src="../common/ngTouchend.js"></script>
         <script type="text/javascript" src="drawing.js"></script>
     </body>
 </html>

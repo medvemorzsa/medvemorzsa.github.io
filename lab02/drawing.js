@@ -1,4 +1,4 @@
-var app = angular.module("webGlLab02App", []);
+var app = angular.module("webGlLab02App", ["ngTouchmove", "ngTouchstart", "ngTouchend"]);
 
 app.controller("webGlLab02Ctrl", function($scope) {
     $scope.varLoading = true;
@@ -238,7 +238,13 @@ app.controller("webGlLab02Ctrl", function($scope) {
     // Event listener for mousedown event to start drawing
     $scope.startDrawing = function($event) {
         if ($scope.currentShape == null) {
-            $scope.currentShape = new $scope.shape($event.offsetX, $event.offsetY, $scope.color, parseInt($scope.thickness));
+            var x = $event.offsetX;
+            var y = $event.offsetY;
+            if (($event.originalEvent) && ($event.originalEvent.touches)) {
+                x = $event.originalEvent.touches[0].pageX - $event.currentTarget.offsetLeft;
+                y = $event.originalEvent.touches[0].pageY - $event.currentTarget.offsetTop;
+            }         
+            $scope.currentShape = new $scope.shape(x, y, $scope.color, parseInt($scope.thickness));
             $scope.render();
         }
     }
@@ -246,8 +252,15 @@ app.controller("webGlLab02Ctrl", function($scope) {
     // Event listener for mousemove event to drawing
     $scope.drawing = function($event) {
         if ($scope.currentShape == null) return;
+
+        var x = $event.offsetX;
+        var y = $event.offsetY;
+        if (($event.originalEvent) && ($event.originalEvent.touches)) {
+            x = $event.originalEvent.touches[0].pageX - $event.currentTarget.offsetLeft;
+            y = $event.originalEvent.touches[0].pageY - $event.currentTarget.offsetTop;
+        }            
         
-        $scope.currentShape.addPoint(vec3($event.offsetX, $event.offsetY, 0.0));
+        $scope.currentShape.addPoint(vec3(x, y, 0.0));
         $scope.render();
     }
     
