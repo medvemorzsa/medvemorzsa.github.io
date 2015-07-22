@@ -3,8 +3,8 @@ var app = angular.module("webGlLab02App", []);
 app.controller("webGlLab02Ctrl", function($scope) {
     $scope.varLoading = true;
     
-    $scope.lineWidth = 1;
-    $scope.minStepDistance = 5;
+    $scope.lineWidth = 10;
+    $scope.minStepDistance = 50;
     $scope.close = false;
     $scope.color = "#000000";
     
@@ -65,7 +65,8 @@ app.controller("webGlLab02Ctrl", function($scope) {
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
         var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
         $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
-
+        $scope.gl.clear($scope.gl.COLOR_BUFFER_BIT);
+        
         var vertices = [
             0, 0, 0, 
             $scope.canvas.width, 0, 0,
@@ -121,6 +122,12 @@ app.controller("webGlLab02Ctrl", function($scope) {
         this.lineWidth = parseInt(lineWidth);
         this.points = [];
         this.points.push(vec3(x, y, 0));
+        this.triangles = [];
+        if (this.lineWidth > 1) {
+            var d = Math.sqrt(this.lineWidth * this.lineWidth / 2);
+            //this.triangles.push(vec3(x - d, y - d, 0), vec3(x + d, y - d, 0), vec3(x - d, y + d, 0));
+            //this.triangles.push(vec3(x + d, y - d, 0), vec3(x + d, y + d, 0),vec3(x - d, y + d, 0));
+        }
         
         // Get distance between two points
         this.distance = function(p1, p2) {
@@ -133,17 +140,106 @@ app.controller("webGlLab02Ctrl", function($scope) {
             var newPoint = vec3(x, y, z);
             var lastPoint = (this.points.length > 0) ? this.points[this.points.length - 1] : null;
             
-            var add = ((this.points.length == 0) || ($scope.minStepDistance == 1));
+            var _add = ((this.points.length == 0) || ($scope.minStepDistance == 1));
             if ($scope.minStepDistance > 1)
-                if (this.points.length < 2)
-                    add = true;
-                else
-                    add = ((this.distance(lastPoint, newPoint) >= $scope.minStepDistance) || (this.distance(lastPoint, this.points[this.points.length - 2]) >= $scope.minStepDistance));
-            add = ((add) && (!(equal(lastPoint, newPoint))));
-            if (add)
+                _add = (this.points.length < 2) ? true : ((this.distance(lastPoint, newPoint) >= $scope.minStepDistance) || (this.distance(lastPoint, this.points[this.points.length - 2]) >= $scope.minStepDistance));
+            _add = ((_add) && (!(equal(lastPoint, newPoint))));
+            
+            // Add new point
+            if (_add) {
                 this.points.push(newPoint);
-            else
+                if (lastPoint != null) {
+                    var v = subtract(newPoint, lastPoint);
+                    v = normalize(v);
+                    v = scale(this.lineWidth, v);
+
+                    var np1 = add(newPoint, v);
+                    var np2 = add(newPoint, $scope.vertexRotation(v, Math.cos(radians(90)), Math.sin(radians(90))));
+                    var np3 = add(newPoint, $scope.vertexRotation(v, Math.cos(radians(-90)), Math.sin(radians(-90))));
+
+                    // When last is first
+                    if (this.points[0] == lastPoint) {
+                        var lp1 = subtract(lastPoint, v);
+                        var lp2 = add(lastPoint, $scope.vertexRotation(v, Math.cos(radians(90)), Math.sin(radians(90))));
+                        var lp3 = add(lastPoint, $scope.vertexRotation(v, Math.cos(radians(-90)), Math.sin(radians(-90))));
+                    } else {  
+                        v = subtract(newPoint, this.points[this.points.length - 3]);
+                        v = normalize(v);
+                        var tangent = normalize(add(normalize(subtract(newPoint, lastPoint)), normalize(subtract(lastPoint, this.points[this.points.length - 3]))));
+                        var mitter = vec2(-tangent[1], tangent[0]);
+                        var l = subtract(lastPoint, this.points[this.points.length - 3]);
+                        var normal = normalize(vec2(-l[1], l[0]));
+                        var length = this.lineWidth / dot(mitter, normal);
+                        v = scale(length, v);
+                        
+                        var lp1 = lastPoint;
+                        var lp2 = add(lastPoint, $scope.vertexRotation(v, Math.cos(radians(90)), Math.sin(radians(90))));
+                        var lp3 = add(lastPoint, $scope.vertexRotation(v, Math.cos(radians(-90)), Math.sin(radians(-90))));
+                        this.triangles[this.triangles.length - 2] = lp2;
+                        this.triangles[this.triangles.length - 4] = lp2;
+                        this.triangles[this.triangles.length - 5] = lp1;
+                        this.triangles[this.triangles.length - 7] = lp1;
+                        this.triangles[this.triangles.length - 8] = lp3;
+                        this.triangles[this.triangles.length - 10] = lp3;
+                    }
+                    
+                    this.triangles.push(lp1, lp3, np3);
+                    this.triangles.push(lp1, np3, np1);
+                    this.triangles.push(lp1, np1, np2);
+                    this.triangles.push(lp1, np2, lp2);
+                }
+                else {
+                    var d = Math.sqrt(this.lineWidth * this.lineWidth / 2);
+                    this.triangles.push(vec3(x - d, y - d, 0), vec3(x + d, y - d, 0), vec3(x - d, y + d, 0));
+                    this.triangles.push(vec3(x + d, y - d, 0), vec3(x + d, y + d, 0),vec3(x - d, y + d, 0));
+                }
+            }
+            // Update last point
+            else {
                 this.points[this.points.length - 1] = newPoint;
+                if (this.points.length > 1) {
+                    this.triangles.splice(this.triangles.length - 12, 12);
+                    lastPoint = this.points[this.points.length - 2];
+                    var v = subtract(newPoint, lastPoint);
+                    v = normalize(v);
+                    v = scale(this.lineWidth, v);
+
+                    var np1 = add(newPoint, v);
+                    var np2 = add(newPoint, $scope.vertexRotation(v, Math.cos(radians(90)), Math.sin(radians(90))));
+                    var np3 = add(newPoint, $scope.vertexRotation(v, Math.cos(radians(-90)), Math.sin(radians(-90))));
+
+                    // When last is first
+                    if (this.points[0] == lastPoint) {
+                        var lp1 = subtract(lastPoint, v);
+                        var lp2 = add(lastPoint, $scope.vertexRotation(v, Math.cos(radians(90)), Math.sin(radians(90))));
+                        var lp3 = add(lastPoint, $scope.vertexRotation(v, Math.cos(radians(-90)), Math.sin(radians(-90))));
+                    } else {  
+                        v = subtract(newPoint, this.points[this.points.length - 3]);
+                        v = normalize(v);                        
+                        var tangent = normalize(add(normalize(subtract(newPoint, lastPoint)),normalize(subtract(lastPoint, this.points[this.points.length - 3]))));
+                        var mitter = vec2(-tangent[1], tangent[0]);
+                        var l = subtract(lastPoint, this.points[this.points.length - 3]);
+                        var normal = normalize(vec2(-l[1], l[0]));
+                        var length = this.lineWidth / dot(mitter, normal);
+                        v = scale(length, v);
+                        
+                        var lp1 = lastPoint;
+                        var lp2 = add(lastPoint, $scope.vertexRotation(v, Math.cos(radians(90)), Math.sin(radians(90))));
+                        var lp3 = add(lastPoint, $scope.vertexRotation(v, Math.cos(radians(-90)), Math.sin(radians(-90))));
+                        this.triangles[this.triangles.length - 2] = lp2;
+                        this.triangles[this.triangles.length - 4] = lp2;
+                        this.triangles[this.triangles.length - 5] = lp1;
+                        this.triangles[this.triangles.length - 7] = lp1;
+                        this.triangles[this.triangles.length - 8] = lp3;
+                        this.triangles[this.triangles.length - 10] = lp3;
+                    }
+                    
+                    this.triangles.push(lp1, lp3, np3);
+                    this.triangles.push(lp1, np3, np1);
+                    this.triangles.push(lp1, np1, np2);
+                    this.triangles.push(lp1, np2, lp2);                
+                }
+            }
         }
 
         // Rendering
@@ -155,17 +251,18 @@ app.controller("webGlLab02Ctrl", function($scope) {
             var color = $scope.toRGB(this.color);
             $scope.gl.uniform4f(colorLocation, color[0], color[1], color[2], color[3]);
             
-            var itemSize = 3;
-            var numItems = this.points.length;
-            
-            $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.points), $scope.gl.STATIC_DRAW);
-            $scope.gl.vertexAttribPointer($scope.program.vPosition, itemSize, $scope.gl.FLOAT, false, 0, 0);
-
+            //if (this.lineWidth > 1) console.log(this.triangles);
+            $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten((this.lineWidth == 1) ? this.points : this.triangles), $scope.gl.STATIC_DRAW);
             $scope.gl.uniformMatrix4fv($scope.program.pMatrixLoc, 0, $scope.pMatrix);
 
-            $scope.gl.drawArrays($scope.gl.LINE_STRIP, 0, numItems); 
+            $scope.gl.drawArrays((this.lineWidth == 1) ? $scope.gl.LINE_STRIP : $scope.gl.TRIANGLES, 0, (this.lineWidth == 1) ? this.points.length : this.triangles.length); 
         }       
     }
+
+    // Vertex rotation
+    $scope.vertexRotation = function(p, cosAngle, sinAngle) {
+        return vec3([p[0] * cosAngle - p[1] * sinAngle, p[0] * sinAngle + p[1] * cosAngle], 0.0);
+    }        
     
     // Event listener for mousedown event to start drawing
     $scope.startDrawing = function($event) {
