@@ -85,31 +85,9 @@ app.controller("webGlLab02Ctrl", function($scope) {
         $scope.gl.drawArrays($scope.gl.LINE_STRIP, 0, numItems); 
         
         for (var idx in $scope.shapes) 
-            $scope.renderShape($scope.shapes[idx]);
+            $scope.shapes[idx].render();
         if ($scope.currentShape != null) 
-            $scope.renderShape($scope.currentShape);
-    }
-    
-    $scope.renderShape = function(shape) {
-        if (!($scope.gl)) return;
-        if (shape == null) return;
-
-        var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
-        $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
-        var color = $scope.toRGB(shape.color);
-        $scope.gl.uniform4f(colorLocation, color[0], color[1], color[2], color[3]);
-        
-        var itemSize = 3;
-        var numItems = shape.points.length;
-        
-        $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(shape.points), $scope.gl.STATIC_DRAW);
-        $scope.gl.vertexAttribPointer($scope.program.vPosition, itemSize, $scope.gl.FLOAT, false, 0, 0);
-
-        $scope.gl.uniformMatrix4fv($scope.program.pMatrixLoc, 0, $scope.pMatrix);
-
-        $scope.gl.lineWidth(10);
-
-        $scope.gl.drawArrays($scope.gl.LINE_STRIP, 0, numItems); 
+            $scope.currentShape.render();
     }
     
     $scope.ortho = function (left, right, bottom, top, near, far) {
@@ -167,6 +145,26 @@ app.controller("webGlLab02Ctrl", function($scope) {
             else
                 this.points[this.points.length - 1] = newPoint;
         }
+
+        // Rendering
+        this.render = function() {
+            if (!($scope.gl)) return;
+
+            var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
+            $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
+            var color = $scope.toRGB(this.color);
+            $scope.gl.uniform4f(colorLocation, color[0], color[1], color[2], color[3]);
+            
+            var itemSize = 3;
+            var numItems = this.points.length;
+            
+            $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.points), $scope.gl.STATIC_DRAW);
+            $scope.gl.vertexAttribPointer($scope.program.vPosition, itemSize, $scope.gl.FLOAT, false, 0, 0);
+
+            $scope.gl.uniformMatrix4fv($scope.program.pMatrixLoc, 0, $scope.pMatrix);
+
+            $scope.gl.drawArrays($scope.gl.LINE_STRIP, 0, numItems); 
+        }       
     }
     
     // Event listener for mousedown event to start drawing
