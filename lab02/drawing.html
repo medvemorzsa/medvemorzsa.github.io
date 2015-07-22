@@ -40,9 +40,17 @@
                 </header>
                 <section>
                     <p>
-                        This lab was created for <a href="https://www.coursera.org/course/webgl" target="webgl">Interactive Computer Graphics with WebGL</a> course of <a href="https://www.coursera.org" target="coursera">Coursera</a>.
+                        This lab was created for <a href="https://www.coursera.org/course/webgl" target="webgl">Interactive Computer Graphics with WebGL</a> course on <a href="https://www.coursera.org" target="coursera">Coursera</a>.
+                        In this webapp you can draw polygons.
                     </p>
                     <p>
+                        In <i>Thickness</i> section you can set width of lines. When you set up this more than one the application draws lines as group of triangles.
+                        You can set the minimum step distance between two points by <i>Min. step distance</i> parameter.
+                        When you want to draw closed polygon just turn on <i>Closed</i> checkbox.
+                        And last you can change color of lines by color picker.
+                    </p>
+                    <p>
+                        I hope you'll enjoy it!
                     </p>
                 </section>
             </section>
@@ -54,7 +62,7 @@
                 </header>
                 <section>
                     <div class="w3-group tall">
-                        <label for="thickness">Thickness:&nbsp;</label><span ng-bind="lineWidth"></span><br />
+                        <label for="thickness">Thickness:&nbsp;</label><span ng-bind="thickness"></span><br />
                         <input class="w3-range" type="range" ng-model="thickness" min="1" max="20" step="1" list="thicknessList" ng-disabled="varLoading" ng-change="modelChange()">
                         <datalist id="thicknessList" name="thicknessList">
                             <option value="1">
