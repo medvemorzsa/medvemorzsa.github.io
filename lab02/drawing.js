@@ -4,6 +4,7 @@ app.controller("webGlLab02Ctrl", function($scope) {
     $scope.varLoading = true;
     
     $scope.lineWidth = 1;
+    $scope.minStepDistance = 5;
     $scope.close = false;
     $scope.color = "#000000";
     
@@ -97,8 +98,6 @@ app.controller("webGlLab02Ctrl", function($scope) {
         $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
         var color = $scope.toRGB(shape.color);
         $scope.gl.uniform4f(colorLocation, color[0], color[1], color[2], color[3]);
-
-        $scope.gl.lineWidth(shape.lineWidth);
         
         var itemSize = 3;
         var numItems = shape.points.length;
@@ -107,6 +106,8 @@ app.controller("webGlLab02Ctrl", function($scope) {
         $scope.gl.vertexAttribPointer($scope.program.vPosition, itemSize, $scope.gl.FLOAT, false, 0, 0);
 
         $scope.gl.uniformMatrix4fv($scope.program.pMatrixLoc, 0, $scope.pMatrix);
+
+        $scope.gl.lineWidth(10);
 
         $scope.gl.drawArrays($scope.gl.LINE_STRIP, 0, numItems); 
     }
@@ -136,17 +137,39 @@ app.controller("webGlLab02Ctrl", function($scope) {
         return dest;
     };    
 
+    // Shape object
     $scope.shape = function(x, y, color, lineWidth) {
         this.color = color;
         this.lineWidth = parseInt(lineWidth);
         this.points = [];
         this.points.push(vec3(x, y, 0));
         
+        // Get distance between two points
+        this.distance = function(p1, p2) {
+            var diff = subtract(p1, p2);
+            return Math.sqrt(dot(diff, diff));
+        }
+        
+        // Add new point to path
         this.addPoint = function(x, y, z) {
-            this.points.push(vec3(x, y, z));
+            var newPoint = vec3(x, y, z);
+            var lastPoint = (this.points.length > 0) ? this.points[this.points.length - 1] : null;
+            
+            var add = ((this.points.length == 0) || ($scope.minStepDistance == 1));
+            if ($scope.minStepDistance > 1)
+                if (this.points.length < 2)
+                    add = true;
+                else
+                    add = ((this.distance(lastPoint, newPoint) >= $scope.minStepDistance) || (this.distance(lastPoint, this.points[this.points.length - 2]) >= $scope.minStepDistance));
+            add = ((add) && (!(equal(lastPoint, newPoint))));
+            if (add)
+                this.points.push(newPoint);
+            else
+                this.points[this.points.length - 1] = newPoint;
         }
     }
     
+    // Event listener for mousedown event to start drawing
     $scope.startDrawing = function($event) {
         if ($scope.currentShape == null) {
             $scope.currentShape = new $scope.shape($event.offsetX, $event.offsetY, $scope.color, parseInt($scope.lineWidth));
@@ -154,15 +177,19 @@ app.controller("webGlLab02Ctrl", function($scope) {
         }
     }
     
+    // Event listener for mousemove event to drawing
     $scope.drawing = function($event) {
         if ($scope.currentShape == null) return;
+        
         $scope.currentShape.addPoint($event.offsetX, $event.offsetY, 0.0);
         $scope.render();
     }
     
+    // Event listener foro mouseup event to end drawing
     $scope.endDrawing = function($event) {
         if ($scope.currentShape == null) return;
-        if ($scope.close) $scope.currentShape.addPoint($scope.currentShape.points[0]);        
+        $scope.currentShape.addPoint($event.offsetX, $event.offsetY, 0.0, true);
+        if ($scope.close) $scope.currentShape.addPoint($scope.currentShape.points[0]);
         
         $scope.shapes.push($scope.currentShape);
         $scope.currentShape = null;
@@ -175,6 +202,7 @@ app.controller("webGlLab02Ctrl", function($scope) {
     }
 });
     
+// Resize canvas
 app.directive('resize', function ($window) {
     return function (scope, element) {
         var w = angular.element($window);
