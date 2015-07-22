@@ -141,7 +141,7 @@ app.controller("webGlLab02Ctrl", function($scope) {
             
             var _add = ((this.points.length == 0) || ($scope.minStepDistance == 1) || (this.points[0] == newPoint));
             if ($scope.minStepDistance > 1)
-                _add = (this.points.length < 2) ? true : ((this.distance(lastPoint, newPoint) >= $scope.minStepDistance) || (this.distance(lastPoint, this.points[this.points.length - 2]) >= $scope.minStepDistance));
+                _add = (this.points.length < 2) ? true : ((this.points[0] == newPoint) || (this.distance(lastPoint, newPoint) >= $scope.minStepDistance) || (this.distance(lastPoint, this.points[this.points.length - 2]) >= $scope.minStepDistance));
             _add = ((_add) && (!(equal(lastPoint, newPoint))));
             
             // Add new point
@@ -169,13 +169,11 @@ app.controller("webGlLab02Ctrl", function($scope) {
                 var lp3 = add(lastPoint, vec3(v[1], -v[0], 0.0));
             } else {  
                 var penultimatePoint = this.points[this.points.length - 3];
-                v = subtract(newPoint, penultimatePoint);
-                v = normalize(v);                        
-                v = scale(this.getLength(newPoint, lastPoint, penultimatePoint), v);
+                v = this.getBisectingAngleStraight(newPoint, lastPoint, penultimatePoint);
                 
                 var lp1 = lastPoint;
-                var lp2 = add(lastPoint, vec3(-v[1], v[0], 0.0));
-                var lp3 = add(lastPoint, vec3(v[1], -v[0], 0.0));
+                var lp2 = add(lastPoint, vec3(v[0], v[1], 0.0));
+                var lp3 = add(lastPoint, vec3(-v[0], -v[1], 0.0));
                 
                 this.triangles[this.triangles.length - 2] = lp2;
                 this.triangles[this.triangles.length - 4] = lp2;
@@ -191,12 +189,13 @@ app.controller("webGlLab02Ctrl", function($scope) {
             this.triangles.push(lp1, np2, lp2);                
         }
         
-        this.getLength = function(newPoint, lastPoint, penultimatePoint) {
+        this.getBisectingAngleStraight = function(newPoint, lastPoint, penultimatePoint) {
             var tangent = normalize(add(normalize(subtract(newPoint, lastPoint)),normalize(subtract(lastPoint, penultimatePoint))));
-            var mitter = vec2(-tangent[1], tangent[0]);
-            var l = subtract(lastPoint, penultimatePoint);
+            var mitter = vec2(-tangent[1], tangent[0], 0.0);
+            var l = subtract(newPoint, lastPoint);
             var normal = normalize(vec2(-l[1], l[0]));
-            return this.lineWidth / dot(mitter, normal);
+            var length = this.lineWidth / dot(mitter, normal);
+            return scale(length, mitter);
         }
 
         // Rendering
