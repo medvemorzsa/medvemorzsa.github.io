@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.node {
+  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  fill: #000;
+}
+
+.node:hover {
+  fill: red;
+}
+
+.link {
+  stroke: steelblue;
+  stroke-opacity: .4;
+  fill: none;
+  pointer-events: none;
+}
+
+.node:hover,
+.node--source,
+.node--target {
+  font-weight: 700;
+}
+
+.node--source {
+  fill: green;
+}
+
+.node--target {
+  fill: green;
+}
+
+.link--source,
+.link--target {
+  stroke-opacity: 1;
+}
+
+.link--source {
+  stroke: orange;
+}
+
+.link--target {
+  stroke: orange;
+}
+
+</style>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script>
+
+var diameter = 800,
+    radius = diameter / 2,
+    innerRadius = radius - 200;
+
+var cluster = d3.layout.cluster()
+    .size([360, innerRadius])
+    .sort(null)
+    .value(function(d) { return d.size; });
+
+var bundle = d3.layout.bundle();
+
+var line = d3.svg.line.radial()
+    .interpolate("bundle")
+    .tension(.85)
+    .radius(function(d) { return d.y; })
+    .angle(function(d) { return d.x / 180 * Math.PI; });
+
+var svg = d3.select("body").append("svg")
+    .attr("width", diameter)
+    .attr("height", diameter)
+  .append("g")
+    .attr("transform", "translate(" + radius + "," + radius + ")");
+
+var link = svg.append("g").selectAll(".link"),
+    node = svg.append("g").selectAll(".node");
+
+var maxWeigth = 0;
+var nodes = null;
+var links = null;
+
+d3.json("./data/top25_graph.json", function(error, classes) {
+  if (error) throw error;
+
+  nodes = cluster.nodes(packageHierarchy(classes)),
+  links = packageImports(nodes);
+
+  link = link
+      .data(bundle(links))
+    .enter().append("path")
+      .each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
+      .attr("class", "link")
+      .attr("d", line)
+      .attr('stroke-width', function(d) { return d.source.imports[d.target.name] / maxWeigth; });
+
+  node = node
+      .data(nodes.filter(function(n) { return !n.children; }))
+    .enter().append("text")
+      .attr("class", "node")
+      .attr("dx", function(d) { return d.x < 180 ? 8 : -8; })
+      .attr("dy", "-.31em")
+      .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + (d.y + 8) + ",0)" + (d.x < 180 ? "" : "rotate(180)"); })
+      .style("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
+      .text(function(d) { return d.key; })
+      .on("mouseover", mouseovered)
+      .on("mouseout", mouseouted)
+        .append("tspan") 
+            .attr("x", function(d) { return d.x < 180 ? 8 : -8; })
+            .attr("y", "1em")
+            .attr("id", function(d) { return "app_" + d.key.replace(new RegExp("[/| |.|,|&|-]", "g"), "") })
+            .text(function(d) { return "#Appearances: " + String(d.size); });
+});
+
+function mouseovered(d) {
+    for (hero in d.imports) {
+        hero_app_obj = document.getElementById("app_" + hero.replace(new RegExp("[/| |.|,|&|-]", "g"), ""));
+        for (idx in nodes)
+            if (nodes[idx].key == hero) {
+                hero_app_obj.innerHTML = "#Common appearances: " + String(d.imports[hero]) + "/" + String(nodes[idx].size);
+            }
+    }
+    
+  node
+      .each(function(n) {n.target = n.source = false; });
+
+  link
+      .classed("link--target", function(l) { if (l.target === d) return l.source.source = true; })
+      .classed("link--source", function(l) { if (l.source === d) return l.target.target = true; })
+    .filter(function(l) { return l.target === d || l.source === d; })
+      .each(function() { this.parentNode.appendChild(this); });
+
+  node
+      .classed("node--target", function(n) { return n.target; })
+      .classed("node--source", function(n) { return n.source; });
+}
+
+function mouseouted(d) {
+    for (hero in d.imports) {
+        hero_app_obj = document.getElementById("app_" + hero.replace(new RegExp("[/| |.|,|&|-]", "g"), ""));
+        for (idx in nodes)
+            if (nodes[idx].key == hero) {
+                hero_app_obj.innerHTML = "#Appearances: " + String(nodes[idx].size);
+            }
+    }
+
+  link
+      .classed("link--target", false)
+      .classed("link--source", false);
+
+  node
+      .classed("node--target", false)
+      .classed("node--source", false);
+}
+
+d3.select(self.frameElement).style("height", diameter + "px");
+
+// Lazily construct the package hierarchy from class names.
+function packageHierarchy(classes) {
+  var map = {};
+
+  function find(name, data) {
+    var node = map[name], i;
+    if (!node) {
+      node = map[name] = data || {name: name, children: []};
+      if (name.length) {
+        node.parent = find('');
+        node.parent.children.push(node);
+        node.key = name;        
+      }
+    }
+    return node;
+  }
+
+  classes.forEach(function(d) {
+    find(d.name, d);
+  });
+
+  return map[""];
+}
+
+// Return a list of imports for the given array of nodes.
+function packageImports(nodes) {
+  var map = {},
+      imports = [];
+
+  // Compute a map from name to node.
+  nodes.forEach(function(d) {
+    map[d.name] = d;
+  });
+
+  // For each import, construct a link from the source to target node.
+  nodes.forEach(function(d) {
+    if (d.imports)
+        for (hero in d.imports) {
+            imports.push({source: map[d.name], target: map[hero]});
+            if (d.imports[hero] > maxWeigth)
+                maxWeigth = d.imports[hero];
+        }
+  });
+
+  return imports;
+}
+
+</script>
