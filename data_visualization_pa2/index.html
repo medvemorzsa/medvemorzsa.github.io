@@ -92,7 +92,7 @@ d3.json("./data/top25_graph.json", function(error, classes) {
       .each(function(d) { d.source = d[0], d.target = d[d.length - 1]; })
       .attr("class", "link")
       .attr("d", line)
-      .attr('stroke-width', function(d) { return d.source.imports[d.target.name] / maxWeigth; });
+      .attr('stroke-width', function(d) { return d.source.imports[d.target.name] / maxWeigth * 10; });
 
   node = node
       .data(nodes.filter(function(n) { return !n.children; }))
