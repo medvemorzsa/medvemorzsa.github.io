@@ -27,6 +27,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         rot_y: 0.0,
         rot_z: 0.0
     }
+    $scope.obj = angular.copy($scope.baseObj);
     
     $scope.canvas = null;
 
@@ -76,11 +77,16 @@ app.controller("webGlLab03Ctrl", function($scope) {
     // Save object modification
     $scope.saveObject = function(form) {
         if (form.$valid) {
-            console.log("Save");
+            var obj = $scope.createObject();
+            console.log(obj);
+            $scope.objects.push(obj);
+            console.log($scope.objects);
+            $scope.selectedObject = obj;
             $scope.editMode = false;
         }
     }
     
+    // Reset object modification
     $scope.reset = function(form) {
         if (form) {
             form.$setPristine();
@@ -90,6 +96,69 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.editMode=false;
     };    
   
+    // Create object
+    $scope.createObject = function() {
+        if ($scope.selectedObject != null) return;
+        
+        switch ($scope.obj.type) {
+            case (0): {
+                return $scope.createCone();
+                break;
+            }
+            case (1): {
+                return $scope.createCylinder();
+                break;
+            }
+            case (2): {
+                return $scope.createSphere();
+                break;
+            }
+        }
+        
+        return null;
+    }
+    
+    // Create cone object 
+    $scope.createCone = function() {
+        return {
+            name: $scope.obj.name,
+            fragments: $scope.obj.fragments,
+            color: $scope.obj.color,
+            bottom_radius: $scope.obj.bottom_radius,
+            height: $scope.obj.height,
+            closed: $scope.obj.closed,
+            pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
+            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
+        }
+    }
+    
+    // Create cylinder object 
+    $scope.createCylinder = function() {
+        return {
+            name: $scope.obj.name,
+            fragments: $scope.obj.fragments,
+            color: $scope.obj.color,
+            bottom_radius: $scope.obj.bottom_radius,
+            top_radius: $scope.obj.top_radius,
+            height: $scope.obj.height,
+            closed: $scope.obj.closed,
+            pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
+            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
+        }
+    }
+
+    // Create sphere object 
+    $scope.createCylinder = function() {
+        return {
+            name: $scope.obj.name,
+            fragments: $scope.obj.fragments,
+            color: $scope.obj.color,
+            radius: $scope.obj.radius,
+            pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
+            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
+        }
+    }
+    
     if ($scope.initWebGL()) {   
         $scope.render();
         $scope.varLoading = false;
