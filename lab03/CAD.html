@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Lab #03 - CAD</title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        <link rel="shortcut icon" type="image/x-icon" href="./lab03.ico">
+        
+        <link rel="stylesheet" href="../css/w3.css" />
+        <link rel="stylesheet" href="../css/w3-theme-teal.css" />
+        <link rel="stylesheet" href="CAD.css" />
+    </head>
+    <body>
+        <div class="w3-row">
+            <section class="w3-col s12 m12 l12">
+                <header class="w3-container w3-theme">
+                    <h2>Description</h2>
+                </header>
+                <section>
+                    <p>
+                        This lab was created for <a href="https://www.coursera.org/course/webgl" target="webgl">Interactive Computer Graphics with WebGL</a> course on <a href="https://www.coursera.org" target="coursera">Coursera</a>.
+                    </p>
+                    <p>
+                    </p>
+                    <p>
+                        I hope you'll enjoy it!
+                    </p>
+                </section>
+            </section>
+        </div>
+        <div class="w3-row" ng-app="webGlLab03App" ng-controller="webGlLab03Ctrl">
+            <section class="w3-col s12 m4 l3">
+                <header class="w3-container w3-theme">
+                    <h2>Parameters</h2>
+                </header>
+                <section>
+                </section>
+            </section>
+            <section class="w3-col s12 m8 l9">
+                <header class="w3-container w3-theme">
+                    <h2>Canvas</h2>
+                </header>
+                <section id="canvas" name="canvas" resize>
+                    <canvas id="gl-canvas" name="gl-canvas" ng-mousedown="startDrawing($event)" ng-mousemove="drawing($event)" ng-mouseup="endDrawing($event)" ng-touchstart="startDrawing($event)" ng-touchmove="drawing($event)" ng-touchend="endDrawing($event)">
+                    Oops ... your browser doesn't support the HTML5 canvas element
+                    </canvas>
+                </section>
+            </section>
+        </div>
+        <footer class="w3-row w3-theme" style="padding-bottom:8px;padding-top:8px;">
+            <div class="w3-col s4 m4 l3">
+                <span style="padding-left:8px;">Author:&nbsp;Richard&nbsp;Kovacs</span>
+            </div>
+            <div class="w3-col s8 m8 l9" style="text-align:right;padding-right:8px;">
+                <span>Powered by:</span>
+                <a href="http://www.w3schools.com/w3css/default.asp" target="w3css"><img src="../icons/w3css.gif" alt="W3CSS" title="W3CSS" height="24px"/></a>&nbsp;
+                <a href="https://www.angularjs.org/" target="angularjs"><img src="../icons/AngularJS.png" alt="AngularJS" title="AngularJS" height="24px"/></a>&nbsp;
+                <a href="https://jquery.com/" target="jquery"><img src="../icons/jQuery.png" alt="jQuery" title="jQuery" height="24px"/></a>&nbsp;
+                <a href="https://www.khronos.org/webgl/" target="webgl"><img src="../icons/WebGL.png" alt="WebGL" title="WebGL" height="24px"/></a>
+            </div>
+        </footer>
+        
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+        <script type="text/javascript" src="../common/webgl-utils.js"></script>
+        <script type="text/javascript" src="../common/initShaders.js"></script>
+        <script type="text/javascript" src="../common/MV.js"></script>
+        <script type="text/javascript" src="CAD.js"></script>
+    </body>
+</html>
