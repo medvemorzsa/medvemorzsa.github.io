@@ -9,6 +9,7 @@
         
         <link rel="stylesheet" href="../css/w3.css" />
         <link rel="stylesheet" href="../css/w3-theme-teal.css" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <link rel="stylesheet" href="CAD.css" />
     </head>
     <body>
@@ -35,6 +36,102 @@
                     <h2>Parameters</h2>
                 </header>
                 <section>
+                    <div>
+                        <button class="w3-btn w3-theme-dark"><i class="material-icons">add</i></button>
+                        <select ng-model="objects"></select>
+                        <button class="w3-btn w3-theme-dark"><i class="material-icons">create</i></button>
+                        <button class="w3-btn w3-theme-dark"><i class="material-icons">delete</i></button>
+                        <button class="w3-btn w3-theme-dark"><i class="material-icons">file_download</i></button>
+                    </div>
+                    <div class="w3-container w3-theme-light"><h5>Solid</h5></div>
+                    <div class="w3-container">
+                        <div class="w3-group">
+                            <label for="type">Type:</label>
+                            <select ng-model="type" ng-disabled="varLoading">
+                                <option value="0" label="Cone">Cone</option>
+                                <option value="1" label="Cylinder">Cylinder</option>
+                                <option value="2" label="Sphere">Sphere</option>
+                            </select>
+                        </div>
+                        <div class="w3-group tall">
+                            <label for="fragments">Fragments:&nbsp;</label><span ng-bind="fragments"></span><br />
+                            <input class="w3-range" type="range" ng-model="fragments" min="9" max="72" step="1" list="fragmentsList" ng-disabled="varLoading">
+                            <datalist id="fragments" name="fragments">
+                                <option value="9">
+                                <option value="18">
+                                <option value="27">
+                                <option value="36">
+                                <option value="45">
+                                <option value="54">
+                                <option value="63">
+                                <option value="72">
+                            </datalist>
+                            <span class="left_align">10</span>
+                            <span class="right_align">72</span>
+                        </div>                
+                    </div>
+                    <div class="w3-container w3-theme-light"><h5>Attributes</h5></div>
+                    <div class="w3-container">
+                        <div class="w3-group">
+                            <label for="sphere_radius">Radius:</label>
+                            <input type="number" ng-model="radius" step="any" ng-disabled="varLoading"/>
+                        </div>
+                        <div class="w3-group">
+                            <label for="sphere_radius">Bottom radius:</label>
+                            <input type="number" ng-model="bottom_radius" step="any" ng-disabled="varLoading"/>
+                        </div>
+                        <div class="w3-group">
+                            <label for="sphere_radius">Top radius:</label>
+                            <input type="number" ng-model="top_radius" step="any" ng-disabled="varLoading"/>
+                        </div>
+                        <div class="w3-group">
+                            <label for="sphere_radius">Height:</label>
+                            <input type="number" ng-model="height" step="any" ng-disabled="varLoading"/>
+                        </div>
+                        <div class="w3-group">                        
+                            <label class="w3-checkbox">
+                                Closed:
+                                <input type="checkbox" ng-model="closed" ng-disabled="varLoading" />
+                                <span class="w3-checkmark"></span>
+                            </label>
+                        </div>                
+                        <div class="w3-group">                        
+                            <label for="color">Color:</label>
+                            <input type="color" ng-model="color" ng-disabled="varLoading" />
+                        </div>
+                    </div>
+                    <div class="w3-container w3-theme-light"><h5>Position</h5></div>
+                    <div class="w3-container">
+                        <div class="w3-group">
+                            <div>
+                                <label for="pos_x">X:&nbsp;</label><input type="number" ng-model="pos_x" step="any" ng-disabled="varLoading"/>
+                            </div>
+                            <div>
+                                <label for="pos_y">Y:&nbsp;</label><input type="number" ng-model="pos_y" step="any" ng-disabled="varLoading"/>
+                            </div>
+                            <div>
+                                <label for="pos_z">Z:&nbsp;</label><input type="number" ng-model="pos_z" step="any" ng-disabled="varLoading"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w3-container w3-theme-light"><h5>Rotation</h5></div>
+                    <div class="w3-container">
+                        <div class="w3-group">
+                            <div>
+                                <label for="rot_x">X:&nbsp;</label><input type="number" ng-model="rot_x" min="0" max="359.99" step="any" ng-disabled="varLoading"/>
+                            </div>
+                            <div>
+                                <label for="rot_y">Y:&nbsp;</label><input type="number" ng-model="rot_y" min="0" max="359.99" step="any" ng-disabled="varLoading"/>
+                            </div>
+                            <div>
+                                <label for="rot_z">Z:&nbsp;</label><input type="number" ng-model="rot_z" min="0" max="359.99" step="any" ng-disabled="varLoading"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container w3-center">
+                        <button class="w3-btn w3-theme-dark">Done<i class="w3-margin-left w3-right material-icons">done</i></button>
+                        <button class="w3-btn w3-theme-dark">Cancel<i class="w3-margin-left w3-right material-icons">cancel</i></button>
+                    </div>
                 </section>
             </section>
             <section class="w3-col s12 m8 l9">
