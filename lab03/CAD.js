@@ -34,6 +34,27 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
     };
     
+    $scope.newObject = function() {
+        $scope.editMode = true;
+        $scope.obj = {
+            name: "Untitled",
+            type: 0,
+            fragments: 12,
+            radius: 10.0,
+            bottom_radius: 10.0,
+            top_radius: 10.0,
+            height: 10.0,
+            closed: false,
+            color: "#000000",
+            pos_x: 0.0,
+            pos_y: 0.0,
+            pos_z: 0.0,
+            rot_x: 0.0,
+            rot_y: 0.0,
+            rot_z: 0.0
+        }
+    }
+    
     if ($scope.initWebGL()) {   
         $scope.render();
         $scope.varLoading = false;
