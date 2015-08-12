@@ -47,11 +47,12 @@
                     <div class="w3-container">
                         <div class="w3-group">
                             <label for="obj.name">Name:</label>
-                            <input type="text" ng-model="obj.name" ng-disabled="(varLoading) || (!(editMode))"/>
+                            <input type="text" ng-model="obj.name" ng-disabled="(varLoading) || (!(editMode))" ng-blur="checkRenaming()"/>
+                            <input type="hidden" ng-model="obj.name_changed" />
                         </div>
                         <div class="w3-group">
                             <label for="obj.type">Type:</label>
-                            <select ng-model="obj.type" ng-disabled="(varLoading) || (!(editMode))">
+                            <select ng-model="obj.type" ng-disabled="(varLoading) || (!(editMode))" ng-change="autoRename()">
                                 <option value="0" label="Cone">Cone</option>
                                 <option value="1" label="Cylinder">Cylinder</option>
                                 <option value="2" label="Sphere">Sphere</option>

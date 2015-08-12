@@ -3,9 +3,11 @@ var app = angular.module("webGlLab03App", []);
 app.controller("webGlLab03Ctrl", function($scope) {
     $scope.varLoading = true;
     
+    $scope.types = ["Cone", "Cylinder", "Sphere"];
     $scope.objects = [];
     $scope.selectedObject = null;
     $scope.editMode = false;
+    $scope.numObj = 1;
     
     $scope.canvas = null;
 
@@ -34,10 +36,12 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
     };
     
+    // Start creating new object
     $scope.newObject = function() {
         $scope.editMode = true;
         $scope.obj = {
-            name: "Untitled",
+            name: $scope.types[0] + "_" + String($scope.numObj),
+            name_changed: false,
             type: 0,
             fragments: 12,
             radius: 10.0,
@@ -53,6 +57,17 @@ app.controller("webGlLab03Ctrl", function($scope) {
             rot_y: 0.0,
             rot_z: 0.0
         }
+    }
+    
+    // Auto rename current object when its name has never changed
+    $scope.autoRename = function() {
+        if ($scope.obj.name_changed) return;
+        $scope.obj.name = $scope.types[$scope.obj.type] + "_" + String($scope.numObj);
+    }
+    
+    // Check renaming
+    $scope.checkRenaming = function() {
+        $scope.obj.name_changed = ($scope.obj.name != $scope.types[$scope.obj.type] + '_' + String($scope.numObj));
     }
     
     if ($scope.initWebGL()) {   
