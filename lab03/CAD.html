@@ -36,107 +36,109 @@
                     <h2>Parameters</h2>
                 </header>
                 <section>
-                    <div>
-                        <button class="w3-btn w3-theme-dark" ng-show="(!(editMode))" title="Create new object" ng-click="newObject()"><i class="material-icons">add</i></button>
-                        <select ng-model="objects" ng-show="(!(editMode)) && (selectedObject !== null)"></select>
-                        <button class="w3-btn w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Edit selected object"><i class="material-icons">edit</i></button>
-                        <button class="w3-btn w3-theme-dark" ng-show="selectedObject !== null" title="Delete selected object"><i class="material-icons">delete</i></button>
-                        <button class="w3-btn w3-theme-dark" ng-show="objects.length > 0" title="Download scene"><i class="material-icons">file_download</i></button>
-                    </div>
-                    <div class="w3-container w3-theme-light"><h5>Object</h5></div>
-                    <div class="w3-container">
-                        <div class="w3-group">
-                            <label for="obj.name">Name:</label>
-                            <input type="text" ng-model="obj.name" ng-disabled="(varLoading) || (!(editMode))" ng-blur="checkRenaming()"/>
-                            <input type="hidden" ng-model="obj.name_changed" />
+                    <form name="form" role="form">
+                        <div>
+                            <button class="w3-btn w3-theme-dark" ng-show="(!(editMode))" title="Create new object" ng-click="newObject()"><i class="material-icons">add</i></button>
+                            <select ng-model="objects" ng-show="(!(editMode)) && (selectedObject !== null)"></select>
+                            <button class="w3-btn w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Edit selected object"><i class="material-icons">edit</i></button>
+                            <button class="w3-btn w3-theme-dark" ng-show="selectedObject !== null" title="Delete selected object"><i class="material-icons">delete</i></button>
+                            <button class="w3-btn w3-theme-dark" ng-show="objects.length > 0" title="Download scene"><i class="material-icons">file_download</i></button>
                         </div>
-                        <div class="w3-group">
-                            <label for="obj.type">Type:</label>
-                            <select ng-model="obj.type" ng-disabled="(varLoading) || (!(editMode))" ng-change="autoRename()">
-                                <option value="0" label="Cone">Cone</option>
-                                <option value="1" label="Cylinder">Cylinder</option>
-                                <option value="2" label="Sphere">Sphere</option>
-                            </select>
-                        </div>
-                        <div class="w3-group tall">
-                            <label for="obj.fragments">Fragments:&nbsp;</label><span ng-bind="fragments"></span><br />
-                            <input class="w3-range" type="range" ng-model="obj.fragments" min="9" max="72" step="1" list="fragmentsList" ng-disabled="(varLoading) || (!(editMode))">
-                            <datalist id="fragments" name="fragments">
-                                <option value="9">
-                                <option value="18">
-                                <option value="27">
-                                <option value="36">
-                                <option value="45">
-                                <option value="54">
-                                <option value="63">
-                                <option value="72">
-                            </datalist>
-                            <span class="left_align">10</span>
-                            <span class="right_align">72</span>
-                        </div>                
-                    </div>
-                    <div class="w3-container w3-theme-light"><h5>Attributes</h5></div>
-                    <div class="w3-container">
-                        <div class="w3-group" ng-show="obj.type == 2">
-                            <label for="obj.radius">Radius:</label>
-                            <input type="number" ng-model="obj.radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
-                        </div>
-                        <div class="w3-group" ng-show="obj.type != 2">
-                            <label for="obj.bottom_radius">Bottom radius:</label>
-                            <input type="number" ng-model="obj.bottom_radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
-                        </div>
-                        <div class="w3-group" ng-show="obj.type == 1">
-                            <label for="obj.top_radius">Top radius:</label>
-                            <input type="number" ng-model="obj.top_radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
-                        </div>
-                        <div class="w3-group" ng-show="obj.type != 2">
-                            <label for="obj.height">Height:</label>
-                            <input type="number" ng-model="obj.height" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
-                        </div>
-                        <div class="w3-group" ng-show="obj.type != 2">                        
-                            <label class="w3-checkbox">
-                                Closed:
-                                <input type="checkbox" ng-model="obj.closed" ng-disabled="(varLoading) || (!(editMode))" />
-                                <span class="w3-checkmark"></span>
-                            </label>
-                        </div>                
-                        <div class="w3-group">                        
-                            <label for="obj.color">Color:</label>
-                            <input type="color" ng-model="obj.color" ng-disabled="(varLoading) || (!(editMode))" />
-                        </div>
-                    </div>
-                    <div class="w3-container w3-theme-light"><h5>Position</h5></div>
-                    <div class="w3-container">
-                        <div class="w3-group">
-                            <div>
-                                <label for="obj.pos_x">X:&nbsp;</label><input type="number" ng-model="obj.pos_x" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                        <div class="w3-container w3-theme-light"><h5>Object</h5></div>
+                        <div class="w3-container">
+                            <div class="w3-group">
+                                <label for="obj.name">Name:</label>
+                                <input type="text" ng-model="obj.name" ng-disabled="(varLoading) || (!(editMode))" ng-blur="checkRenaming()"/>
+                                <input type="hidden" ng-model="obj.name_changed" />
                             </div>
-                            <div>
-                                <label for="obj.pos_y">Y:&nbsp;</label><input type="number" ng-model="obj.pos_y" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                            <div class="w3-group">
+                                <label for="obj.type">Type:</label>
+                                <select ng-model="obj.type" ng-disabled="(varLoading) || (!(editMode))" ng-change="autoRename()">
+                                    <option value="0" label="Cone">Cone</option>
+                                    <option value="1" label="Cylinder">Cylinder</option>
+                                    <option value="2" label="Sphere">Sphere</option>
+                                </select>
                             </div>
-                            <div>
-                                <label for="obj.pos_z">Z:&nbsp;</label><input type="number" ng-model="obj.pos_z" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                            <div class="w3-group tall">
+                                <label for="obj.fragments">Fragments:&nbsp;</label><span ng-bind="fragments"></span><br />
+                                <input class="w3-range" type="range" ng-model="obj.fragments" min="9" max="72" step="1" list="fragmentsList" ng-disabled="(varLoading) || (!(editMode))">
+                                <datalist id="fragments" name="fragments">
+                                    <option value="9">
+                                    <option value="18">
+                                    <option value="27">
+                                    <option value="36">
+                                    <option value="45">
+                                    <option value="54">
+                                    <option value="63">
+                                    <option value="72">
+                                </datalist>
+                                <span class="left_align">10</span>
+                                <span class="right_align">72</span>
+                            </div>                
+                        </div>
+                        <div class="w3-container w3-theme-light"><h5>Attributes</h5></div>
+                        <div class="w3-container">
+                            <div class="w3-group" ng-show="obj.type == 2">
+                                <label for="obj.radius">Radius:</label>
+                                <input type="number" ng-model="obj.radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                            </div>
+                            <div class="w3-group" ng-show="obj.type != 2">
+                                <label for="obj.bottom_radius">Bottom radius:</label>
+                                <input type="number" ng-model="obj.bottom_radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                            </div>
+                            <div class="w3-group" ng-show="obj.type == 1">
+                                <label for="obj.top_radius">Top radius:</label>
+                                <input type="number" ng-model="obj.top_radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                            </div>
+                            <div class="w3-group" ng-show="obj.type != 2">
+                                <label for="obj.height">Height:</label>
+                                <input type="number" ng-model="obj.height" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                            </div>
+                            <div class="w3-group" ng-show="obj.type != 2">                        
+                                <label class="w3-checkbox">
+                                    Closed:
+                                    <input type="checkbox" ng-model="obj.closed" ng-disabled="(varLoading) || (!(editMode))" />
+                                    <span class="w3-checkmark"></span>
+                                </label>
+                            </div>                
+                            <div class="w3-group">                        
+                                <label for="obj.color">Color:</label>
+                                <input type="color" ng-model="obj.color" ng-disabled="(varLoading) || (!(editMode))" />
                             </div>
                         </div>
-                    </div>
-                    <div class="w3-container w3-theme-light"><h5>Rotation</h5></div>
-                    <div class="w3-container">
-                        <div class="w3-group">
-                            <div>
-                                <label for="obj.rot_x">X:&nbsp;</label><input type="number" ng-model="obj.rot_x" min="0" max="359.99" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
-                            </div>
-                            <div>
-                                <label for="obj.rot_y">Y:&nbsp;</label><input type="number" ng-model="obj.rot_y" min="0" max="359.99" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
-                            </div>
-                            <div>
-                                <label for="obj.rot_z">Z:&nbsp;</label><input type="number" ng-model="obj.rot_z" min="0" max="359.99" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                        <div class="w3-container w3-theme-light"><h5>Position</h5></div>
+                        <div class="w3-container">
+                            <div class="w3-group">
+                                <div>
+                                    <label for="obj.pos_x">X:&nbsp;</label><input type="number" ng-model="obj.pos_x" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                </div>
+                                <div>
+                                    <label for="obj.pos_y">Y:&nbsp;</label><input type="number" ng-model="obj.pos_y" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                </div>
+                                <div>
+                                    <label for="obj.pos_z">Z:&nbsp;</label><input type="number" ng-model="obj.pos_z" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="container w3-center">
-                        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))">Done<i class="w3-margin-left w3-right material-icons">done</i></button>
-                        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))">Cancel<i class="w3-margin-left w3-right material-icons">cancel</i></button>
-                    </div>
+                        <div class="w3-container w3-theme-light"><h5>Rotation</h5></div>
+                        <div class="w3-container">
+                            <div class="w3-group">
+                                <div>
+                                    <label for="obj.rot_x">X:&nbsp;</label><input type="number" ng-model="obj.rot_x" min="0" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                </div>
+                                <div>
+                                    <label for="obj.rot_y">Y:&nbsp;</label><input type="number" ng-model="obj.rot_y" min="0" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                </div>
+                                <div>
+                                    <label for="obj.rot_z">Z:&nbsp;</label><input type="number" ng-model="obj.rot_z" min="0" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container w3-center">
+                            <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))" ng-click="form.submit();saveObject(form);">Done<i class="w3-margin-left w3-right material-icons">done</i></button>
+                            <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))" ng-click="reset(form)">Cancel<i class="w3-margin-left w3-right material-icons">cancel</i></button>
+                        </div>
+                    </form>
                 </section>
             </section>
             <section class="w3-col s12 m8 l9">

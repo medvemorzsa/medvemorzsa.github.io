@@ -9,6 +9,25 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.editMode = false;
     $scope.numObj = 1;
     
+    $scope.baseObj = {
+        name: "Untitled",
+        name_changed: false,
+        type: 0,
+        fragments: 12,
+        radius: 10.0,
+        bottom_radius: 10.0,
+        top_radius: 10.0,
+        height: 10.0,
+        closed: false,
+        color: "#000000",
+        pos_x: 0.0,
+        pos_y: 0.0,
+        pos_z: 0.0,
+        rot_x: 0.0,
+        rot_y: 0.0,
+        rot_z: 0.0
+    }
+    
     $scope.canvas = null;
 
     // WebGL initialization
@@ -39,24 +58,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
     // Start creating new object
     $scope.newObject = function() {
         $scope.editMode = true;
-        $scope.obj = {
-            name: $scope.types[0] + "_" + String($scope.numObj),
-            name_changed: false,
-            type: 0,
-            fragments: 12,
-            radius: 10.0,
-            bottom_radius: 10.0,
-            top_radius: 10.0,
-            height: 10.0,
-            closed: false,
-            color: "#000000",
-            pos_x: 0.0,
-            pos_y: 0.0,
-            pos_z: 0.0,
-            rot_x: 0.0,
-            rot_y: 0.0,
-            rot_z: 0.0
-        }
+        $scope.obj = angular.copy($scope.baseObj);
+        $scope.obj.name = $scope.types[0] + "_" + String($scope.numObj);
     }
     
     // Auto rename current object when its name has never changed
@@ -70,6 +73,23 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.obj.name_changed = ($scope.obj.name != $scope.types[$scope.obj.type] + '_' + String($scope.numObj));
     }
     
+    // Save object modification
+    $scope.saveObject = function(form) {
+        if (form.$valid) {
+            console.log("Save");
+            $scope.editMode = false;
+        }
+    }
+    
+    $scope.reset = function(form) {
+        if (form) {
+            form.$setPristine();
+            form.$setUntouched();
+        }
+        $scope.obj = angular.copy($scope.baseObj);
+        $scope.editMode=false;
+    };    
+  
     if ($scope.initWebGL()) {   
         $scope.render();
         $scope.varLoading = false;
