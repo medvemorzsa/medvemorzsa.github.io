@@ -3,6 +3,10 @@ var app = angular.module("webGlLab03App", []);
 app.controller("webGlLab03Ctrl", function($scope) {
     $scope.varLoading = true;
     
+    $scope.objects = [];
+    $scope.selectedObject = null;
+    $scope.editMode = false;
+    
     $scope.canvas = null;
 
     // WebGL initialization

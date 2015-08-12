@@ -47,7 +47,7 @@
                     <div class="w3-container">
                         <div class="w3-group">
                             <label for="type">Type:</label>
-                            <select ng-model="type" ng-disabled="varLoading">
+                            <select ng-model="type" ng-disabled="(varLoading) || (!(editMode))">
                                 <option value="0" label="Cone">Cone</option>
                                 <option value="1" label="Cylinder">Cylinder</option>
                                 <option value="2" label="Sphere">Sphere</option>
@@ -55,7 +55,7 @@
                         </div>
                         <div class="w3-group tall">
                             <label for="fragments">Fragments:&nbsp;</label><span ng-bind="fragments"></span><br />
-                            <input class="w3-range" type="range" ng-model="fragments" min="9" max="72" step="1" list="fragmentsList" ng-disabled="varLoading">
+                            <input class="w3-range" type="range" ng-model="fragments" min="9" max="72" step="1" list="fragmentsList" ng-disabled="(varLoading) || (!(editMode))">
                             <datalist id="fragments" name="fragments">
                                 <option value="9">
                                 <option value="18">
@@ -74,43 +74,43 @@
                     <div class="w3-container">
                         <div class="w3-group">
                             <label for="sphere_radius">Radius:</label>
-                            <input type="number" ng-model="radius" step="any" ng-disabled="varLoading"/>
+                            <input type="number" ng-model="radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                         </div>
                         <div class="w3-group">
                             <label for="sphere_radius">Bottom radius:</label>
-                            <input type="number" ng-model="bottom_radius" step="any" ng-disabled="varLoading"/>
+                            <input type="number" ng-model="bottom_radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                         </div>
                         <div class="w3-group">
                             <label for="sphere_radius">Top radius:</label>
-                            <input type="number" ng-model="top_radius" step="any" ng-disabled="varLoading"/>
+                            <input type="number" ng-model="top_radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                         </div>
                         <div class="w3-group">
                             <label for="sphere_radius">Height:</label>
-                            <input type="number" ng-model="height" step="any" ng-disabled="varLoading"/>
+                            <input type="number" ng-model="height" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                         </div>
                         <div class="w3-group">                        
                             <label class="w3-checkbox">
                                 Closed:
-                                <input type="checkbox" ng-model="closed" ng-disabled="varLoading" />
+                                <input type="checkbox" ng-model="closed" ng-disabled="(varLoading) || (!(editMode))" />
                                 <span class="w3-checkmark"></span>
                             </label>
                         </div>                
                         <div class="w3-group">                        
                             <label for="color">Color:</label>
-                            <input type="color" ng-model="color" ng-disabled="varLoading" />
+                            <input type="color" ng-model="color" ng-disabled="(varLoading) || (!(editMode))" />
                         </div>
                     </div>
                     <div class="w3-container w3-theme-light"><h5>Position</h5></div>
                     <div class="w3-container">
                         <div class="w3-group">
                             <div>
-                                <label for="pos_x">X:&nbsp;</label><input type="number" ng-model="pos_x" step="any" ng-disabled="varLoading"/>
+                                <label for="pos_x">X:&nbsp;</label><input type="number" ng-model="pos_x" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                             </div>
                             <div>
-                                <label for="pos_y">Y:&nbsp;</label><input type="number" ng-model="pos_y" step="any" ng-disabled="varLoading"/>
+                                <label for="pos_y">Y:&nbsp;</label><input type="number" ng-model="pos_y" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                             </div>
                             <div>
-                                <label for="pos_z">Z:&nbsp;</label><input type="number" ng-model="pos_z" step="any" ng-disabled="varLoading"/>
+                                <label for="pos_z">Z:&nbsp;</label><input type="number" ng-model="pos_z" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                             </div>
                         </div>
                     </div>
@@ -118,19 +118,19 @@
                     <div class="w3-container">
                         <div class="w3-group">
                             <div>
-                                <label for="rot_x">X:&nbsp;</label><input type="number" ng-model="rot_x" min="0" max="359.99" step="any" ng-disabled="varLoading"/>
+                                <label for="rot_x">X:&nbsp;</label><input type="number" ng-model="rot_x" min="0" max="359.99" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                             </div>
                             <div>
-                                <label for="rot_y">Y:&nbsp;</label><input type="number" ng-model="rot_y" min="0" max="359.99" step="any" ng-disabled="varLoading"/>
+                                <label for="rot_y">Y:&nbsp;</label><input type="number" ng-model="rot_y" min="0" max="359.99" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                             </div>
                             <div>
-                                <label for="rot_z">Z:&nbsp;</label><input type="number" ng-model="rot_z" min="0" max="359.99" step="any" ng-disabled="varLoading"/>
+                                <label for="rot_z">Z:&nbsp;</label><input type="number" ng-model="rot_z" min="0" max="359.99" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                             </div>
                         </div>
                     </div>
                     <div class="container w3-center">
-                        <button class="w3-btn w3-theme-dark">Done<i class="w3-margin-left w3-right material-icons">done</i></button>
-                        <button class="w3-btn w3-theme-dark">Cancel<i class="w3-margin-left w3-right material-icons">cancel</i></button>
+                        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))">Done<i class="w3-margin-left w3-right material-icons">done</i></button>
+                        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))">Cancel<i class="w3-margin-left w3-right material-icons">cancel</i></button>
                     </div>
                 </section>
             </section>
