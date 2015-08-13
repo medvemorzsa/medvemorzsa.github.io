@@ -59,6 +59,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
     // Start creating new object
     $scope.newObject = function() {
         $scope.editMode = true;
+        $scope.oldSelectedObject = $scope.selectedObject;
+        $scope.selectedObject = null;
         $scope.obj = angular.copy($scope.baseObj);
         $scope.obj.name = $scope.types[0] + "_" + String($scope.numObj);
     }
@@ -77,11 +79,15 @@ app.controller("webGlLab03Ctrl", function($scope) {
     // Save object modification
     $scope.saveObject = function(form) {
         if (form.$valid) {
-            var obj = $scope.createObject();
-            console.log(obj);
-            $scope.objects.push(obj);
-            console.log($scope.objects);
-            $scope.selectedObject = obj;
+            if ($scope.selectedObject == null) {
+                $scope.selectedObject = $scope.createObject();
+                $scope.objects.push($scope.selectedObject);
+            }
+            else {
+                $scope.updateObject();
+            }
+            $scope.selectable_objects = $scope.selectedObject;
+            $scope.numObj++;
             $scope.editMode = false;
         }
     }
@@ -91,6 +97,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
         if (form) {
             form.$setPristine();
             form.$setUntouched();
+        }
+        if ($scope.oldSelectedObject != null) {
+            $scope.selectedObject = $scope.oldSelectedObject;
+            $scope.oldSelectedObject = null;
         }
         $scope.obj = angular.copy($scope.baseObj);
         $scope.editMode=false;
@@ -157,6 +167,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
             pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
             rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
         }
+    }
+    
+    // Update object
+    $scope.updateObject = function() {
     }
     
     if ($scope.initWebGL()) {   
