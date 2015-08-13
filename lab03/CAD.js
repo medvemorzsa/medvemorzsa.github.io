@@ -91,6 +91,58 @@ app.controller("webGlLab03Ctrl", function($scope) {
         jsonDataWindow.focus();        
     }
     
+    $scope.file_changed = function(element, $scope) {
+        $scope.numUploadFiles = element.files.length;
+        console.log($scope.numUploadFiles);
+        /*
+        console.log(element);
+         $scope.$apply(function(scope) {
+             var file = element.files[0];
+             var reader = new FileReader();
+             reader.onload = function(e) {
+                 console.log(e);
+                //$scope.prev_img = e.target.result;
+             };
+             reader.readAsText(file);
+         });*/
+    };    
+    
+    // Upload objects
+    $scope.uploadObjects = function($event) {
+        if (document.getElementById("file").files.length != 1) {
+            if ($event.preventDefault) $event.preventDefault();
+            if ($event.stopPropagation) $event.stopPropagation();
+            if ($event.cancelBubble) $event.cancelBubble = true;
+            
+            return false;
+        }
+        
+        var file = document.getElementById("file").files[0];
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                $scope.objects = angular.fromJson(e.target.result);
+                $scope.selectedObject = null;
+                if ($scope.objects.length > 0) {
+                    $scope.selectedObject = $scope.objects[0];
+                }
+                $scope.numObj = $scope.objects.length;
+                $scope.selectable_objects = $scope.selectedObject;
+                $scope.loadObject();     
+
+                return true;
+            }
+            catch(err) {
+                alert("The loading or processing of file failed.\n\n" + err);
+                
+                return false;
+            }            
+        };
+        reader.readAsText(file);
+        
+        return true;
+    }
+    
     // Auto rename current object when its name has never changed
     $scope.autoRename = function() {
         if ($scope.obj.name_changed) return;
