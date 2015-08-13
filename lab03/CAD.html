@@ -39,7 +39,7 @@
                     <form name="form" role="form">
                         <div>
                             <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode))" title="Create new object" ng-click="newObject()"><i class="material-icons">add</i></button>
-                            <select data-ng-model="selectable_objects" ng-show="(!(editMode)) && (objects.length != 0)" ng-options="obj.name for obj in objects | orderBy: 'name' "></select>
+                            <select ng-model="selectable_objects" ng-show="(!(editMode)) && (objects.length != 0)" ng-options="obj.name for obj in objects | orderBy: 'name' " ng-change="loadObject()"></select>
                             <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Edit selected object"><i class="material-icons">edit</i></button>
                             <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Delete selected object"><i class="material-icons">delete</i></button>
                             <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (objects.length > 0)" title="Download scene"><i class="material-icons">file_download</i></button>
@@ -60,7 +60,7 @@
                                 </select>
                             </div>
                             <div class="w3-group tall">
-                                <label for="obj.fragments">Fragments:&nbsp;</label><span ng-bind="fragments"></span><br />
+                                <label for="obj.fragments">Fragments:&nbsp;</label><span ng-bind="obj.fragments"></span><br />
                                 <input class="w3-range" type="range" ng-model="obj.fragments" min="9" max="72" step="1" list="fragmentsList" ng-disabled="(varLoading) || (!(editMode))">
                                 <datalist id="fragments" name="fragments">
                                     <option value="9">

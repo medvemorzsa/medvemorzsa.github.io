@@ -81,6 +81,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         if (form.$valid) {
             if ($scope.selectedObject == null) {
                 $scope.selectedObject = $scope.createObject();
+                console.log($scope.selectedObject);
                 $scope.objects.push($scope.selectedObject);
             }
             else {
@@ -109,8 +110,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     // Create object
     $scope.createObject = function() {
         if ($scope.selectedObject != null) return;
-        
-        switch ($scope.obj.type) {
+        switch (parseInt($scope.obj.type)) {
             case (0): {
                 return $scope.createCone();
                 break;
@@ -158,7 +158,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     }
 
     // Create sphere object 
-    $scope.createCylinder = function() {
+    $scope.createSphere = function() {
         return {
             name: $scope.obj.name,
             fragments: $scope.obj.fragments,
@@ -171,6 +171,38 @@ app.controller("webGlLab03Ctrl", function($scope) {
     
     // Update object
     $scope.updateObject = function() {
+    }
+    
+    // Load datas of object into UI components
+    $scope.loadObject = function() {
+        if (typeof $scope.selectable_objects === "undefined") return;
+        
+        $scope.selectedObject = $scope.selectable_objects;
+        console.log($scope.selectedObject);
+        $scope.obj.name = $scope.selectedObject.name;
+        $scope.obj.type = "0";
+        $scope.obj.fragments = $scope.selectedObject.fragments;
+        $scope.obj.color = $scope.selectedObject.color;
+        if ($scope.selectedObject.radius) {
+            $scope.obj.type = "2";
+            $scope.obj.radius = $scope.selectedObject.radius;
+        }
+        if ($scope.selectedObject.top_radius) {
+            $scope.obj.type = "1";
+            $scope.obj.top_radius = $scope.selectedObject.top_radius;
+        }
+        if ($scope.selectedObject.bottom_radius)
+            $scope.obj.bottom_radius = $scope.selectedObject.bottom_radius;
+        if ($scope.selectedObject.height)
+            $scope.obj.height = $scope.selectedObject.height;        
+        if ($scope.selectedObject.closed)
+            $scope.obj.closed = $scope.selectedObject.closed;
+        $scope.obj.pos_x = $scope.selectedObject.pos[0];
+        $scope.obj.pos_y = $scope.selectedObject.pos[1];
+        $scope.obj.pos_z = $scope.selectedObject.pos[2];
+        $scope.obj.rot_x = $scope.selectedObject.rotation[0];
+        $scope.obj.rot_y = $scope.selectedObject.rotation[1];
+        $scope.obj.rot_z = $scope.selectedObject.rotation[2];
     }
     
     if ($scope.initWebGL()) {   
