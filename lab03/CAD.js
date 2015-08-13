@@ -65,6 +65,11 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.obj.name = $scope.types[0] + "_" + String($scope.numObj);
     }
     
+    // Start editing selected object
+    $scope.editObject = function() {
+        $scope.editMode = true;         
+    }
+    
     // Auto rename current object when its name has never changed
     $scope.autoRename = function() {
         if ($scope.obj.name_changed) return;
@@ -81,14 +86,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
         if (form.$valid) {
             if ($scope.selectedObject == null) {
                 $scope.selectedObject = $scope.createObject();
-                console.log($scope.selectedObject);
                 $scope.objects.push($scope.selectedObject);
+                $scope.numObj++;
             }
             else {
                 $scope.updateObject();
             }
             $scope.selectable_objects = $scope.selectedObject;
-            $scope.numObj++;
             $scope.editMode = false;
         }
     }
@@ -138,7 +142,18 @@ app.controller("webGlLab03Ctrl", function($scope) {
             height: $scope.obj.height,
             closed: $scope.obj.closed,
             pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
-            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
+            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z),
+            
+            update: function() {
+                this.name = $scope.obj.name;
+                this.fragments = $scope.obj.fragments;
+                this.color = $scope.obj.color;
+                this.bottom_radius = $scope.obj.bottom_radius;
+                this.height = $scope.obj.height;
+                this.closed = $scope.obj.closed;
+                this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
+                this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
+            }
         }
     }
     
@@ -153,7 +168,19 @@ app.controller("webGlLab03Ctrl", function($scope) {
             height: $scope.obj.height,
             closed: $scope.obj.closed,
             pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
-            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
+            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z),
+            
+            update: function() {
+                this.name = $scope.obj.name;
+                this.fragments = $scope.obj.fragments;
+                this.color = $scope.obj.color;
+                this.bottom_radius = $scope.obj.bottom_radius;
+                this.top_radius = $scope.obj.top_radius;
+                this.height = $scope.obj.height;
+                this.closed = $scope.obj.closed;
+                this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
+                this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
+            }
         }
     }
 
@@ -165,12 +192,25 @@ app.controller("webGlLab03Ctrl", function($scope) {
             color: $scope.obj.color,
             radius: $scope.obj.radius,
             pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
-            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
+            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z),
+            
+            update: function() {
+                this.name = $scope.obj.name;
+                this.fragments = $scope.obj.fragments;
+                this.color = $scope.obj.color;
+                this.radius = $scope.obj.radius;
+                this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
+                this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
+            }
         }
     }
     
     // Update object
     $scope.updateObject = function() {
+        if ($scope.selectedObject == null) return;
+        console.log($scope.selectedObject);
+        if ($scope.selectedObject.update)
+            $scope.selectedObject.update();
     }
     
     // Load datas of object into UI components
