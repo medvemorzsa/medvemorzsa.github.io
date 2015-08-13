@@ -11,6 +11,24 @@
         <link rel="stylesheet" href="../css/w3-theme-teal.css" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <link rel="stylesheet" href="CAD.css" />
+
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            attribute vec4 vPosition;
+
+            void main() {
+                gl_Position = vPosition;
+            }
+        </script>
+
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            precision mediump float;
+            uniform vec4 user_color;
+            
+            void main() {
+                gl_FragColor = user_color;
+            }
+        </script>
+        
     </head>
     <body>
         <div class="w3-row">

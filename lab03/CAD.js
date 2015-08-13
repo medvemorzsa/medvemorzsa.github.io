@@ -47,6 +47,19 @@ app.controller("webGlLab03Ctrl", function($scope) {
         
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
         
+        // Init shaders
+        $scope.program = initShaders($scope.gl, "vertex-shader", "fragment-shader");
+        $scope.gl.useProgram($scope.program);
+        
+        // Buffer
+        $scope.bufferID = $scope.gl.createBuffer();
+        $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.bufferID);
+        
+        // Associate out shader variables with our data buffer
+        var vPosition = $scope.gl.getAttribLocation($scope.program, "vPosition");
+        $scope.gl.vertexAttribPointer(vPosition, 2, $scope.gl.FLOAT, false, 0, 0);
+        $scope.gl.enableVertexAttribArray(vPosition);
+        
         return true;
     }
     
@@ -90,11 +103,11 @@ app.controller("webGlLab03Ctrl", function($scope) {
         var jsonDataWindow = window.open("data:text/json," + encodeURIComponent(jsonData), "_blank");
         jsonDataWindow.focus();        
     }
-    
+    /*
     $scope.file_changed = function(element, $scope) {
         $scope.numUploadFiles = element.files.length;
         console.log($scope.numUploadFiles);
-        /*
+        
         console.log(element);
          $scope.$apply(function(scope) {
              var file = element.files[0];
@@ -104,9 +117,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 //$scope.prev_img = e.target.result;
              };
              reader.readAsText(file);
-         });*/
+         });
     };    
-    
+    */
     // Upload objects
     $scope.uploadObjects = function($event) {
         if (document.getElementById("file").files.length != 1) {
@@ -233,6 +246,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
                 this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
             }
+            
         }
     }
     
@@ -272,6 +286,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             radius: $scope.obj.radius,
             pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
             rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z),
+            vertexs: [],
             
             update: function() {
                 this.name = $scope.obj.name;
@@ -281,6 +296,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
                 this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
             }
+
         }
     }
     
