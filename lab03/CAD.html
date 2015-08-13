@@ -42,7 +42,7 @@
                             <select ng-model="selectable_objects" ng-show="(!(editMode)) && (objects.length != 0)" ng-options="obj.name for obj in objects | orderBy: 'name' " ng-change="loadObject()"></select>
                             <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Edit selected object" ng-click="editObject()"><i class="material-icons">edit</i></button>
                             <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Delete selected object" ng-click="deleteObject()"><i class="material-icons">delete</i></button>
-                            <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (objects.length > 0)" title="Download scene"><i class="material-icons">file_download</i></button>
+                            <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (objects.length > 0)" title="Download objects" ng-click="downloadObjects()"><i class="material-icons">file_download</i></button>
                         </div>
                         <div class="w3-container w3-theme-light"><h5>Object</h5></div>
                         <div class="w3-container">
@@ -53,7 +53,7 @@
                             </div>
                             <div class="w3-group">
                                 <label for="obj.type">Type:</label>
-                                <select ng-model="obj.type" ng-disabled="(varLoading) || (!(editMode))" ng-change="autoRename()">
+                                <select ng-model="obj.type" ng-disabled="(varLoading) || (!(editMode)) || (selectedObject != null)" ng-change="autoRename()">
                                     <option value="0" label="Cone">Cone</option>
                                     <option value="1" label="Cylinder">Cylinder</option>
                                     <option value="2" label="Sphere">Sphere</option>

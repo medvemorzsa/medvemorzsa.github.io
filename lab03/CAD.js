@@ -84,6 +84,11 @@ app.controller("webGlLab03Ctrl", function($scope) {
         }
     }
     
+    // Download objects
+    $scope.downloadObjects = function() {
+        console.log(angular.toJson($scope.objects, 4));
+    }
+    
     // Auto rename current object when its name has never changed
     $scope.autoRename = function() {
         if ($scope.obj.name_changed) return;
@@ -121,7 +126,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
             $scope.selectedObject = $scope.oldSelectedObject;
             $scope.oldSelectedObject = null;
         }
-        $scope.obj = angular.copy($scope.baseObj);
+        if ($scope.selectedObject != null) {
+            $scope.selectable_objects = $scope.selectedObject;
+            $scope.loadObject();
+        }
+        else
+            $scope.obj = angular.copy($scope.baseObj);
+            
         $scope.editMode=false;
     };    
   
