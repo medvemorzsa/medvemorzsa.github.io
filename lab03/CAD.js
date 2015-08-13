@@ -67,6 +67,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.render = function() {
         if (!($scope.gl)) return;
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        
+        for (object in $scope.objects) 
+            if (object.render)
+                object.render();
     };
     
     // Start creating new object
@@ -94,6 +98,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 $scope.selectedObject = $scope.objects[0];            
             $scope.selectable_objects = $scope.selectedObject;
             $scope.loadObject();
+            $scope.render();
         }
     }
     
@@ -142,6 +147,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 $scope.numObj = $scope.objects.length;
                 $scope.selectable_objects = $scope.selectedObject;
                 $scope.loadObject();     
+                $scope.render();
 
                 return true;
             }
@@ -178,6 +184,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             else {
                 $scope.updateObject();
             }
+            $scope.render();
             $scope.selectable_objects = $scope.selectedObject;
             $scope.editMode = false;
         }
