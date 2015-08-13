@@ -41,7 +41,7 @@
                             <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode))" title="Create new object" ng-click="newObject()"><i class="material-icons">add</i></button>
                             <select ng-model="selectable_objects" ng-show="(!(editMode)) && (objects.length != 0)" ng-options="obj.name for obj in objects | orderBy: 'name' " ng-change="loadObject()"></select>
                             <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Edit selected object" ng-click="editObject()"><i class="material-icons">edit</i></button>
-                            <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Delete selected object"><i class="material-icons">delete</i></button>
+                            <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Delete selected object" ng-click="deleteObject()"><i class="material-icons">delete</i></button>
                             <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (objects.length > 0)" title="Download scene"><i class="material-icons">file_download</i></button>
                         </div>
                         <div class="w3-container w3-theme-light"><h5>Object</h5></div>

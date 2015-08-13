@@ -70,6 +70,20 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.editMode = true;         
     }
     
+    // Delete selected object
+    $scope.deleteObject = function() {
+        if ($scope.selectedObject == null) return;
+        
+        if (confirm("Are you sure you want to delete the selected object?")) {
+            $scope.objects.splice($scope.objects.indexOf($scope.selectedObject), 1);
+            $scope.selectedObject = null;
+            if ($scope.objects.length > 0)
+                $scope.selectedObject = $scope.objects[0];            
+            $scope.selectable_objects = $scope.selectedObject;
+            $scope.loadObject();
+        }
+    }
+    
     // Auto rename current object when its name has never changed
     $scope.autoRename = function() {
         if ($scope.obj.name_changed) return;
@@ -208,17 +222,19 @@ app.controller("webGlLab03Ctrl", function($scope) {
     // Update object
     $scope.updateObject = function() {
         if ($scope.selectedObject == null) return;
-        console.log($scope.selectedObject);
+
         if ($scope.selectedObject.update)
             $scope.selectedObject.update();
     }
     
     // Load datas of object into UI components
     $scope.loadObject = function() {
-        if (typeof $scope.selectable_objects === "undefined") return;
+        if (($scope.selectable_objects == null) || (typeof $scope.selectable_objects === "undefined")) {
+            $scope.obj = angular.copy($scope.baseObj);
+            return;
+        }
         
         $scope.selectedObject = $scope.selectable_objects;
-        console.log($scope.selectedObject);
         $scope.obj.name = $scope.selectedObject.name;
         $scope.obj.type = "0";
         $scope.obj.fragments = $scope.selectedObject.fragments;
