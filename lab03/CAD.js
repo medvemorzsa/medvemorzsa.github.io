@@ -86,7 +86,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
     
     // Download objects
     $scope.downloadObjects = function() {
-        console.log(angular.toJson($scope.objects, 4));
+        var jsonData = angular.toJson($scope.objects, 4);
+        var jsonDataWindow = window.open("data:text/json," + encodeURIComponent(jsonData), "_blank");
+        jsonDataWindow.focus();        
     }
     
     // Auto rename current object when its name has never changed

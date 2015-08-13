@@ -1,0 +1,39 @@
+[
+    {
+        "name": "Cone_1",
+        "fragments": 12,
+        "color": "#000000",
+        "bottom_radius": 10,
+        "height": 10,
+        "closed": false,
+        "pos": [
+            0,
+            0,
+            0
+        ],
+        "rotation": [
+            0,
+            0,
+            0
+        ]
+    },
+    {
+        "name": "Cylinder_2",
+        "fragments": 12,
+        "color": "#000000",
+        "bottom_radius": 10,
+        "top_radius": 10,
+        "height": 10,
+        "closed": false,
+        "pos": [
+            0,
+            0,
+            0
+        ],
+        "rotation": [
+            0,
+            0,
+            0
+        ]
+    }
+]
