@@ -215,15 +215,15 @@ app.controller("webGlLab03Ctrl", function($scope) {
         if ($scope.selectedObject != null) return;
         switch (parseInt($scope.obj.type)) {
             case (0): {
-                return $scope.createCone();
+                return $scope.createCone().generate();
                 break;
             }
             case (1): {
-                return $scope.createCylinder();
+                return $scope.createCylinder().generate();
                 break;
             }
             case (2): {
-                return $scope.createSphere();
+                return $scope.createSphere().generate();
                 break;
             }
         }
@@ -252,8 +252,12 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 this.closed = $scope.obj.closed;
                 this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
                 this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
-            }
-            
+                
+                this.generate();
+            },
+
+            generate: function() {
+            }           
         }
     }
     
@@ -280,6 +284,11 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 this.closed = $scope.obj.closed;
                 this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
                 this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
+                
+                this.generate();
+            },
+            
+            generate: function() {
             }
         }
     }
@@ -302,8 +311,12 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 this.radius = $scope.obj.radius;
                 this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
                 this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
-            }
+                
+                this.generate();
+            },
 
+            generate: function() {
+            }
         }
     }
     
