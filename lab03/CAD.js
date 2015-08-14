@@ -12,7 +12,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.baseObj = {
         name: "Untitled",
         name_changed: false,
-        type: 1,
+        type: 2,
         fragments: 12,
         radius: 1.0,
         bottom_radius: 1.0,
@@ -269,7 +269,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.createCone = function() {
         return {
             name: $scope.obj.name,
-            fragments: $scope.obj.fragments,
+            fragments: parseInt($scope.obj.fragments),
             type: 0,
             color: $scope.obj.color,
             radius: $scope.obj.radius,
@@ -281,7 +281,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             
             update: function() {
                 this.name = $scope.obj.name;
-                this.fragments = $scope.obj.fragments;
+                this.fragments = parseInt($scope.obj.fragments);
                 this.color = $scope.obj.color;
                 this.radius = $scope.obj.radius;
                 this.height = $scope.obj.height;
@@ -352,7 +352,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.createCylinder = function() {
         return {
             name: $scope.obj.name,
-            fragments: $scope.obj.fragments,
+            fragments: parseInt($scope.obj.fragments),
             type: 1,
             color: $scope.obj.color,
             bottom_radius: $scope.obj.bottom_radius,
@@ -365,7 +365,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             
             update: function() {
                 this.name = $scope.obj.name;
-                this.fragments = $scope.obj.fragments;
+                this.fragments = parseInt($scope.obj.fragments);
                 this.color = $scope.obj.color;
                 this.bottom_radius = $scope.obj.bottom_radius;
                 this.top_radius = $scope.obj.top_radius;
@@ -459,7 +459,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.createSphere = function() {
         return {
             name: $scope.obj.name,
-            fragments: $scope.obj.fragments,
+            fragments: parseInt($scope.obj.fragments),
             type: 2,
             color: $scope.obj.color,
             radius: $scope.obj.radius,
@@ -469,7 +469,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             
             update: function() {
                 this.name = $scope.obj.name;
-                this.fragments = $scope.obj.fragments;
+                this.fragments = parseInt($scope.obj.fragments);
                 this.color = $scope.obj.color;
                 this.radius = $scope.obj.radius;
                 this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
@@ -479,10 +479,76 @@ app.controller("webGlLab03Ctrl", function($scope) {
             },
 
             generate: function() {               
+                this.vertices = [];
+                
+                var v = vec4(this.radius, 0.0, 0.0, 1.0);
+                var top_vertex = vec4(0.0, this.radius, 0.0, 1.0);
+                var bottom_vertex = vec4(0.0, -this.radius, 0.0, 1.0);
+                
+                var datas = [];
+                
+                for (var i = 1; i < this.fragments; i++) {
+                    var degr_angle = 90.0 - i * 180.0 / this.fragments;
+                    var rad_angle = radians(degr_angle);
+                    var cos_angle = Math.cos(rad_angle);
+                    var sin_angle = Math.sin(rad_angle);
+                    var _v = $scope.vertexRotateZ(v, cos_angle, sin_angle);
+                    for (var j = 0; j < this.fragments; j++) {
+                        degr_angle = j * 360.0 / this.fragments;
+                        rad_angle = radians(degr_angle);
+                        cos_angle = Math.cos(rad_angle);
+                        sin_angle = Math.sin(rad_angle);
+                        datas.push($scope.vertexRotateY(_v, cos_angle, sin_angle));                        
+                    }
+                }
+
+                for (var j = 0; j < this.fragments; j++)
+                    this.vertices.push(
+                        $scope.vertexTranslate($scope.vertexRotate(top_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                        $scope.vertexTranslate($scope.vertexRotate(datas[j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                        $scope.vertexTranslate($scope.vertexRotate(datas[(j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2])
+                    );
+                
+                for (var i = 0; i < this.fragments - 2; i++)
+                    for (var j = 0; j < this.fragments; j++) {
+                        this.vertices.push(
+                            $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                            $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                            $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2])
+                        );
+                        this.vertices.push(
+                            $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                            $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                            $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2])
+                        );
+                    }
+                
+                for (var j = 0; j < this.fragments; j++)
+                    this.vertices.push(
+                        $scope.vertexTranslate($scope.vertexRotate(bottom_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                        $scope.vertexTranslate($scope.vertexRotate(datas[(this.fragments - 2) * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                        $scope.vertexTranslate($scope.vertexRotate(datas[(this.fragments - 2) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2])
+                    );
+
                 return this;
             },
             
             render: function() {
+                //console.log(flatten(this.vertices));
+                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
+                
+                var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
+                var _color = $scope.toRGB(this.color);
+                $scope.gl.uniform4f(colorLocation, _color[0], _color[1], _color[2], _color[3]);
+                
+                for (var i=0; i<this.vertices.length; i+=3) {
+                    $scope.gl.drawArrays($scope.gl.TRIANGLES, i, 3);
+                }
+
+                $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
+                for (var i=0; i<this.vertices.length - 1; i++) {                
+                    $scope.gl.drawArrays($scope.gl.LINES, i, 2);
+                }                
             }
         }
     }
@@ -554,7 +620,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 cos_rad_x_angle,
                 sin_rad_x_angle
             );
-        
+
         return _v;
     }
 
