@@ -39,19 +39,19 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.modelViewMatrixLoc;
     $scope.projectionMatrixLoc;
 
-    $scope.near = -10;
-    $scope.far = 10;
+    $scope.near = -100;
+    $scope.far = 100;
     $scope.radius = 6.0;
     $scope.theta  = 0.0;
     $scope.phi    = 0.0;
 
-    $scope.at = vec3(0.0, -1.0, 0.0);
+    $scope.at = vec3(0.0, -3.0, -5.0);
     $scope.up = vec3(0.0, 1.0, 0.0);
 
-    $scope.left = -5.0;
-    $scope.right = 5.0;
-    $scope.ytop = 5.0;
-    $scope.bottom = -5.0;
+    $scope.left = -10.0;
+    $scope.right = 10.0;
+    $scope.ytop = 10.0;
+    $scope.bottom = -10.0;
         
     // WebGL initialization
     $scope.initWebGL = function() {
@@ -170,7 +170,90 @@ app.controller("webGlLab03Ctrl", function($scope) {
         var reader = new FileReader();
         reader.onload = function(e) {
             try {
-                $scope.objects = angular.fromJson(e.target.result);
+                var temp_objects = angular.fromJson(e.target.result);
+                $scope.objects = [];                
+                angular.forEach(temp_objects, function(temp_object) {
+                    if (typeof temp_object.type !== "undefined") {
+                        switch (parseInt(temp_object.type)) {
+                            case (0) : { 
+                                var ok = true;
+                                ok = ok && (typeof temp_object.name !== "undefined");
+                                ok = ok && (typeof temp_object.fragments !== "undefined")
+                                ok = ok && (typeof temp_object.color !== "undefined");
+                                ok = ok && (typeof temp_object.radius !== "undefined");
+                                ok = ok && (typeof temp_object.height !== "undefined");
+                                ok = ok && (typeof temp_object.closed !== "undefined");
+                                ok = ok && (typeof temp_object.pos !== "undefined");
+                                ok = ok && (typeof temp_object.rotation !== "undefined");
+                                if (ok) 
+                                    $scope.objects.push(
+                                        $scope.createCone(
+                                            temp_object.name,
+                                            temp_object.fragments,
+                                            temp_object.color,
+                                            temp_object.radius,
+                                            temp_object.height,
+                                            temp_object.closed,
+                                            vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
+                                            vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
+                                        ).generate()
+                                    );
+                                break;
+                            }
+                            case (1) : { 
+                                var ok = true;
+                                ok = ok && (typeof temp_object.name !== "undefined");
+                                ok = ok && (typeof temp_object.fragments !== "undefined")
+                                ok = ok && (typeof temp_object.color !== "undefined");
+                                ok = ok && (typeof temp_object.top_radius !== "undefined");
+                                ok = ok && (typeof temp_object.bottom_radius !== "undefined");
+                                ok = ok && (typeof temp_object.height !== "undefined");
+                                ok = ok && (typeof temp_object.closed !== "undefined");
+                                ok = ok && (typeof temp_object.pos !== "undefined");
+                                ok = ok && (typeof temp_object.rotation !== "undefined");
+                                if (ok) 
+                                    $scope.objects.push(
+                                        $scope.createCylinder(
+                                            temp_object.name,
+                                            temp_object.fragments,
+                                            temp_object.color,
+                                            temp_object.top_radius,
+                                            temp_object.bottom_radius,
+                                            temp_object.height,
+                                            temp_object.closed,
+                                            vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
+                                            vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
+                                        ).generate()
+                                    );
+                                break;
+                            }
+                            case (2) : { 
+                                var ok = true;
+                                ok = ok && (typeof temp_object.name !== "undefined");
+                                ok = ok && (typeof temp_object.fragments !== "undefined")
+                                ok = ok && (typeof temp_object.color !== "undefined");
+                                ok = ok && (typeof temp_object.radius !== "undefined");
+                                ok = ok && (typeof temp_object.pos !== "undefined");
+                                ok = ok && (typeof temp_object.rotation !== "undefined");
+                                if (ok) 
+                                    $scope.objects.push(
+                                        $scope.createSphere(
+                                            temp_object.name,
+                                            temp_object.fragments,
+                                            temp_object.color,
+                                            temp_object.radius,
+                                            vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
+                                            vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
+                                        ).generate()
+                                    );
+                                break;
+                            }
+                        }
+                    }
+                });
+                
+                console.log($scope.objects);
+                
                 $scope.selectedObject = null;
                 if ($scope.objects.length > 0) {
                     $scope.selectedObject = $scope.objects[0];
@@ -247,15 +330,41 @@ app.controller("webGlLab03Ctrl", function($scope) {
         if ($scope.selectedObject != null) return;
         switch (parseInt($scope.obj.type)) {
             case (0): {
-                return $scope.createCone().generate();
+                return $scope.createCone(
+                    $scope.obj.name, 
+                    parseInt($scope.obj.fragments), 
+                    $scope.obj.color, 
+                    $scope.obj.radius, 
+                    $scope.obj.height, 
+                    $scope.obj.closed, 
+                    vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z), 
+                    vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
+                ).generate();
                 break;
             }
             case (1): {
-                return $scope.createCylinder().generate();
+                return $scope.createCylinder(
+                    $scope.obj.name, 
+                    parseInt($scope.obj.fragments), 
+                    $scope.obj.color, 
+                    $scope.obj.top_radius, 
+                    $scope.obj.bottom_radius, 
+                    $scope.obj.height, 
+                    $scope.obj.closed, 
+                    vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z), 
+                    vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
+                ).generate();
                 break;
             }
             case (2): {
-                return $scope.createSphere().generate();
+                return $scope.createSphere(
+                    $scope.obj.name, 
+                    parseInt($scope.obj.fragments), 
+                    $scope.obj.color, 
+                    $scope.obj.radius, 
+                    vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z), 
+                    vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
+                ).generate();
                 break;
             }
         }
@@ -264,8 +373,19 @@ app.controller("webGlLab03Ctrl", function($scope) {
     }
     
     // Create cone object 
-    $scope.createCone = function() {
-        return {            
+    $scope.createCone = function(_name, _fragments, _color, _radius, _height, _closed, _pos, _rotation) {
+        return {  
+            name: _name,
+            fragments: _fragments,
+            type: 0,
+            color: _color,
+            radius: _radius,
+            height: _height,
+            closed: _closed,
+            pos: _pos,
+            rotation: _rotation,
+            vertices: [],
+            /*        
             name: $scope.obj.name,
             fragments: parseInt($scope.obj.fragments),
             type: 0,
@@ -276,6 +396,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
             rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z),
             vertices: [],
+            */
             
             update: function() {
                 this.name = $scope.obj.name;
@@ -356,18 +477,18 @@ app.controller("webGlLab03Ctrl", function($scope) {
     }
     
     // Create cylinder object 
-    $scope.createCylinder = function() {
-        return {
-            name: $scope.obj.name,
-            fragments: parseInt($scope.obj.fragments),
+    $scope.createCylinder = function(_name, _fragments, _color, _top_radius, _bottom_radius, _height, _closed, _pos, _rotation) {
+        return {  
+            name: _name,
+            fragments: _fragments,
             type: 1,
-            color: $scope.obj.color,
-            bottom_radius: $scope.obj.bottom_radius,
-            top_radius: $scope.obj.top_radius,
-            height: $scope.obj.height,
-            closed: $scope.obj.closed,
-            pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
-            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z),
+            color: _color,
+            top_radius: _top_radius,
+            bottom_radius: _bottom_radius,
+            height: _height,
+            closed: _closed,
+            pos: _pos,
+            rotation: _rotation,
             vertices: [],
             
             update: function() {
@@ -471,15 +592,15 @@ app.controller("webGlLab03Ctrl", function($scope) {
     }
 
     // Create sphere object 
-    $scope.createSphere = function() {
-        return {
-            name: $scope.obj.name,
-            fragments: parseInt($scope.obj.fragments),
+    $scope.createSphere = function(_name, _fragments, _color, _radius, _pos, _rotation) {
+        return {  
+            name: _name,
+            fragments: _fragments,
             type: 2,
-            color: $scope.obj.color,
-            radius: $scope.obj.radius,
-            pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
-            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z),
+            color: _color,
+            radius: _radius,
+            pos: _pos,
+            rotation: _rotation,
             vertices: [],
             
             update: function() {
