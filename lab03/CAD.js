@@ -12,7 +12,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.baseObj = {
         name: "Untitled",
         name_changed: false,
-        type: 2,
+        type: 0,
         fragments: 12,
         radius: 1.0,
         bottom_radius: 1.0,
@@ -220,6 +220,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             }
             $scope.render();
             $scope.selectable_objects = $scope.selectedObject;
+            $scope.loadObject();
             $scope.editMode = false;
         }
     }
@@ -267,7 +268,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     
     // Create cone object 
     $scope.createCone = function() {
-        return {
+        return {            
             name: $scope.obj.name,
             fragments: parseInt($scope.obj.fragments),
             type: 0,
@@ -292,8 +293,17 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 this.generate();
             },
 
-            generate: function() {
+            generate: function() {                
                 this.vertices = [];
+
+                this.radius = (this.radius == null) ? 1.0 : this.radius;
+                this.height = (this.height == null) ? 1.0 : this.height;
+                this.pos[0] = (this.pos[0] == null) ? 0.0 : this.pos[0];
+                this.pos[1] = (this.pos[1] == null) ? 0.0 : this.pos[1];
+                this.pos[2] = (this.pos[2] == null) ? 0.0 : this.pos[2];
+                this.rotation[0] = (this.rotation[0] == null) ? 0.0 : this.rotation[0];
+                this.rotation[1] = (this.rotation[1] == null) ? 0.0 : this.rotation[1];
+                this.rotation[2] = (this.rotation[2] == null) ? 0.0 : this.rotation[2];
                 
                 var v = vec4(this.radius, -this.height / 2.0, 0.0, 1.0);
                 var top_vertex = vec4(0.0, this.height / 2.0, 0.0, 1.0);
@@ -379,6 +389,16 @@ app.controller("webGlLab03Ctrl", function($scope) {
             
             generate: function() {
                 this.vertices = [];
+                
+                this.bottom_radius = (this.bottom_radius == null) ? 1.0 : this.bottom_radius;
+                this.top_radius = (this.top_radius == null) ? 1.0 : this.top_radius;
+                this.height = (this.height == null) ? 1.0 : this.height;
+                this.pos[0] = (this.pos[0] == null) ? 0.0 : this.pos[0];
+                this.pos[1] = (this.pos[1] == null) ? 0.0 : this.pos[1];
+                this.pos[2] = (this.pos[2] == null) ? 0.0 : this.pos[2];
+                this.rotation[0] = (this.rotation[0] == null) ? 0.0 : this.rotation[0];
+                this.rotation[1] = (this.rotation[1] == null) ? 0.0 : this.rotation[1];
+                this.rotation[2] = (this.rotation[2] == null) ? 0.0 : this.rotation[2];
                 
                 var top_vertex = vec4(0.0, this.height / 2.0, 0.0, 1.0);
                 var bottom_vertex = vec4(0.0, -this.height / 2, 0.0, 1.0);
@@ -480,6 +500,14 @@ app.controller("webGlLab03Ctrl", function($scope) {
 
             generate: function() {               
                 this.vertices = [];
+                
+                this.radius = (this.radius == null) ? 1.0 : this.radius;
+                this.pos[0] = (this.pos[0] == null) ? 0.0 : this.pos[0];
+                this.pos[1] = (this.pos[1] == null) ? 0.0 : this.pos[1];
+                this.pos[2] = (this.pos[2] == null) ? 0.0 : this.pos[2];
+                this.rotation[0] = (this.rotation[0] == null) ? 0.0 : this.rotation[0];
+                this.rotation[1] = (this.rotation[1] == null) ? 0.0 : this.rotation[1];
+                this.rotation[2] = (this.rotation[2] == null) ? 0.0 : this.rotation[2];
                 
                 var v = vec4(this.radius, 0.0, 0.0, 1.0);
                 var top_vertex = vec4(0.0, this.radius, 0.0, 1.0);
