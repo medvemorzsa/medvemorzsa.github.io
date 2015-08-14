@@ -12,7 +12,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.baseObj = {
         name: "Untitled",
         name_changed: false,
-        type: 0,
+        type: 1,
         fragments: 12,
         radius: 1.0,
         bottom_radius: 1.0,
@@ -129,7 +129,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.oldSelectedObject = $scope.selectedObject;
         $scope.selectedObject = null;
         $scope.obj = angular.copy($scope.baseObj);
-        $scope.obj.name = $scope.types[0] + "_" + String($scope.numObj);
+        $scope.obj.name = $scope.types[$scope.obj.type] + "_" + String($scope.numObj);
     }
     
     // Start editing selected object
@@ -343,8 +343,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
                 for (var i=0; i<this.vertices.length - 1; i++) {                
                     $scope.gl.drawArrays($scope.gl.LINES, i, 2);
-                }
-                
+                }                
             }
         }
     }
@@ -379,10 +378,79 @@ app.controller("webGlLab03Ctrl", function($scope) {
             },
             
             generate: function() {
+                this.vertices = [];
+                
+                var top_vertex = vec4(0.0, this.height / 2.0, 0.0, 1.0);
+                var bottom_vertex = vec4(0.0, -this.height / 2, 0.0, 1.0);
+                
+                var datas = [];
+                
+                var v = vec4(this.top_radius, this.height / 2.0, 0.0, 1.0);
+                for (var i = 0; i < this.fragments; i++) {
+                    var degr_angle = i * 360.0 / this.fragments;
+                    var rad_angle = radians(degr_angle);
+                    var cos_angle = Math.cos(rad_angle);
+                    var sin_angle = Math.sin(rad_angle);                   
+                    datas.push($scope.vertexRotateY(v, cos_angle, sin_angle));
+                }
+
+                var v = vec4(this.bottom_radius, -this.height / 2.0, 0.0, 1.0);
+                for (var i = 0; i < this.fragments; i++) {
+                    var degr_angle = i * 360.0 / this.fragments;
+                    var rad_angle = radians(degr_angle);
+                    var cos_angle = Math.cos(rad_angle);
+                    var sin_angle = Math.sin(rad_angle);                   
+                    datas.push($scope.vertexRotateY(v, cos_angle, sin_angle));
+                }
+
+                for (var i = 0; i < this.fragments; i++) {
+                    this.vertices.push(
+                        $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                        $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                        $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2])
+                    );
+                    this.vertices.push(
+                        $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                        $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                        $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2])
+                    );
+                }
+                
+                if (this.closed) {
+                    for (var i = 0; i < this.fragments; i++) 
+                        this.vertices.push(
+                            $scope.vertexTranslate($scope.vertexRotate(top_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                            $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                            $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2])
+                        );
+
+                    for (var i = 0; i < this.fragments; i++) 
+                        this.vertices.push(
+                            $scope.vertexTranslate($scope.vertexRotate(bottom_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                            $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                            $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2])
+                        );
+                   }
+                
                 return this;
             },
             
             render: function() {
+                //console.log(flatten(this.vertices));
+                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
+                
+                var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
+                var _color = $scope.toRGB(this.color);
+                $scope.gl.uniform4f(colorLocation, _color[0], _color[1], _color[2], _color[3]);
+                
+                for (var i=0; i<this.vertices.length; i+=3) {
+                    $scope.gl.drawArrays($scope.gl.TRIANGLES, i, 3);
+                }
+
+                $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
+                for (var i=0; i<this.vertices.length - 1; i++) {                
+                    $scope.gl.drawArrays($scope.gl.LINES, i, 2);
+                }
             }
         }
     }
