@@ -17,10 +17,10 @@
 
             uniform mat4 modelViewMatrix;
             uniform mat4 projectionMatrix;
-
+            
             void main() 
             {
-                gl_Position = projectionMatrix*modelViewMatrix*vPosition;
+                gl_Position = projectionMatrix * modelViewMatrix * vPosition;
             } 
         </script>
 
@@ -166,13 +166,13 @@
                         <div class="w3-container">
                             <div class="w3-group">
                                 <div>
-                                    <label for="obj.rot_x">X:&nbsp;</label><input type="number" ng-model="obj.rot_x" min="0" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                    <label for="obj.rot_x">X:&nbsp;</label><input type="number" ng-model="obj.rot_x" min="-360" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                                 </div>
                                 <div>
-                                    <label for="obj.rot_y">Y:&nbsp;</label><input type="number" ng-model="obj.rot_y" min="0" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                    <label for="obj.rot_y">Y:&nbsp;</label><input type="number" ng-model="obj.rot_y" min="-360" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                                 </div>
                                 <div>
-                                    <label for="obj.rot_z">Z:&nbsp;</label><input type="number" ng-model="obj.rot_z" min="0" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                    <label for="obj.rot_z">Z:&nbsp;</label><input type="number" ng-model="obj.rot_z" min="-360" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                                 </div>
                             </div>
                         </div>
