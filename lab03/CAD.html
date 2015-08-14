@@ -13,11 +13,15 @@
         <link rel="stylesheet" href="CAD.css" />
 
         <script id="vertex-shader" type="x-shader/x-vertex">
-            attribute vec4 vPosition;
+            attribute  vec4 vPosition;
 
-            void main() {
-                gl_Position = vPosition;
-            }
+            uniform mat4 modelViewMatrix;
+            uniform mat4 projectionMatrix;
+
+            void main() 
+            {
+                gl_Position = projectionMatrix*modelViewMatrix*vPosition;
+            } 
         </script>
 
         <script id="fragment-shader" type="x-shader/x-fragment">
@@ -116,21 +120,21 @@
                         </div>
                         <div class="w3-container w3-theme-light"><h5>Attributes</h5></div>
                         <div class="w3-container">
-                            <div class="w3-group" ng-show="obj.type == 2">
+                            <div class="w3-group" ng-show="obj.type != 1">
                                 <label for="obj.radius">Radius:</label>
-                                <input type="number" ng-model="obj.radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                <input type="number" ng-model="obj.radius" min="0.0" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                             </div>
-                            <div class="w3-group" ng-show="obj.type != 2">
+                            <div class="w3-group" ng-show="obj.type == 1">
                                 <label for="obj.bottom_radius">Bottom radius:</label>
-                                <input type="number" ng-model="obj.bottom_radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                <input type="number" ng-model="obj.bottom_radius" min="0.0" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                             </div>
                             <div class="w3-group" ng-show="obj.type == 1">
                                 <label for="obj.top_radius">Top radius:</label>
-                                <input type="number" ng-model="obj.top_radius" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                <input type="number" ng-model="obj.top_radius" min="0.0" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                             </div>
                             <div class="w3-group" ng-show="obj.type != 2">
                                 <label for="obj.height">Height:</label>
-                                <input type="number" ng-model="obj.height" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+                                <input type="number" ng-model="obj.height" min="0.0" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
                             </div>
                             <div class="w3-group" ng-show="obj.type != 2">                        
                                 <label class="w3-checkbox">

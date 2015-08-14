@@ -14,12 +14,12 @@ app.controller("webGlLab03Ctrl", function($scope) {
         name_changed: false,
         type: 0,
         fragments: 12,
-        radius: 10.0,
-        bottom_radius: 10.0,
-        top_radius: 10.0,
-        height: 10.0,
+        radius: 1.0,
+        bottom_radius: 1.0,
+        top_radius: 1.0,
+        height: 1.0,
         closed: false,
-        color: "#000000",
+        color: "#FFFF00",
         pos_x: 0.0,
         pos_y: 0.0,
         pos_z: 0.0,
@@ -30,7 +30,29 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.obj = angular.copy($scope.baseObj);
     
     $scope.canvas = null;
+    $scope.gl = null;
+    $scope.bufferID = null;
+    $scope.program = null;
 
+    $scope.modeViewMatrix = null;
+    $scope.projectionMatrix = null;
+    $scope.modelViewMatrixLoc;
+    $scope.projectionMatrixLoc;
+
+    $scope.near = -10;
+    $scope.far = 10;
+    $scope.radius = 6.0;
+    $scope.theta  = 0.0;
+    $scope.phi    = 0.0;
+
+    $scope.at = vec3(0.0, -1.0, 0.0);
+    $scope.up = vec3(0.0, 1.0, 0.0);
+
+    $scope.left = -5.0;
+    $scope.right = 5.0;
+    $scope.ytop = 5.0;
+    $scope.bottom = -5.0;
+    
     // WebGL initialization
     $scope.initWebGL = function() {
         // Configure canvas and WebGL
@@ -44,8 +66,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
         }
 
         $scope.gl.viewport(0, 0, $scope.canvas.width, $scope.canvas.height);        
-        
+       
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        
+        $scope.gl.enable($scope.gl.DEPTH_TEST);
+        $scope.gl.depthFunc($scope.gl.LEQUAL);
+        $scope.gl.enable($scope.gl.POLYGON_OFFSET_FILL);
+        $scope.gl.polygonOffset(1.0, 2.0);
         
         // Init shaders
         $scope.program = initShaders($scope.gl, "vertex-shader", "fragment-shader");
@@ -56,9 +83,12 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.bufferID);
         
         // Associate out shader variables with our data buffer
-        var vPosition = $scope.gl.getAttribLocation($scope.program, "vPosition");
-        $scope.gl.vertexAttribPointer(vPosition, 2, $scope.gl.FLOAT, false, 0, 0);
-        $scope.gl.enableVertexAttribArray(vPosition);
+        $scope.program.vPosition = $scope.gl.getAttribLocation($scope.program, "vPosition");
+        $scope.gl.vertexAttribPointer($scope.program.vPosition, 4, $scope.gl.FLOAT, false, 0, 0);
+        $scope.gl.enableVertexAttribArray($scope.program.vPosition);
+        
+        $scope.modelViewMatrixLoc = $scope.gl.getUniformLocation($scope.program, "modelViewMatrix" );
+        $scope.projectionMatrixLoc = $scope.gl.getUniformLocation($scope.program, "projectionMatrix" );
         
         return true;
     }
@@ -67,12 +97,32 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.render = function() {
         if (!($scope.gl)) return;
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
+        $scope.gl.clear($scope.gl.COLOR_BUFFER_BIT | $scope.gl.DEPTH_BUFFER_BIT);
+
+        $scope.eye = vec3( 
+            $scope.radius*Math.sin($scope.theta)*Math.cos($scope.phi),
+            $scope.radius*Math.sin($scope.theta)*Math.sin($scope.phi),
+            $scope.radius*Math.cos($scope.theta)
+        );
+       
+        $scope.modelViewMatrix = lookAt($scope.eye, $scope.at, $scope.up);
+        $scope.projectionMatrix = ortho($scope.left, $scope.right, $scope.bottom, $scope.ytop, $scope.near, $scope.far);
+
+        $scope.gl.uniformMatrix4fv($scope.modelViewMatrixLoc, false, flatten($scope.modelViewMatrix));
+        $scope.gl.uniformMatrix4fv($scope.projectionMatrixLoc, false, flatten($scope.projectionMatrix));
         
-        for (object in $scope.objects) 
+        
+        angular.forEach($scope.objects, function(object) {
             if (object.render)
                 object.render();
+        });      
     };
-    
+
+    $scope.toRGB = function(value) {
+        var components = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
+        return vec4(parseInt(components[1], 16) / 255.0, parseInt(components[2], 16) / 255.0, parseInt(components[3], 16) / 255.0, 1.0);
+    }
+        
     // Start creating new object
     $scope.newObject = function() {
         $scope.editMode = true;
@@ -108,23 +158,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         var jsonDataWindow = window.open("data:text/json," + encodeURIComponent(jsonData), "_blank");
         jsonDataWindow.focus();        
     }
-    /*
-    $scope.file_changed = function(element, $scope) {
-        $scope.numUploadFiles = element.files.length;
-        console.log($scope.numUploadFiles);
-        
-        console.log(element);
-         $scope.$apply(function(scope) {
-             var file = element.files[0];
-             var reader = new FileReader();
-             reader.onload = function(e) {
-                 console.log(e);
-                //$scope.prev_img = e.target.result;
-             };
-             reader.readAsText(file);
-         });
-    };    
-    */
+
     // Upload objects
     $scope.uploadObjects = function($event) {
         if (document.getElementById("file").files.length != 1) {
@@ -236,18 +270,20 @@ app.controller("webGlLab03Ctrl", function($scope) {
         return {
             name: $scope.obj.name,
             fragments: $scope.obj.fragments,
+            type: 0,
             color: $scope.obj.color,
-            bottom_radius: $scope.obj.bottom_radius,
+            radius: $scope.obj.radius,
             height: $scope.obj.height,
             closed: $scope.obj.closed,
             pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
             rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z),
+            vertices: [],
             
             update: function() {
                 this.name = $scope.obj.name;
                 this.fragments = $scope.obj.fragments;
                 this.color = $scope.obj.color;
-                this.bottom_radius = $scope.obj.bottom_radius;
+                this.radius = $scope.obj.radius;
                 this.height = $scope.obj.height;
                 this.closed = $scope.obj.closed;
                 this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
@@ -257,7 +293,59 @@ app.controller("webGlLab03Ctrl", function($scope) {
             },
 
             generate: function() {
-            }           
+                this.vertices = [];
+                
+                var v = vec4(this.radius, -this.height / 2.0, 0.0, 1.0);
+                var top_vertex = vec4(0.0, this.height / 2.0, 0.0, 1.0);
+                var bottom_vertex = vec4(0.0, -this.height / 2, 0.0, 1.0);
+                
+                var datas = [];
+                
+                for (var i = 0; i < this.fragments; i++) {
+                    var degr_angle = i * 360.0 / this.fragments;
+                    var rad_angle = radians(degr_angle);
+                    var cos_angle = Math.cos(rad_angle);
+                    var sin_angle = Math.sin(rad_angle);                   
+                    datas.push($scope.vertexRotateY(v, cos_angle, sin_angle));
+                }
+                
+                for (var i = 0; i < this.fragments; i++) 
+                    this.vertices.push(
+                        $scope.vertexTranslate($scope.vertexRotate(top_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                        $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                        $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2])
+                    );
+                
+                if (this.closed) {
+                    for (var i = 0; i < this.fragments; i++)                    
+                        this.vertices.push(
+                            $scope.vertexTranslate($scope.vertexRotate(bottom_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                            $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]),
+                            $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2])
+                        );
+                }
+                
+                return this;
+            },
+            
+            render: function() {
+                //console.log(flatten(this.vertices));
+                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
+                
+                var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
+                var _color = $scope.toRGB(this.color);
+                $scope.gl.uniform4f(colorLocation, _color[0], _color[1], _color[2], _color[3]);
+                
+                for (var i=0; i<this.vertices.length; i+=3) {
+                    $scope.gl.drawArrays($scope.gl.TRIANGLES, i, 3);
+                }
+
+                $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
+                for (var i=0; i<this.vertices.length - 1; i++) {                
+                    $scope.gl.drawArrays($scope.gl.LINES, i, 2);
+                }
+                
+            }
         }
     }
     
@@ -266,6 +354,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         return {
             name: $scope.obj.name,
             fragments: $scope.obj.fragments,
+            type: 1,
             color: $scope.obj.color,
             bottom_radius: $scope.obj.bottom_radius,
             top_radius: $scope.obj.top_radius,
@@ -273,6 +362,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             closed: $scope.obj.closed,
             pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
             rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z),
+            vertices: [],
             
             update: function() {
                 this.name = $scope.obj.name;
@@ -289,6 +379,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
             },
             
             generate: function() {
+                return this;
+            },
+            
+            render: function() {
             }
         }
     }
@@ -298,11 +392,12 @@ app.controller("webGlLab03Ctrl", function($scope) {
         return {
             name: $scope.obj.name,
             fragments: $scope.obj.fragments,
+            type: 2,
             color: $scope.obj.color,
             radius: $scope.obj.radius,
             pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
             rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z),
-            vertexs: [],
+            vertices: [],
             
             update: function() {
                 this.name = $scope.obj.name;
@@ -315,11 +410,86 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 this.generate();
             },
 
-            generate: function() {
+            generate: function() {               
+                return this;
+            },
+            
+            render: function() {
             }
         }
     }
+   
+    // Vertex translate
+    $scope.vertexTranslate = function(v, dx, dy, dz) {
+        return vec4(
+            v[0] + dx,
+            v[1] + dy,
+            v[2] + dz,
+            1.0
+        );
+    }
     
+    // Vertex rotation around X axis around center
+    $scope.vertexRotateX = function(v, cos_angle, sin_angle) {
+        return vec4(
+            v[0],
+            cos_angle * v[1] - sin_angle * v[2], 
+            sin_angle * v[1] + cos_angle * v[2],
+            1.0
+        );
+    }
+    
+    // Vertex rotation around Y axis around center
+    $scope.vertexRotateY = function(v, cos_angle, sin_angle) {
+        return vec4(
+            cos_angle * v[0] + sin_angle * v[2], 
+            v[1], 
+            -sin_angle * v[0] + cos_angle * v[2],
+            1.0
+        );
+    }
+    
+    // Vertex rotation around Z axis around center
+    $scope.vertexRotateZ = function(v, cos_angle, sin_angle) {
+        return vec4(
+            cos_angle * v[0] - sin_angle * v[1], 
+            sin_angle * v[0] + cos_angle * v[1], 
+            v[2],
+            1.0
+        );
+    }
+    
+    // Vertex rotation around center
+    $scope.vertexRotate = function(v, x_angle, y_angle, z_angle) {
+        var rad_x_angle = radians(x_angle);
+        var rad_y_angle = radians(y_angle);
+        var rad_z_angle = radians(z_angle);
+        
+        var cos_rad_x_angle = Math.cos(rad_x_angle);
+        var sin_rad_x_angle = Math.sin(rad_x_angle);
+        var cos_rad_y_angle = Math.cos(rad_y_angle);
+        var sin_rad_y_angle = Math.sin(rad_y_angle);
+        var cos_rad_z_angle = Math.cos(rad_z_angle);
+        var sin_rad_z_angle = Math.sin(rad_z_angle);
+               
+        var _v = 
+            $scope.vertexRotateX(
+                $scope.vertexRotateY(
+                    $scope.vertexRotateZ(
+                        v,
+                        cos_rad_z_angle,
+                        sin_rad_z_angle
+                    ),
+                    cos_rad_y_angle,
+                    sin_rad_y_angle
+                ),
+                cos_rad_x_angle,
+                sin_rad_x_angle
+            );
+        
+        return _v;
+    }
+
     // Update object
     $scope.updateObject = function() {
         if ($scope.selectedObject == null) return;
@@ -337,17 +507,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
         
         $scope.selectedObject = $scope.selectable_objects;
         $scope.obj.name = $scope.selectedObject.name;
-        $scope.obj.type = "0";
+        $scope.obj.type = $scope.selectedObject.type;
         $scope.obj.fragments = $scope.selectedObject.fragments;
         $scope.obj.color = $scope.selectedObject.color;
-        if ($scope.selectedObject.radius) {
-            $scope.obj.type = "2";
+        if ($scope.selectedObject.radius)
             $scope.obj.radius = $scope.selectedObject.radius;
-        }
-        if ($scope.selectedObject.top_radius) {
-            $scope.obj.type = "1";
+        if ($scope.selectedObject.top_radius)
             $scope.obj.top_radius = $scope.selectedObject.top_radius;
-        }
         if ($scope.selectedObject.bottom_radius)
             $scope.obj.bottom_radius = $scope.selectedObject.bottom_radius;
         if ($scope.selectedObject.height)
