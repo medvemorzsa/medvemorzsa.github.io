@@ -1,11 +1,11 @@
 <!doctype html>
 <html>
     <head>
-        <title>Lab #03 - CAD</title>
+        <title>Lab #04 - CAD with Lighting</title>
         
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
-        <link rel="shortcut icon" type="image/x-icon" href="./lab03.ico">
+        <link rel="shortcut icon" type="image/x-icon" href="./lab04.ico">
         
         <link rel="stylesheet" href="../css/w3.css" />
         <link rel="stylesheet" href="../css/w3-theme-teal.css" />
@@ -17,7 +17,7 @@
 
             uniform mat4 modelViewMatrix;
             uniform mat4 projectionMatrix;
-            
+
             void main() 
             {
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;

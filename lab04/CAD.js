@@ -806,6 +806,18 @@ app.controller("webGlLab03Ctrl", function($scope) {
     
     if ($scope.initWebGL()) {   
         $scope.render();
+        
+        $scope.objects.push(
+            $scope.createSphere(
+                "Sphere #01",
+                12,
+                "#FF0000",
+                2.0,
+                vec3(0.0, 0.0, 0.0),
+                vec3(0.0, 0.0, 0.0)
+            ).generate()
+        );
+        
         $scope.varLoading = false;
     }
 });
