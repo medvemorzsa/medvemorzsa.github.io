@@ -69,7 +69,14 @@ app.controller("webGlLab03Ctrl", function($scope) {
         vAmbient: vec4(0.2, 0.2, 0.2, 1.0),
         vDiffuse: vec4(1.0, 1.0, 1.0, 1.0),
         vSpecular: vec4(1.0, 1.0, 1.0, 1.0),
-        enabled: true
+        enabled: 1
+    });
+    $scope.scene.lights.push({
+        pos: vec4(-20.0, 0.0, 20.0, 0.0),
+        vAmbient: vec4(0.5, 0.5, 0.5, 1.0),
+        vDiffuse: vec4(1.0, 1.0, 1.0, 1.0),
+        vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
+        enabled: 1
     });
     
     // WebGL initialization
@@ -149,21 +156,21 @@ app.controller("webGlLab03Ctrl", function($scope) {
         var diffuseProduct = mult($scope.scene.lights[0].vDiffuse, object.vDiffuse);
         var specularProduct = mult($scope.scene.lights[0].vSpecular, object.vSpecular);
                 
-        
+        /*
         $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "ambientProduct"), flatten(ambientProduct));
         $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "diffuseProduct"), flatten(diffuseProduct));
         $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "specularProduct"), flatten(specularProduct));
         $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.scene.lights[0].pos));
-        
+        */
         for (var i = 0; i < $scope.MAX_NUM_LIGHTS; i++) {
             if (i < $scope.scene.lights.length) {
                 $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].ambientProduct"), flatten(ambientProduct));
                 $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].diffuseProduct"), flatten(diffuseProduct));
                 $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].specularProduct"), flatten(specularProduct));
                 $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].position"), flatten($scope.scene.lights[i].pos));
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].enabled"), [$scope.scene.lights[i].enabled]);
+                $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].enabled"), $scope.scene.lights[i].enabled);
             } else {
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].enabled"), [false]);
+                $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].enabled"), 0);
             }
         }
         

@@ -40,7 +40,7 @@
             void main() 
             {
                 vec3 pos = -(modelViewMatrix * vPosition).xyz;
-                
+                /*
                 vec3 light = lightPosition.xyz;
                 vec3 L = normalize( light - pos );
 
@@ -66,12 +66,47 @@
                 
                 fColor = ambient + diffuse +specular;               
                 fColor.a = 1.0;
-                
+                */
+                for (int i = 0; i < maxNumLights; i++) {
+                    if (lights[i].enabled) {
+                        vec3 light = lights[i].position.xyz;
+                        vec3 L = normalize( light - pos );
+
+
+                        vec3 E = normalize( -pos );
+                        vec3 H = normalize( L + E );
+
+                        vec4 NN = vec4(vNormal,0);
+
+                        vec3 N = normalize( (modelViewMatrix*NN).xyz);
+
+                        vec4 ambient = lights[i].ambientProduct;
+
+                        float Kd = max( dot(L, N), 0.0 );
+                        vec4 diffuse = Kd*lights[i].diffuseProduct;
+
+                        float Ks = pow( max(dot(N, H), 0.0), shininess );
+                        vec4 specular = Ks * lights[i].specularProduct;
+
+                        if( dot(L, N) < 0.0 ) {
+                            specular = vec4(0.0, 0.0, 0.0, 1.0);
+                        } 
+                        
+                        fColor = ambient + diffuse +specular;               
+                        fColor.a = 1.0;
+                    }
+                    else {
+                        //fColor[i] = vec4(0.0, 0.0, 0.0, 1.0);
+                        //fColor[i].a = 1.0;
+                    }
+                }
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
             } 
         </script>
 
         <script id="fragment-shader" type="x-shader/x-fragment">
+            const int maxNumLights = 16; 
+
             precision mediump float;
             varying vec4 fColor;
             
