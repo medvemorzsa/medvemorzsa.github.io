@@ -31,6 +31,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     
     $scope.canvas = null;
     $scope.gl = null;
+    $scope.nBuffer = null;
     $scope.vBuffer = null;
     $scope.program = null;
 
@@ -52,7 +53,21 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.right = 10.0;
     $scope.ytop = 10.0;
     $scope.bottom = -10.0;
-        
+    
+    $scope.lightPosition = vec4(3.0, 3.0, 3.0, 0.0 );
+    $scope.lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
+    $scope.lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
+    $scope.lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+
+    $scope.materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
+    $scope.materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0);
+    $scope.materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
+    $scope.materialShininess = 100.0;    
+
+    $scope.ambientColor = null;
+    $scope.diffuseColor = null;
+    $scope.specularColor = null;
+    
     // WebGL initialization
     $scope.initWebGL = function() {
         // Configure canvas and WebGL
@@ -70,12 +85,20 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
         
         $scope.gl.enable($scope.gl.DEPTH_TEST);
+        /*
         $scope.gl.depthFunc($scope.gl.LEQUAL);
         $scope.gl.enable($scope.gl.POLYGON_OFFSET_FILL);
         $scope.gl.polygonOffset(1.0, 2.0);
-        
+        */
         $scope.program = initShaders($scope.gl, "vertex-shader", "fragment-shader");
         $scope.gl.useProgram($scope.program);
+        
+        $scope.nBuffer = $scope.gl.createBuffer();
+        $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.nBuffer);
+
+        $scope.vNormal = $scope.gl.getAttribLocation($scope.program, "vNormal");
+        $scope.gl.vertexAttribPointer($scope.vNormal, 3, $scope.gl.FLOAT, false, 0, 0 );
+        $scope.gl.enableVertexAttribArray($scope.vNormal);
         
         $scope.vBuffer = $scope.gl.createBuffer();
         $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
@@ -94,20 +117,20 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.render = function() {
         if (!($scope.gl)) return;
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
-        $scope.gl.clear($scope.gl.COLOR_BUFFER_BIT | $scope.gl.DEPTH_BUFFER_BIT);
+        //$scope.gl.clear($scope.gl.COLOR_BUFFER_BIT | $scope.gl.DEPTH_BUFFER_BIT);
 
         $scope.eye = vec3( 
             $scope.radius*Math.sin($scope.theta)*Math.cos($scope.phi),
             $scope.radius*Math.sin($scope.theta)*Math.sin($scope.phi),
             $scope.radius*Math.cos($scope.theta)
         );
-       
+
+        
         $scope.modelViewMatrix = lookAt($scope.eye, $scope.at, $scope.up);
         $scope.projectionMatrix = ortho($scope.left, $scope.right, $scope.bottom, $scope.ytop, $scope.near, $scope.far);
 
         $scope.gl.uniformMatrix4fv($scope.modelViewMatrixLoc, false, flatten($scope.modelViewMatrix));
-        $scope.gl.uniformMatrix4fv($scope.projectionMatrixLoc, false, flatten($scope.projectionMatrix));
-        
+        $scope.gl.uniformMatrix4fv($scope.projectionMatrixLoc, false, flatten($scope.projectionMatrix));                        
         
         angular.forEach($scope.objects, function(object) {
             if (object.render)
@@ -252,8 +275,6 @@ app.controller("webGlLab03Ctrl", function($scope) {
                     }
                 });
                 
-                console.log($scope.objects);
-                
                 $scope.selectedObject = null;
                 if ($scope.objects.length > 0) {
                     $scope.selectedObject = $scope.objects[0];
@@ -385,18 +406,6 @@ app.controller("webGlLab03Ctrl", function($scope) {
             pos: _pos,
             rotation: _rotation,
             vertices: [],
-            /*        
-            name: $scope.obj.name,
-            fragments: parseInt($scope.obj.fragments),
-            type: 0,
-            color: $scope.obj.color,
-            radius: $scope.obj.radius,
-            height: $scope.obj.height,
-            closed: $scope.obj.closed,
-            pos: vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z),
-            rotation: vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z),
-            vertices: [],
-            */
             
             update: function() {
                 this.name = $scope.obj.name;
@@ -456,7 +465,6 @@ app.controller("webGlLab03Ctrl", function($scope) {
             },
             
             render: function() {
-                //console.log(flatten(this.vertices));                
                 $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
                 
                 var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
@@ -572,7 +580,6 @@ app.controller("webGlLab03Ctrl", function($scope) {
             },
             
             render: function() {
-                //console.log(flatten(this.vertices));
                 $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
                 
                 var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
@@ -602,6 +609,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             pos: _pos,
             rotation: _rotation,
             vertices: [],
+            normals: [],
             
             update: function() {
                 this.name = $scope.obj.name;
@@ -616,6 +624,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
 
             generate: function() {               
                 this.vertices = [];
+                this.normals = [];
                 
                 this.radius = (this.radius == null) ? 1.0 : this.radius;
                 this.pos[0] = (this.pos[0] == null) ? 0.0 : this.pos[0];
@@ -651,6 +660,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
                     var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     this.vertices.push(p1, p2, p3);
+                    var normal = $scope.normal(p1, p2, p3);
+                    for (var k = 0; k < 3; k++)
+                        this.normals.push(normal);
                 }
                 for (var i = 0; i < this.fragments - 2; i++)
                     for (var j = 0; j < this.fragments; j++) {
@@ -658,11 +670,17 @@ app.controller("webGlLab03Ctrl", function($scope) {
                         var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         this.vertices.push(p1, p2, p3);
+                        var normal = $scope.normal(p1, p2, p3);
+                        for (var k = 0; k < 3; k++)
+                            this.normals.push(normal);
                         
                         p1 = $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         this.vertices.push(p1, p2, p3);
+                        var normal = $scope.normal(p1, p2, p3);
+                        for (var k = 0; k < 3; k++)
+                            this.normals.push(normal);
                     }
                 
                 for (var j = 0; j < this.fragments; j++) {
@@ -670,27 +688,33 @@ app.controller("webGlLab03Ctrl", function($scope) {
                     var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(this.fragments - 2) * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(this.fragments - 2) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     this.vertices.push(p1, p2, p3);
+                    var normal = $scope.normal(p1, p2, p3);
+                    for (var k = 0; k < 3; k++)
+                        this.normals.push(normal);
                 }
                 
                 return this;
             },
             
             render: function() {
-                //console.log(flatten(this.vertices));
-                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
-                
-                var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
-                var _color = $scope.toRGB(this.color);
-                $scope.gl.uniform4f(colorLocation, _color[0], _color[1], _color[2], _color[3]);
-                
-                for (var i=0; i<this.vertices.length; i+=3) {
-                    $scope.gl.drawArrays($scope.gl.TRIANGLES, i, 3);
-                }
+                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.nBuffer);
+                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.normals), $scope.gl.STATIC_DRAW);
 
-                $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
-                for (var i=0; i<this.vertices.length - 1; i++) {                
-                    $scope.gl.drawArrays($scope.gl.LINES, i, 2);
-                }                
+                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
+                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
+        
+                $scope.ambientProduct = mult($scope.lightAmbient, $scope.materialAmbient);
+                $scope.diffuseProduct = mult($scope.lightDiffuse, $scope.materialDiffuse);
+                $scope.specularProduct = mult($scope.lightSpecular, $scope.materialSpecular);
+                        
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "ambientProduct"), flatten($scope.ambientProduct));
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "diffuseProduct"), flatten($scope.diffuseProduct) );
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "specularProduct"), flatten($scope.specularProduct) );
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.lightPosition) );
+
+                $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), $scope.materialShininess);
+
+                $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, this.vertices.length);
             }
         }
     }
@@ -766,6 +790,17 @@ app.controller("webGlLab03Ctrl", function($scope) {
         return _v;
     }
     
+    // Normal for triangle
+    $scope.normal = function(p1, p2, p3) {
+         var t1 = subtract(p2, p1);
+         var t2 = subtract(p3, p1);
+         var normal = cross(t1, t2);
+         var normal = vec3(normal);
+         normal = normalize(normal);
+         return vec3(1,1,1);
+         return normal;
+    }
+    
     // Update object
     $scope.updateObject = function() {
         if ($scope.selectedObject == null) return;
@@ -810,9 +845,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.objects.push(
             $scope.createSphere(
                 "Sphere #01",
-                12,
+                24,
                 "#FF0000",
-                2.0,
+                5.0,
                 vec3(0.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
