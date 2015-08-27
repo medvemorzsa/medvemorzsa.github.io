@@ -5,11 +5,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
     
     $scope.types = ["Cone", "Cylinder", "Sphere"];
     $scope.scene = {
-        objects : []
+        objects : [],
+        lights: []
     };
     $scope.selectedObject = null;
     $scope.editMode = false;
     $scope.numObj = 1;
+    $scope.MAX_NUM_LIGHTS = 16;
     
     $scope.baseObj = {
         name: "Untitled",
@@ -61,11 +63,14 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.right = 10.0;
     $scope.ytop = 10.0;
     $scope.bottom = -10.0;
-    
-    $scope.lightPosition = vec4(-3.0, 10.0, 10.0, 0.0 );
-    $scope.lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
-    $scope.lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
-    $scope.lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+
+    $scope.scene.lights.push({
+        pos: vec4(0.0, -10.0, 50.0, 0.0),
+        vAmbient: vec4(0.2, 0.2, 0.2, 1.0),
+        vDiffuse: vec4(1.0, 1.0, 1.0, 1.0),
+        vSpecular: vec4(1.0, 1.0, 1.0, 1.0),
+        enabled: true
+    });
     
     // WebGL initialization
     $scope.initWebGL = function() {
@@ -103,9 +108,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.vertexAttribPointer($scope.vPosition, 4, $scope.gl.FLOAT, false, 0, 0);
         $scope.gl.enableVertexAttribArray($scope.vPosition);
         
-        $scope.modelViewMatrixLoc = $scope.gl.getUniformLocation($scope.program, "modelViewMatrix" );
-        $scope.projectionMatrixLoc = $scope.gl.getUniformLocation($scope.program, "projectionMatrix" );
-                
+        $scope.modelViewMatrixLoc = $scope.gl.getUniformLocation($scope.program, "modelViewMatrix");
+        $scope.projectionMatrixLoc = $scope.gl.getUniformLocation($scope.program, "projectionMatrix");
+        
         return true;
     }
     
@@ -140,15 +145,28 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
         $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.vertices), $scope.gl.STATIC_DRAW);
 
-        var ambientProduct = mult($scope.lightAmbient, object.vAmbient);
-        var diffuseProduct = mult($scope.lightDiffuse, object.vDiffuse);
-        var specularProduct = mult($scope.lightSpecular, object.vSpecular);
+        var ambientProduct = mult($scope.scene.lights[0].vAmbient, object.vAmbient);
+        var diffuseProduct = mult($scope.scene.lights[0].vDiffuse, object.vDiffuse);
+        var specularProduct = mult($scope.scene.lights[0].vSpecular, object.vSpecular);
                 
+        
         $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "ambientProduct"), flatten(ambientProduct));
         $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "diffuseProduct"), flatten(diffuseProduct));
         $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "specularProduct"), flatten(specularProduct));
-        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.lightPosition));
-
+        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.scene.lights[0].pos));
+        
+        for (var i = 0; i < $scope.MAX_NUM_LIGHTS; i++) {
+            if (i < $scope.scene.lights.length) {
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].ambientProduct"), flatten(ambientProduct));
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].diffuseProduct"), flatten(diffuseProduct));
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].specularProduct"), flatten(specularProduct));
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].position"), flatten($scope.scene.lights[i].pos));
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].enabled"), [$scope.scene.lights[i].enabled]);
+            } else {
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].enabled"), [false]);
+            }
+        }
+        
         $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), object.shininess);
 
         $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, object.vertices.length);
@@ -651,7 +669,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                     var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     this.vertices.push(p1, p2, p3);
-                    var normal = $scope.normal(p1, p2, p3);
+                    var normal = $scope.normal(p1, p3, p2);
                     for (var k = 0; k < 3; k++)
                         this.normals.push(normal);
                     
@@ -659,7 +677,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                     p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     p3 = $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     this.vertices.push(p1, p2, p3);
-                    var normal = $scope.normal(p1, p2, p3);
+                    var normal = $scope.normal(p1, p3, p2);
                     for (var k = 0; k < 3; k++)
                         this.normals.push(normal);
                 }
@@ -774,7 +792,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                         var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         this.vertices.push(p1, p2, p3);
-                        var normal = $scope.normal(p1, p2, p3);
+                        var normal = $scope.normal(p1, p3, p2);
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
                         
@@ -782,7 +800,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                         p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         this.vertices.push(p1, p2, p3);
-                        var normal = $scope.normal(p1, p2, p3);
+                        var normal = $scope.normal(p1, p3, p2);
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
                     }
@@ -880,7 +898,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
          var normal = cross(t1, t2);
          var normal = vec3(normal);
          normal = normalize(normal);
-         return vec3(1,1,1);
+
          return normal;
     }
     
@@ -935,14 +953,14 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.scene.objects.push(
             $scope.createCone(
                 "Cone #01",
-                24,
+                48,
                 2.0,
                 4.0,
                 true,
-                vec4(1.0, 0.0, 1.0, 1.0),
-                vec4(1.0, 0.8, 0.0, 1.0),
-                vec4(1.0, 0.8, 0.0, 1.0),
-                100.0,
+                vec4(1.0, 1.0, 1.0, 1.0),
+                vec4(1.0, 0.8, 1.0, 1.0),
+                vec4(1.0, 1.0, 1.0, 1.0),
+                80.0,
                 vec3(-4.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
@@ -951,14 +969,14 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.scene.objects.push(
             $scope.createCylinder(
                 "Cylinger #01",
-                24,
+                48,
                 1.0,
                 2.0,
                 4.0,
                 true,
                 vec4(1.0, 0.0, 1.0, 1.0),
-                vec4(1.0, 0.7, 0.0, 1.0),
-                vec4(1.0, 0.0, 1.0, 1.0),
+                vec4(1.0, 0.0, 0.0, 1.0),
+                vec4(0.6, 0.6, 0.6, 1.0),
                 100.0,
                 vec3(0.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
@@ -968,11 +986,11 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.scene.objects.push(
             $scope.createSphere(
                 "Sphere #01",
-                24,
+                48,
                 2.0,
-                vec4(0.0, 1.0, 1.0, 1.0),
+                vec4(1.0, 1.0, 1.0, 1.0),
                 vec4(0.0, 1.0, 0.0, 1.0),
-                vec4(0.0, 0.0, 1.0, 1.0),
+                vec4(1.0, 1.0, 1.0, 1.0),
                 100.0,
                 vec3(4.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
