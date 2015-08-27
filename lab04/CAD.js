@@ -874,10 +874,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 "Cone #01",
                 24,
                 "#FF0000",
-                1.0,
                 2.0,
+                4.0,
                 true,
-                vec3(-2.0, 0.0, 0.0),
+                vec3(-4.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
         );
@@ -887,9 +887,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 "Cylinger #01",
                 24,
                 "#FF0000",
-                0.5,
                 1.0,
                 2.0,
+                4.0,
                 true,
                 vec3(0.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
@@ -901,8 +901,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 "Sphere #01",
                 24,
                 "#FF0000",
-                1.0,
-                vec3(2.0, 0.0, 0.0),
+                2.0,
+                vec3(4.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
         );
