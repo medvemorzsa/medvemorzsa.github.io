@@ -200,6 +200,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.downloadObjects = function() {
         try {
             angular.forEach($scope.objects, function(object) {
+                object.ambient = undefined;
+                object.diffuse = undefined;
+                object.specular = undefined;
                 object.vertices = undefined;
                 object.normals = undefined;
                 /*
@@ -215,6 +218,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
         
         angular.forEach($scope.objects, function(object) {
             if (object.generate) {
+                object.ambient = $scope.toHex(object.vAmbient);
+                object.diffuse = $scope.toHex(object.vDiffuse);
+                object.specular = $scope.toHex(object.vSpecular);
                 object.vertices = [];
                 object.normals = [];
                 object.generate();
@@ -252,6 +258,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                                 ok = ok && (typeof temp_object.radius !== "undefined");
                                 ok = ok && (typeof temp_object.height !== "undefined");
                                 ok = ok && (typeof temp_object.closed !== "undefined");
+                                ok = ok && (typeof temp_object.vAmbient !== "undefined");
+                                ok = ok && (typeof temp_object.vDiffuse !== "undefined");
+                                ok = ok && (typeof temp_object.vSpecular !== "undefined");
+                                ok = ok && (typeof temp_object.shininess !== "undefined");
                                 ok = ok && (typeof temp_object.pos !== "undefined");
                                 ok = ok && (typeof temp_object.rotation !== "undefined");
                                 if (ok) 
@@ -262,6 +272,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                                             temp_object.radius,
                                             temp_object.height,
                                             temp_object.closed,
+                                            vec4(temp_object.vAmbient[0], temp_object.vAmbient[1], temp_object.vAmbient[2], temp_object.vAmbient[3]),
+                                            vec4(temp_object.vDiffuse[0], temp_object.vDiffuse[1], temp_object.vDiffuse[2], temp_object.vDiffuse[3]),
+                                            vec4(temp_object.vSpecular[0], temp_object.vSpecular[1], temp_object.vSpecular[2], temp_object.vSpecular[3]),
+                                            temp_object.shininess,
                                             vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
                                             vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
                                         ).generate()
@@ -276,6 +290,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                                 ok = ok && (typeof temp_object.bottom_radius !== "undefined");
                                 ok = ok && (typeof temp_object.height !== "undefined");
                                 ok = ok && (typeof temp_object.closed !== "undefined");
+                                ok = ok && (typeof temp_object.vAmbient !== "undefined");
+                                ok = ok && (typeof temp_object.vDiffuse !== "undefined");
+                                ok = ok && (typeof temp_object.vSpecular !== "undefined");
+                                ok = ok && (typeof temp_object.shininess !== "undefined");
                                 ok = ok && (typeof temp_object.pos !== "undefined");
                                 ok = ok && (typeof temp_object.rotation !== "undefined");
                                 if (ok) 
@@ -287,6 +305,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                                             temp_object.bottom_radius,
                                             temp_object.height,
                                             temp_object.closed,
+                                            vec4(temp_object.vAmbient[0], temp_object.vAmbient[1], temp_object.vAmbient[2], temp_object.vAmbient[3]),
+                                            vec4(temp_object.vDiffuse[0], temp_object.vDiffuse[1], temp_object.vDiffuse[2], temp_object.vDiffuse[3]),
+                                            vec4(temp_object.vSpecular[0], temp_object.vSpecular[1], temp_object.vSpecular[2], temp_object.vSpecular[3]),
+                                            temp_object.shininess,
                                             vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
                                             vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
                                         ).generate()
@@ -298,6 +320,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                                 ok = ok && (typeof temp_object.name !== "undefined");
                                 ok = ok && (typeof temp_object.fragments !== "undefined")
                                 ok = ok && (typeof temp_object.radius !== "undefined");
+                                ok = ok && (typeof temp_object.vAmbient !== "undefined");
+                                ok = ok && (typeof temp_object.vDiffuse !== "undefined");
+                                ok = ok && (typeof temp_object.vSpecular !== "undefined");
+                                ok = ok && (typeof temp_object.shininess !== "undefined");
                                 ok = ok && (typeof temp_object.pos !== "undefined");
                                 ok = ok && (typeof temp_object.rotation !== "undefined");
                                 if (ok) 
@@ -306,6 +332,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                                             temp_object.name,
                                             temp_object.fragments,
                                             temp_object.radius,
+                                            vec4(temp_object.vAmbient[0], temp_object.vAmbient[1], temp_object.vAmbient[2], temp_object.vAmbient[3]),
+                                            vec4(temp_object.vDiffuse[0], temp_object.vDiffuse[1], temp_object.vDiffuse[2], temp_object.vDiffuse[3]),
+                                            vec4(temp_object.vSpecular[0], temp_object.vSpecular[1], temp_object.vSpecular[2], temp_object.vSpecular[3]),
+                                            temp_object.shininess,
                                             vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
                                             vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
                                         ).generate()
