@@ -19,17 +19,20 @@ app.controller("webGlLab03Ctrl", function($scope) {
         top_radius: 1.0,
         height: 1.0,
         closed: false,
-        ambient: vec3(0.0, 0.0, 0.0),
-        diffuse: vec3(0.0, 0.0, 0.0),
-        specular: vec3(0.0, 0.0, 0.0),
-        shininess: 50.0,
+        ambient: "#000000",
+        diffuse: "#000000",
+        specular: "#000000",
+        vAmbient: vec4(0.0, 0.0, 0.0, 1.0),
+        vDiffuse: vec4(0.0, 0.0, 0.0, 1.0),
+        vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
+        shininess: 100.0,
         pos_x: 0.0,
         pos_y: 0.0,
         pos_z: 0.0,
         rot_x: 0.0,
         rot_y: 0.0,
-        rot_z: 0.0
-    }
+        rot_z: 0.0        
+    };
     $scope.obj = angular.copy($scope.baseObj);
     
     $scope.canvas = null;
@@ -57,19 +60,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.ytop = 10.0;
     $scope.bottom = -10.0;
     
-    $scope.lightPosition = vec4(3.0, 3.0, 3.0, 0.0 );
+    $scope.lightPosition = vec4(-3.0, 10.0, 10.0, 0.0 );
     $scope.lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
     $scope.lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
     $scope.lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
-
-    $scope.materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
-    $scope.materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0);
-    $scope.materialSpecular = vec4( 1.0, 0.8, 0.0, 1.0 );
-    $scope.materialShininess = 100.0;    
-
-    $scope.ambientColor = null;
-    $scope.diffuseColor = null;
-    $scope.specularColor = null;
     
     // WebGL initialization
     $scope.initWebGL = function() {
@@ -117,7 +111,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.render = function() {
         if (!($scope.gl)) return;
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
-        //$scope.gl.clear($scope.gl.COLOR_BUFFER_BIT | $scope.gl.DEPTH_BUFFER_BIT);
+        $scope.gl.clear($scope.gl.COLOR_BUFFER_BIT | $scope.gl.DEPTH_BUFFER_BIT);
 
         $scope.eye = vec3( 
             $scope.radius*Math.sin($scope.theta)*Math.cos($scope.phi),
@@ -144,25 +138,35 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
         $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.vertices), $scope.gl.STATIC_DRAW);
 
-        $scope.ambientProduct = mult($scope.lightAmbient, $scope.materialAmbient);
-        $scope.diffuseProduct = mult($scope.lightDiffuse, $scope.materialDiffuse);
-        $scope.specularProduct = mult($scope.lightSpecular, $scope.materialSpecular);
+        var ambientProduct = mult($scope.lightAmbient, object.vAmbient);
+        var diffuseProduct = mult($scope.lightDiffuse, object.vDiffuse);
+        var specularProduct = mult($scope.lightSpecular, object.vSpecular);
                 
-        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "ambientProduct"), flatten($scope.ambientProduct));
-        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "diffuseProduct"), flatten($scope.diffuseProduct) );
-        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "specularProduct"), flatten($scope.specularProduct) );
-        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.lightPosition) );
+        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "ambientProduct"), flatten(ambientProduct));
+        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "diffuseProduct"), flatten(diffuseProduct));
+        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "specularProduct"), flatten(specularProduct));
+        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.lightPosition));
 
-        $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), $scope.materialShininess);
+        $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), object.shininess);
 
         $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, object.vertices.length);
     }
     
+    // Return hexa formatted color as rgba components
     $scope.toRGB = function(value) {
         var components = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
         return vec4(parseInt(components[1], 16) / 255.0, parseInt(components[2], 16) / 255.0, parseInt(components[3], 16) / 255.0, 1.0);
     }
+           
+    // Return rgba componets as hexa formatted color
+    $scope.toHex = function(value) {
+        var r = Math.round(value[0] * 255);
+        var g = Math.round(value[1] * 255);
+        var b = Math.round(value[2] * 255);
         
+        return "#" + ((r < 16) ? "0" : "") + r.toString(16) + ((g < 16) ? "0" : "") + g.toString(16) + ((b < 16) ? "0" : "") + b.toString(16);
+    }
+    
     // Start creating new object
     $scope.newObject = function() {
         $scope.editMode = true;
@@ -354,8 +358,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
             $scope.selectable_objects = $scope.selectedObject;
             $scope.loadObject();
         }
-        else
+        else {
             $scope.obj = angular.copy($scope.baseObj);
+        }
             
         $scope.editMode=false;
     };    
@@ -371,6 +376,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                     $scope.obj.radius, 
                     $scope.obj.height, 
                     $scope.obj.closed, 
+                    $scope.obj.ambient,
+                    $scope.obj.diffuse,
+                    $scope.obj.specular,
+                    parseFloat($scope.obj.shininess),
                     vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z), 
                     vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
                 ).generate();
@@ -384,6 +393,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                     $scope.obj.bottom_radius, 
                     $scope.obj.height, 
                     $scope.obj.closed, 
+                    $scope.obj.ambient,
+                    $scope.obj.diffuse,
+                    $scope.obj.specular,
+                    parseFloat($scope.obj.shininess),
                     vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z), 
                     vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
                 ).generate();
@@ -394,6 +407,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                     $scope.obj.name, 
                     parseInt($scope.obj.fragments), 
                     $scope.obj.radius, 
+                    $scope.obj.ambient,
+                    $scope.obj.diffuse,
+                    $scope.obj.specular,
+                    parseFloat($scope.obj.shininess),
                     vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z), 
                     vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
                 ).generate();
@@ -405,7 +422,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     }
     
     // Create cone object 
-    $scope.createCone = function(_name, _fragments, _radius, _height, _closed, _pos, _rotation) {
+    $scope.createCone = function(_name, _fragments, _radius, _height, _closed, _ambient, _diffuse, _specular, _shininess, _pos, _rotation) {
         return {  
             name: _name,
             fragments: _fragments,
@@ -413,6 +430,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
             radius: _radius,
             height: _height,
             closed: _closed,
+            ambient: (typeof _ambient === "string") ? _ambient : $scope.toHex(_ambient),
+            diffuse: (typeof _diffuse === "string") ? _diffuse : $scope.toHex(_diffuse),
+            specular: (typeof _specular === "string") ? _specular : $scope.toHex(_specular),
+            vAmbient: (typeof _ambient === "string") ? $scope.toRGB(_ambient) : _ambient,
+            vDiffuse: (typeof _diffuse === "string") ? $scope.toRGB(_diffuse) : _diffuse,
+            vSpecular: (typeof _specular === "string") ? $scope.toRGB(_specular) : _specular,
+            shininess: _shininess,
             pos: _pos,
             rotation: _rotation,
             vertices: [],
@@ -424,6 +448,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 this.radius = $scope.obj.radius;
                 this.height = $scope.obj.height;
                 this.closed = $scope.obj.closed;
+                this.ambient = $scope.obj.ambient;
+                this.diffuse = $scope.obj.diffuse;
+                this.specular = $scope.obj.specular;
+                this.vAmbient = $scope.obj.vAmbient;
+                this.vDiffuse = $scope.obj.vDiffuse;
+                this.vSpecular = $scope.obj.vSpecular;
+                this.shininess = parseFloat($scope.obj.shininess);
                 this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
                 this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
                 
@@ -483,7 +514,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     }
     
     // Create cylinder object 
-    $scope.createCylinder = function(_name, _fragments, _top_radius, _bottom_radius, _height, _closed, _pos, _rotation) {
+    $scope.createCylinder = function(_name, _fragments, _top_radius, _bottom_radius, _height, _closed, _ambient, _diffuse, _specular, _shininess, _pos, _rotation) {
         return {  
             name: _name,
             fragments: _fragments,
@@ -492,6 +523,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
             bottom_radius: _bottom_radius,
             height: _height,
             closed: _closed,
+            ambient: (typeof _ambient === "string") ? _ambient : $scope.toHex(_ambient),
+            diffuse: (typeof _diffuse === "string") ? _diffuse : $scope.toHex(_diffuse),
+            specular: (typeof _specular === "string") ? _specular : $scope.toHex(_specular),
+            vAmbient: (typeof _ambient === "string") ? $scope.toRGB(_ambient) : _ambient,
+            vDiffuse: (typeof _diffuse === "string") ? $scope.toRGB(_diffuse) : _diffuse,
+            vSpecular: (typeof _specular === "string") ? $scope.toRGB(_specular) : _specular,
+            shininess: _shininess,
             pos: _pos,
             rotation: _rotation,
             vertices: [],
@@ -504,6 +542,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 this.top_radius = $scope.obj.top_radius;
                 this.height = $scope.obj.height;
                 this.closed = $scope.obj.closed;
+                this.ambient = $scope.obj.ambient;
+                this.diffuse = $scope.obj.diffuse;
+                this.specular = $scope.obj.specular;
+                this.vAmbient = $scope.obj.vAmbient;
+                this.vDiffuse = $scope.obj.vDiffuse;
+                this.vSpecular = $scope.obj.vSpecular;
+                this.shininess = parseFloat($scope.obj.shininess);
                 this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
                 this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
                 
@@ -591,12 +636,19 @@ app.controller("webGlLab03Ctrl", function($scope) {
     }
 
     // Create sphere object 
-    $scope.createSphere = function(_name, _fragments, _radius, _pos, _rotation) {
+    $scope.createSphere = function(_name, _fragments, _radius, _ambient, _diffuse, _specular, _shininess, _pos, _rotation) {
         return {  
             name: _name,
             fragments: _fragments,
             type: 2,
             radius: _radius,
+            ambient: (typeof _ambient === "string") ? _ambient : $scope.toHex(_ambient),
+            diffuse: (typeof _diffuse === "string") ? _diffuse : $scope.toHex(_diffuse),
+            specular: (typeof _specular === "string") ? _specular : $scope.toHex(_specular),
+            vAmbient: (typeof _ambient === "string") ? $scope.toRGB(_ambient) : _ambient,
+            vDiffuse: (typeof _diffuse === "string") ? $scope.toRGB(_diffuse) : _diffuse,
+            vSpecular: (typeof _specular === "string") ? $scope.toRGB(_specular) : _specular,
+            shininess: _shininess,
             pos: _pos,
             rotation: _rotation,
             vertices: [],
@@ -606,6 +658,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 this.name = $scope.obj.name;
                 this.fragments = parseInt($scope.obj.fragments);
                 this.radius = $scope.obj.radius;
+                this.ambient = $scope.obj.ambient;
+                this.diffuse = $scope.obj.diffuse;
+                this.specular = $scope.obj.specular;
+                this.vAmbient = $scope.obj.vAmbient;
+                this.vDiffuse = $scope.obj.vDiffuse;
+                this.vSpecular = $scope.obj.vSpecular;
+                this.shininess = parseFloat($scope.obj.shininess);
                 this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
                 this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
                 
@@ -786,6 +845,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         }
         
         $scope.selectedObject = $scope.selectable_objects;
+        
         $scope.obj.name = $scope.selectedObject.name;
         $scope.obj.type = $scope.selectedObject.type;
         $scope.obj.fragments = $scope.selectedObject.fragments;
@@ -799,6 +859,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
             $scope.obj.height = $scope.selectedObject.height;        
         if ($scope.selectedObject.closed)
             $scope.obj.closed = $scope.selectedObject.closed;
+        $scope.obj.ambient = $scope.selectedObject.ambient;
+        $scope.obj.diffuse = $scope.selectedObject.diffuse;
+        $scope.obj.specular = $scope.selectedObject.specular;
+        $scope.obj.vAmbient = $scope.selectedObject.vAmbient;
+        $scope.obj.vDiffuse = $scope.selectedObject.vDiffuse;
+        $scope.obj.vSpecular = $scope.selectedObject.vSpecular;
+        $scope.obj.shininess = $scope.selectedObject.shininess;
         $scope.obj.pos_x = $scope.selectedObject.pos[0];
         $scope.obj.pos_y = $scope.selectedObject.pos[1];
         $scope.obj.pos_z = $scope.selectedObject.pos[2];
@@ -817,6 +884,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 2.0,
                 4.0,
                 true,
+                vec4(1.0, 0.0, 1.0, 1.0),
+                vec4(1.0, 0.8, 0.0, 1.0),
+                vec4(1.0, 0.8, 0.0, 1.0),
+                100.0,
                 vec3(-4.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
@@ -830,6 +901,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 2.0,
                 4.0,
                 true,
+                vec4(1.0, 0.0, 1.0, 1.0),
+                vec4(1.0, 0.7, 0.0, 1.0),
+                vec4(1.0, 0.0, 1.0, 1.0),
+                100.0,
                 vec3(0.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
@@ -840,6 +915,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 "Sphere #01",
                 24,
                 2.0,
+                vec4(0.0, 1.0, 1.0, 1.0),
+                vec4(0.0, 1.0, 0.0, 1.0),
+                vec4(0.0, 0.0, 1.0, 1.0),
+                100.0,
                 vec3(4.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
