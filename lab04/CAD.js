@@ -85,8 +85,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.clearColor(1.0, 1.0, 1.0, 1.0);
         
         $scope.gl.enable($scope.gl.DEPTH_TEST);
-        /*
         $scope.gl.depthFunc($scope.gl.LEQUAL);
+        /*
         $scope.gl.enable($scope.gl.POLYGON_OFFSET_FILL);
         $scope.gl.polygonOffset(1.0, 2.0);
         */
@@ -133,11 +133,31 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.uniformMatrix4fv($scope.projectionMatrixLoc, false, flatten($scope.projectionMatrix));                        
         
         angular.forEach($scope.objects, function(object) {
-            if (object.render)
-                object.render();
+            $scope.renderObject(object);
         });      
     };
 
+    $scope.renderObject = function(object) {
+        $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.nBuffer);
+        $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.normals), $scope.gl.STATIC_DRAW);
+
+        $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
+        $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.vertices), $scope.gl.STATIC_DRAW);
+
+        $scope.ambientProduct = mult($scope.lightAmbient, $scope.materialAmbient);
+        $scope.diffuseProduct = mult($scope.lightDiffuse, $scope.materialDiffuse);
+        $scope.specularProduct = mult($scope.lightSpecular, $scope.materialSpecular);
+                
+        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "ambientProduct"), flatten($scope.ambientProduct));
+        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "diffuseProduct"), flatten($scope.diffuseProduct) );
+        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "specularProduct"), flatten($scope.specularProduct) );
+        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.lightPosition) );
+
+        $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), $scope.materialShininess);
+
+        $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, object.vertices.length);
+    }
+    
     $scope.toRGB = function(value) {
         var components = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(value);
         return vec4(parseInt(components[1], 16) / 255.0, parseInt(components[2], 16) / 255.0, parseInt(components[3], 16) / 255.0, 1.0);
@@ -469,27 +489,6 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 }
                 
                 return this;
-            },
-            
-            render: function() {
-                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.nBuffer);
-                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.normals), $scope.gl.STATIC_DRAW);
-
-                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
-                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
-        
-                $scope.ambientProduct = mult($scope.lightAmbient, $scope.materialAmbient);
-                $scope.diffuseProduct = mult($scope.lightDiffuse, $scope.materialDiffuse);
-                $scope.specularProduct = mult($scope.lightSpecular, $scope.materialSpecular);
-                        
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "ambientProduct"), flatten($scope.ambientProduct));
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "diffuseProduct"), flatten($scope.diffuseProduct) );
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "specularProduct"), flatten($scope.specularProduct) );
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.lightPosition) );
-
-                $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), $scope.materialShininess);
-
-                $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, this.vertices.length);
             }
         }
     }
@@ -600,27 +599,6 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 }
                 
                 return this;
-            },
-            
-            render: function() {
-                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.nBuffer);
-                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.normals), $scope.gl.STATIC_DRAW);
-
-                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
-                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
-        
-                $scope.ambientProduct = mult($scope.lightAmbient, $scope.materialAmbient);
-                $scope.diffuseProduct = mult($scope.lightDiffuse, $scope.materialDiffuse);
-                $scope.specularProduct = mult($scope.lightSpecular, $scope.materialSpecular);
-                        
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "ambientProduct"), flatten($scope.ambientProduct));
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "diffuseProduct"), flatten($scope.diffuseProduct) );
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "specularProduct"), flatten($scope.specularProduct) );
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.lightPosition) );
-
-                $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), $scope.materialShininess);
-
-                $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, this.vertices.length);
             }
         }
     }
@@ -721,27 +699,6 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 }
                 
                 return this;
-            },
-            
-            render: function() {
-                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.nBuffer);
-                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.normals), $scope.gl.STATIC_DRAW);
-
-                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
-                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
-        
-                $scope.ambientProduct = mult($scope.lightAmbient, $scope.materialAmbient);
-                $scope.diffuseProduct = mult($scope.lightDiffuse, $scope.materialDiffuse);
-                $scope.specularProduct = mult($scope.lightSpecular, $scope.materialSpecular);
-                        
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "ambientProduct"), flatten($scope.ambientProduct));
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "diffuseProduct"), flatten($scope.diffuseProduct) );
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "specularProduct"), flatten($scope.specularProduct) );
-                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.lightPosition) );
-
-                $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), $scope.materialShininess);
-
-                $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, this.vertices.length);
             }
         }
     }
