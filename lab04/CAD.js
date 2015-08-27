@@ -406,6 +406,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             pos: _pos,
             rotation: _rotation,
             vertices: [],
+            normals: [],
             
             update: function() {
                 this.name = $scope.obj.name;
@@ -451,6 +452,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
                     var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     this.vertices.push(p1, p2, p3);                     
+                    var normal = $scope.normal(p1, p2, p3);
+                    for (var k = 0; k < 3; k++)
+                        this.normals.push(normal);
                 }
                 if (this.closed) {
                     for (var i = 0; i < this.fragments; i++)  {                  
@@ -458,6 +462,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
                         var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         this.vertices.push(p1, p2, p3);
+                        var normal = $scope.normal(p1, p2, p3);
+                        for (var k = 0; k < 3; k++)
+                            this.normals.push(normal);
                     }
                 }
                 
@@ -465,21 +472,24 @@ app.controller("webGlLab03Ctrl", function($scope) {
             },
             
             render: function() {
-                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
-                
-                var colorLocation = $scope.gl.getUniformLocation($scope.program, "user_color");
-                var _color = $scope.toRGB(this.color);
-                
-                $scope.gl.uniform4f(colorLocation, _color[0], _color[1], _color[2], _color[3]);
-                for (var i=0; i<this.vertices.length; i+=3) {
-                    $scope.gl.drawArrays($scope.gl.TRIANGLES, i, 3);
-                }
+                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.nBuffer);
+                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.normals), $scope.gl.STATIC_DRAW);
 
-                $scope.gl.uniform4f(colorLocation, 0.0, 0.0, 0.0, 1.0);
-                for (var i=0; i<this.vertices.length - 1; i++) {                
-                    $scope.gl.drawArrays($scope.gl.LINES, i, 2);
-                }                
-                
+                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
+                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(this.vertices), $scope.gl.STATIC_DRAW);
+        
+                $scope.ambientProduct = mult($scope.lightAmbient, $scope.materialAmbient);
+                $scope.diffuseProduct = mult($scope.lightDiffuse, $scope.materialDiffuse);
+                $scope.specularProduct = mult($scope.lightSpecular, $scope.materialSpecular);
+                        
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "ambientProduct"), flatten($scope.ambientProduct));
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "diffuseProduct"), flatten($scope.diffuseProduct) );
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "specularProduct"), flatten($scope.specularProduct) );
+                $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.lightPosition) );
+
+                $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), $scope.materialShininess);
+
+                $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, this.vertices.length);
             }
         }
     }
@@ -843,12 +853,25 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.render();
         
         $scope.objects.push(
+            $scope.createCone(
+                "Cone #01",
+                24,
+                "#FF0000",
+                1.0,
+                2.0,
+                true,
+                vec3(-1.0, 0.0, 0.0),
+                vec3(0.0, 0.0, 0.0)
+            ).generate()
+        );
+        
+        $scope.objects.push(
             $scope.createSphere(
                 "Sphere #01",
                 24,
                 "#FF0000",
-                5.0,
-                vec3(0.0, 0.0, 0.0),
+                1.0,
+                vec3(1.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
         );
