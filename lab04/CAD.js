@@ -198,9 +198,32 @@ app.controller("webGlLab03Ctrl", function($scope) {
     
     // Download objects
     $scope.downloadObjects = function() {
+        try {
+            angular.forEach($scope.objects, function(object) {
+                object.vertices = undefined;
+                object.normals = undefined;
+                /*
+                delete object.vertices;
+                delete object.normals;
+                */
+            });
+        }
+        catch (err) {
+            console.log(err);
+        }
         var jsonData = angular.toJson($scope.objects, 4);
+        
+        angular.forEach($scope.objects, function(object) {
+            if (object.generate) {
+                object.vertices = [];
+                object.normals = [];
+                object.generate();
+            }
+        });
+        
         var jsonDataWindow = window.open("data:text/json," + encodeURIComponent(jsonData), "_blank");
-        jsonDataWindow.focus();        
+        if (jsonDataWindow) jsonDataWindow.focus();        
+        
     }
 
     // Upload objects
