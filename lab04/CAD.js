@@ -4,7 +4,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.varLoading = true;
     
     $scope.types = ["Cone", "Cylinder", "Sphere"];
-    $scope.objects = [];
+    $scope.scene = {
+        objects : []
+    };
     $scope.selectedObject = null;
     $scope.editMode = false;
     $scope.numObj = 1;
@@ -126,7 +128,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.uniformMatrix4fv($scope.modelViewMatrixLoc, false, flatten($scope.modelViewMatrix));
         $scope.gl.uniformMatrix4fv($scope.projectionMatrixLoc, false, flatten($scope.projectionMatrix));                        
         
-        angular.forEach($scope.objects, function(object) {
+        angular.forEach($scope.scene.objects, function(object) {
             $scope.renderObject(object);
         });      
     };
@@ -186,10 +188,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
         if ($scope.selectedObject == null) return;
         
         if (confirm("Are you sure you want to delete the selected object?")) {
-            $scope.objects.splice($scope.objects.indexOf($scope.selectedObject), 1);
+            $scope.scene.objects.splice($scope.scene.objects.indexOf($scope.selectedObject), 1);
             $scope.selectedObject = null;
-            if ($scope.objects.length > 0)
-                $scope.selectedObject = $scope.objects[0];            
+            if ($scope.scene.objects.length > 0)
+                $scope.selectedObject = $scope.scene.objects[0];            
             $scope.selectable_objects = $scope.selectedObject;
             $scope.loadObject();
             $scope.render();
@@ -199,7 +201,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     // Download objects
     $scope.downloadObjects = function() {
         try {
-            angular.forEach($scope.objects, function(object) {
+            angular.forEach($scope.scene.objects, function(object) {
                 object.ambient = undefined;
                 object.diffuse = undefined;
                 object.specular = undefined;
@@ -214,9 +216,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
         catch (err) {
             console.log(err);
         }
-        var jsonData = angular.toJson($scope.objects, 4);
+        var jsonData = angular.toJson($scope.scene.objects, 4);
         
-        angular.forEach($scope.objects, function(object) {
+        angular.forEach($scope.scene.objects, function(object) {
             if (object.generate) {
                 object.ambient = $scope.toHex(object.vAmbient);
                 object.diffuse = $scope.toHex(object.vDiffuse);
@@ -247,7 +249,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         reader.onload = function(e) {
             try {
                 var temp_objects = angular.fromJson(e.target.result);
-                $scope.objects = [];                
+                $scope.scene.objects = [];                
                 angular.forEach(temp_objects, function(temp_object) {
                     if (typeof temp_object.type !== "undefined") {
                         switch (parseInt(temp_object.type)) {
@@ -265,7 +267,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                                 ok = ok && (typeof temp_object.pos !== "undefined");
                                 ok = ok && (typeof temp_object.rotation !== "undefined");
                                 if (ok) 
-                                    $scope.objects.push(
+                                    $scope.scene.objects.push(
                                         $scope.createCone(
                                             temp_object.name,
                                             temp_object.fragments,
@@ -297,7 +299,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                                 ok = ok && (typeof temp_object.pos !== "undefined");
                                 ok = ok && (typeof temp_object.rotation !== "undefined");
                                 if (ok) 
-                                    $scope.objects.push(
+                                    $scope.scene.objects.push(
                                         $scope.createCylinder(
                                             temp_object.name,
                                             temp_object.fragments,
@@ -327,7 +329,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                                 ok = ok && (typeof temp_object.pos !== "undefined");
                                 ok = ok && (typeof temp_object.rotation !== "undefined");
                                 if (ok) 
-                                    $scope.objects.push(
+                                    $scope.scene.objects.push(
                                         $scope.createSphere(
                                             temp_object.name,
                                             temp_object.fragments,
@@ -347,10 +349,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 });
                 
                 $scope.selectedObject = null;
-                if ($scope.objects.length > 0) {
-                    $scope.selectedObject = $scope.objects[0];
+                if ($scope.scene.objects.length > 0) {
+                    $scope.selectedObject = $scope.scene.objects[0];
                 }
-                $scope.numObj = $scope.objects.length;
+                $scope.numObj = $scope.scene.objects.length;
                 $scope.selectable_objects = $scope.selectedObject;
                 $scope.loadObject();     
                 $scope.render();
@@ -384,7 +386,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         if (form.$valid) {
             if ($scope.selectedObject == null) {
                 $scope.selectedObject = $scope.createObject();
-                $scope.objects.push($scope.selectedObject);
+                $scope.scene.objects.push($scope.selectedObject);
                 $scope.numObj++;
             }
             else {
@@ -930,7 +932,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     if ($scope.initWebGL()) {   
         $scope.render();
         
-        $scope.objects.push(
+        $scope.scene.objects.push(
             $scope.createCone(
                 "Cone #01",
                 24,
@@ -946,7 +948,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             ).generate()
         );
         
-        $scope.objects.push(
+        $scope.scene.objects.push(
             $scope.createCylinder(
                 "Cylinger #01",
                 24,
@@ -963,7 +965,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             ).generate()
         );
         
-        $scope.objects.push(
+        $scope.scene.objects.push(
             $scope.createSphere(
                 "Sphere #01",
                 24,
