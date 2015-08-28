@@ -1,4 +1,4 @@
-<form name="form" role="form">
+<form id="object_form" name="object_form" role="form">
     <div>
         <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode))" title="Create new object" ng-click="newObject()"><i class="material-icons">add</i></button>
         <select ng-model="selectable_objects" ng-show="(!(editMode)) && (scene.objects.length != 0)" ng-options="obj.name for obj in scene.objects | orderBy: 'name' " ng-change="loadObject()"></select>
@@ -30,7 +30,7 @@
     <div class="w3-container">
         <div class="w3-group">
             <label for="obj.name">Name:</label>
-            <input type="text" ng-model="obj.name" ng-disabled="(varLoading) || (!(editMode))" ng-blur="checkRenaming()"/>
+            <input type="text" ng-model="obj.name" ng-disabled="(varLoading) || (!(editMode))" ng-blur="checkRenaming($event)"/>
             <input type="hidden" ng-model="obj.name_changed" />
         </div>
         <div class="w3-group">
@@ -156,7 +156,7 @@
         </div>
     </div>
     <div class="container w3-center">
-        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))" ng-click="form.submit();saveObject(form);">Done<i class="w3-margin-left w3-right material-icons">done</i></button>
-        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))" ng-click="reset(form)">Cancel<i class="w3-margin-left w3-right material-icons">cancel</i></button>
+        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))" ng-click="object_form.submit();saveObject(object_form);">Done<i class="w3-margin-left w3-right material-icons">done</i></button>
+        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))" ng-click="reset(object_form)">Cancel<i class="w3-margin-left w3-right material-icons">cancel</i></button>
     </div>
 </form>
