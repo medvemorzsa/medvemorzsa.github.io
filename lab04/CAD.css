@@ -35,3 +35,11 @@ span.right_align {
 h5 {
     margin: 0.5em;
 }
+
+.w3-topnav  {
+    padding: 0em 0.5px;
+}
+
+nav > a > h2 {
+    display: inline-block;
+}

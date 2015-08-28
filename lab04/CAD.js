@@ -1,4 +1,4 @@
-var app = angular.module("webGlLab03App", []);
+var app = angular.module("webGlLab03App", ['ngRoute']);
 
 app.controller("webGlLab03Ctrl", function($scope) {
     $scope.varLoading = true;
@@ -42,7 +42,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.baseLight = {
         pos: vec4(0.0, 0.0, 30.0, 0.0),
         vAmbient: vec4(0.5, 0.5, 0.5, 1.0),
-        vDiffuse: vec4(0.0, 0.0, 0.0, 1.0),
+        vDiffuse: vec4(0.5, 0.5, 0.5, 1.0),
         vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
         attenuation: vec3(1.0, 0.0, 0.0),
         enabled: true
@@ -986,7 +986,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 vec4(0.5, 0.5, 0.5, 1.0),
                 vec4(1.0, 0.0, 0.0, 1.0),
                 vec4(0.2, 0.2, 0.2, 1.0),
-                10.0,
+                60.0,
                 vec3(0.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
@@ -1048,3 +1048,18 @@ app.directive('resize', function ($window) {
         });
     }
 });
+
+app.config(['$routeProvider',
+    function($routeProvider) {
+        $routeProvider.
+            when('/objects', {
+                templateUrl: './templates/object.html'
+            }).
+            when('/lights', {
+                templateUrl: './templates/light.html'
+            }).
+            otherwise({
+                redirectTo: '/objects'
+            });
+    }
+]);
