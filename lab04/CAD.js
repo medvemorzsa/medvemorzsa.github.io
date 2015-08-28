@@ -40,13 +40,18 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.obj = angular.copy($scope.baseObj);
     
     $scope.baseLight = {
+        name: "Untitled",
         pos: vec4(0.0, 0.0, 30.0, 0.0),
+        ambient: "#808080",
+        diffuse: "#808080",
+        specular: "#000000",
         vAmbient: vec4(0.5, 0.5, 0.5, 1.0),
         vDiffuse: vec4(0.5, 0.5, 0.5, 1.0),
         vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
         attenuation: vec3(1.0, 0.0, 0.0),
         enabled: true
     }
+    $scope.light = angular.copy($scope.baseLight);
     
     $scope.canvas = null;
     $scope.gl = null;
@@ -226,8 +231,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
         }
     }
     
-    // Download objects
-    $scope.downloadObjects = function() {
+    // Download scene
+    $scope.downloadScene = function() {
         try {
             angular.forEach($scope.scene.objects, function(object) {
                 object.ambient = undefined;
@@ -244,7 +249,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         catch (err) {
             console.log(err);
         }
-        var jsonData = angular.toJson($scope.scene.objects, 4);
+        var jsonData = angular.toJson($scope.scene, 4);
         
         angular.forEach($scope.scene.objects, function(object) {
             if (object.generate) {
@@ -262,8 +267,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
         
     }
 
-    // Upload objects
-    $scope.uploadObjects = function($event) {
+    // Upload scene
+    $scope.uploadScene = function($event) {
         if (document.getElementById("file").files.length != 1) {
             if ($event.preventDefault) $event.preventDefault();
             if ($event.stopPropagation) $event.stopPropagation();
@@ -278,6 +283,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
             try {
                 var temp_objects = angular.fromJson(e.target.result);
                 $scope.scene.objects = [];                
+                $scope.scene.lights = [];
                 angular.forEach(temp_objects, function(temp_object) {
                     if (typeof temp_object.type !== "undefined") {
                         switch (parseInt(temp_object.type)) {
@@ -1006,7 +1012,11 @@ app.controller("webGlLab03Ctrl", function($scope) {
         );
         
         $scope.scene.lights.push({
+            name: "Light #01",
             pos: vec4(-50.0, 50.0, 50.0, 0.0),
+            ambient: "#000000",
+            diffuse: "#FFFFFF",
+            specular: "#000000",
             vAmbient: vec4(0.0, 0.0, 0.0, 1.0),
             vDiffuse: vec4(1.0, 1.0, 1.0, 1.0),
             vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
@@ -1014,7 +1024,11 @@ app.controller("webGlLab03Ctrl", function($scope) {
             enabled: true
         });
         $scope.scene.lights.push({
+            name: "Light #02",
             pos: vec4(0.0, -20.0, 150.0, 0.0),
+            ambient: "#000000",
+            diffuse: "#666666",
+            specular: "#FFFFFF",
             vAmbient: vec4(0.0, 0.0, 0.0, 1.0),
             vDiffuse: vec4(0.4, 0.4, 0.4, 1.0),
             vSpecular: vec4(1.0, 1.0, 1.0, 1.0),
