@@ -1,6 +1,6 @@
-var app = angular.module("webGlLab03App", ['ngRoute']);
+var app = angular.module("webGlLab04App", ['ngRoute']);
 
-app.controller("webGlLab03Ctrl", function($scope) {
+app.controller("webGlLab04Ctrl", function($scope) {
     $scope.varLoading = true;
     
     $scope.types = ["Cone", "Cylinder", "Sphere"];
@@ -322,6 +322,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
             form.$setPristine();
             form.$setUntouched();
         }
+        console.log(form.id);
+        console.log(form);
         if ($scope.oldSelectedObject != null) {
             $scope.selectedObject = $scope.oldSelectedObject;
             $scope.oldSelectedObject = null;
@@ -985,114 +987,144 @@ app.controller("webGlLab03Ctrl", function($scope) {
         var reader = new FileReader();
         reader.onload = function(e) {
             try {
-                var temp_objects = angular.fromJson(e.target.result);
-                $scope.scene.objects = [];                
-                $scope.scene.lights = [];
-                angular.forEach(temp_objects, function(temp_object) {
-                    if (typeof temp_object.type !== "undefined") {
-                        switch (parseInt(temp_object.type)) {
-                            case (0) : { 
-                                var ok = true;
-                                ok = ok && (typeof temp_object.name !== "undefined");
-                                ok = ok && (typeof temp_object.fragments !== "undefined")
-                                ok = ok && (typeof temp_object.radius !== "undefined");
-                                ok = ok && (typeof temp_object.height !== "undefined");
-                                ok = ok && (typeof temp_object.closed !== "undefined");
-                                ok = ok && (typeof temp_object.vAmbient !== "undefined");
-                                ok = ok && (typeof temp_object.vDiffuse !== "undefined");
-                                ok = ok && (typeof temp_object.vSpecular !== "undefined");
-                                ok = ok && (typeof temp_object.shininess !== "undefined");
-                                ok = ok && (typeof temp_object.pos !== "undefined");
-                                ok = ok && (typeof temp_object.rotation !== "undefined");
-                                if (ok) 
-                                    $scope.scene.objects.push(
-                                        $scope.createCone(
-                                            temp_object.name,
-                                            temp_object.fragments,
-                                            temp_object.radius,
-                                            temp_object.height,
-                                            temp_object.closed,
-                                            vec4(temp_object.vAmbient[0], temp_object.vAmbient[1], temp_object.vAmbient[2], temp_object.vAmbient[3]),
-                                            vec4(temp_object.vDiffuse[0], temp_object.vDiffuse[1], temp_object.vDiffuse[2], temp_object.vDiffuse[3]),
-                                            vec4(temp_object.vSpecular[0], temp_object.vSpecular[1], temp_object.vSpecular[2], temp_object.vSpecular[3]),
-                                            temp_object.shininess,
-                                            vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
-                                            vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
-                                        ).generate()
-                                    );
-                                break;
-                            }
-                            case (1) : { 
-                                var ok = true;
-                                ok = ok && (typeof temp_object.name !== "undefined");
-                                ok = ok && (typeof temp_object.fragments !== "undefined")
-                                ok = ok && (typeof temp_object.top_radius !== "undefined");
-                                ok = ok && (typeof temp_object.bottom_radius !== "undefined");
-                                ok = ok && (typeof temp_object.height !== "undefined");
-                                ok = ok && (typeof temp_object.closed !== "undefined");
-                                ok = ok && (typeof temp_object.vAmbient !== "undefined");
-                                ok = ok && (typeof temp_object.vDiffuse !== "undefined");
-                                ok = ok && (typeof temp_object.vSpecular !== "undefined");
-                                ok = ok && (typeof temp_object.shininess !== "undefined");
-                                ok = ok && (typeof temp_object.pos !== "undefined");
-                                ok = ok && (typeof temp_object.rotation !== "undefined");
-                                if (ok) 
-                                    $scope.scene.objects.push(
-                                        $scope.createCylinder(
-                                            temp_object.name,
-                                            temp_object.fragments,
-                                            temp_object.top_radius,
-                                            temp_object.bottom_radius,
-                                            temp_object.height,
-                                            temp_object.closed,
-                                            vec4(temp_object.vAmbient[0], temp_object.vAmbient[1], temp_object.vAmbient[2], temp_object.vAmbient[3]),
-                                            vec4(temp_object.vDiffuse[0], temp_object.vDiffuse[1], temp_object.vDiffuse[2], temp_object.vDiffuse[3]),
-                                            vec4(temp_object.vSpecular[0], temp_object.vSpecular[1], temp_object.vSpecular[2], temp_object.vSpecular[3]),
-                                            temp_object.shininess,
-                                            vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
-                                            vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
-                                        ).generate()
-                                    );
-                                break;
-                            }
-                            case (2) : { 
-                                var ok = true;
-                                ok = ok && (typeof temp_object.name !== "undefined");
-                                ok = ok && (typeof temp_object.fragments !== "undefined")
-                                ok = ok && (typeof temp_object.radius !== "undefined");
-                                ok = ok && (typeof temp_object.vAmbient !== "undefined");
-                                ok = ok && (typeof temp_object.vDiffuse !== "undefined");
-                                ok = ok && (typeof temp_object.vSpecular !== "undefined");
-                                ok = ok && (typeof temp_object.shininess !== "undefined");
-                                ok = ok && (typeof temp_object.pos !== "undefined");
-                                ok = ok && (typeof temp_object.rotation !== "undefined");
-                                if (ok) 
-                                    $scope.scene.objects.push(
-                                        $scope.createSphere(
-                                            temp_object.name,
-                                            temp_object.fragments,
-                                            temp_object.radius,
-                                            vec4(temp_object.vAmbient[0], temp_object.vAmbient[1], temp_object.vAmbient[2], temp_object.vAmbient[3]),
-                                            vec4(temp_object.vDiffuse[0], temp_object.vDiffuse[1], temp_object.vDiffuse[2], temp_object.vDiffuse[3]),
-                                            vec4(temp_object.vSpecular[0], temp_object.vSpecular[1], temp_object.vSpecular[2], temp_object.vSpecular[3]),
-                                            temp_object.shininess,
-                                            vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
-                                            vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
-                                        ).generate()
-                                    );
-                                break;
+                if (e.target.result.objects) {
+                    var temp_objects = angular.fromJson(e.target.result.objects);
+                    $scope.scene.objects = [];                
+                    angular.forEach(temp_objects, function(temp_object) {
+                        if (typeof temp_object.type !== "undefined") {
+                            switch (parseInt(temp_object.type)) {
+                                case (0) : { 
+                                    var ok = true;
+                                    ok = ok && (typeof temp_object.name !== "undefined");
+                                    ok = ok && (typeof temp_object.fragments !== "undefined")
+                                    ok = ok && (typeof temp_object.radius !== "undefined");
+                                    ok = ok && (typeof temp_object.height !== "undefined");
+                                    ok = ok && (typeof temp_object.closed !== "undefined");
+                                    ok = ok && (typeof temp_object.vAmbient !== "undefined");
+                                    ok = ok && (typeof temp_object.vDiffuse !== "undefined");
+                                    ok = ok && (typeof temp_object.vSpecular !== "undefined");
+                                    ok = ok && (typeof temp_object.shininess !== "undefined");
+                                    ok = ok && (typeof temp_object.pos !== "undefined");
+                                    ok = ok && (typeof temp_object.rotation !== "undefined");
+                                    if (ok) 
+                                        $scope.scene.objects.push(
+                                            $scope.createCone(
+                                                temp_object.name,
+                                                temp_object.fragments,
+                                                temp_object.radius,
+                                                temp_object.height,
+                                                temp_object.closed,
+                                                vec4(temp_object.vAmbient[0], temp_object.vAmbient[1], temp_object.vAmbient[2], temp_object.vAmbient[3]),
+                                                vec4(temp_object.vDiffuse[0], temp_object.vDiffuse[1], temp_object.vDiffuse[2], temp_object.vDiffuse[3]),
+                                                vec4(temp_object.vSpecular[0], temp_object.vSpecular[1], temp_object.vSpecular[2], temp_object.vSpecular[3]),
+                                                temp_object.shininess,
+                                                vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
+                                                vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
+                                            ).generate()
+                                        );
+                                    break;
+                                }
+                                case (1) : { 
+                                    var ok = true;
+                                    ok = ok && (typeof temp_object.name !== "undefined");
+                                    ok = ok && (typeof temp_object.fragments !== "undefined")
+                                    ok = ok && (typeof temp_object.top_radius !== "undefined");
+                                    ok = ok && (typeof temp_object.bottom_radius !== "undefined");
+                                    ok = ok && (typeof temp_object.height !== "undefined");
+                                    ok = ok && (typeof temp_object.closed !== "undefined");
+                                    ok = ok && (typeof temp_object.vAmbient !== "undefined");
+                                    ok = ok && (typeof temp_object.vDiffuse !== "undefined");
+                                    ok = ok && (typeof temp_object.vSpecular !== "undefined");
+                                    ok = ok && (typeof temp_object.shininess !== "undefined");
+                                    ok = ok && (typeof temp_object.pos !== "undefined");
+                                    ok = ok && (typeof temp_object.rotation !== "undefined");
+                                    if (ok) 
+                                        $scope.scene.objects.push(
+                                            $scope.createCylinder(
+                                                temp_object.name,
+                                                temp_object.fragments,
+                                                temp_object.top_radius,
+                                                temp_object.bottom_radius,
+                                                temp_object.height,
+                                                temp_object.closed,
+                                                vec4(temp_object.vAmbient[0], temp_object.vAmbient[1], temp_object.vAmbient[2], temp_object.vAmbient[3]),
+                                                vec4(temp_object.vDiffuse[0], temp_object.vDiffuse[1], temp_object.vDiffuse[2], temp_object.vDiffuse[3]),
+                                                vec4(temp_object.vSpecular[0], temp_object.vSpecular[1], temp_object.vSpecular[2], temp_object.vSpecular[3]),
+                                                temp_object.shininess,
+                                                vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
+                                                vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
+                                            ).generate()
+                                        );
+                                    break;
+                                }
+                                case (2) : { 
+                                    var ok = true;
+                                    ok = ok && (typeof temp_object.name !== "undefined");
+                                    ok = ok && (typeof temp_object.fragments !== "undefined")
+                                    ok = ok && (typeof temp_object.radius !== "undefined");
+                                    ok = ok && (typeof temp_object.vAmbient !== "undefined");
+                                    ok = ok && (typeof temp_object.vDiffuse !== "undefined");
+                                    ok = ok && (typeof temp_object.vSpecular !== "undefined");
+                                    ok = ok && (typeof temp_object.shininess !== "undefined");
+                                    ok = ok && (typeof temp_object.pos !== "undefined");
+                                    ok = ok && (typeof temp_object.rotation !== "undefined");
+                                    if (ok) 
+                                        $scope.scene.objects.push(
+                                            $scope.createSphere(
+                                                temp_object.name,
+                                                temp_object.fragments,
+                                                temp_object.radius,
+                                                vec4(temp_object.vAmbient[0], temp_object.vAmbient[1], temp_object.vAmbient[2], temp_object.vAmbient[3]),
+                                                vec4(temp_object.vDiffuse[0], temp_object.vDiffuse[1], temp_object.vDiffuse[2], temp_object.vDiffuse[3]),
+                                                vec4(temp_object.vSpecular[0], temp_object.vSpecular[1], temp_object.vSpecular[2], temp_object.vSpecular[3]),
+                                                temp_object.shininess,
+                                                vec3(temp_object.pos[0], temp_object.pos[1], temp_object.pos[2]),
+                                                vec3(temp_object.rotation[0], temp_object.rotation[1], temp_object.rotation[2])
+                                            ).generate()
+                                        );
+                                    break;
+                                }
                             }
                         }
-                    }
-                });
-                
-                $scope.selectedObject = null;
-                if ($scope.scene.objects.length > 0) {
-                    $scope.selectedObject = $scope.scene.objects[0];
+                    });
                 }
-                $scope.numObj = $scope.scene.objects.length;
-                $scope.selectable_objects = $scope.selectedObject;
-                $scope.loadObject();     
+                
+                if (e.target.result.lights) {
+                    var temp_lights = angular.fromJson(e.target.result.lights);
+                    $scope.scene.lights = [];                
+                    angular.forEach(temp_lights, function(temp_light) {
+                        var ok = true;
+                        ok = ok && (typeof temp_light.name !== "undefined");
+                        ok = ok && (typeof temp_light.enabled !== "undefined")
+                        ok = ok && (typeof temp_light.vAmbient !== "undefined");
+                        ok = ok && (typeof temp_light.vDiffuse !== "undefined");
+                        ok = ok && (typeof temp_light.vSpecular !== "undefined");
+                        ok = ok && (typeof temp_light.attenuation !== "undefined");
+                        ok = ok && (typeof temp_light.pos !== "undefined");
+                        if (ok) 
+                            $scope.scene.lights.push(
+                                $scope.createLight(
+                                    temp_light.name,
+                                    temp_light.enabled,
+                                    vec4(temp_light.vAmbient[0], temp_light.vAmbient[1], temp_light.vAmbient[2], temp_light.vAmbient[3]),
+                                    vec4(temp_light.vDiffuse[0], temp_light.vDiffuse[1], temp_light.vDiffuse[2], temp_light.vDiffuse[3]),
+                                    vec4(temp_light.vSpecular[0], temp_light.vSpecular[1], temp_light.vSpecular[2], temp_light.vSpecular[3]),
+                                    vec3(temp_light.attenuation[0], temp_light.attenuation[1], temp_light.attenuation[2]),
+                                    vec4(temp_light.pos[0], temp_light.pos[1], temp_light.pos[2], temp_light.pos[3])
+                                )
+                            );
+                    });
+                    
+                    $scope.selectedLight = null;
+                    if ($scope.scene.lights.length > 0) {
+                        $scope.selectedLight = $scope.scene.lights[0];
+                    }
+                    $scope.numLigths = $scope.scene.lights.length;
+                    $scope.selectable_lights = $scope.selectedLight;
+                }
+
+                $scope.loadObject();   
+                $scope.loadLight();
                 $scope.render();
 
                 return true;
@@ -1101,14 +1133,15 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 alert("The loading or processing of file failed.\n\n" + err);
                 
                 return false;
-            }            
+            }    
         };
         reader.readAsText(file);
         
         return true;
     }    
-        
+    
     if ($scope.initWebGL()) {   
+
         $scope.scene.objects.push(
             $scope.createCone(
                 "Cone #01",
@@ -1157,6 +1190,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.scene.lights.push($scope.createLight("Light #01", true, vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec4(0.0, 0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), vec4(-50.0, 50.0, 50.0, 0.0)));
         $scope.scene.lights.push($scope.createLight("Light #02", true, vec4(0.0, 0.0, 0.0, 1.0), vec4(0.4, 0.4, 0.4, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec3(1.0, 0.0, 0.0), vec4(0.0, -20.0, 150.0, 0.0)));
         
+        $scope.numObj = $scope.scene.objects.length;
+        $scope.numLight = $scope.scene.lights.length;        
+        
         $scope.render();
         
         $scope.varLoading = false;
@@ -1191,14 +1227,15 @@ app.config(['$routeProvider',
     function($routeProvider) {
         $routeProvider.
             when('/objects', {
-                controller: "webGlLab03Ctrl",
-                templateUrl: './templates/object.html'
+                controller : 'webGlLab04Ctrl',
+                templateUrl: './templates/objects.html'
             }).
             when('/lights', {
-                controller: "webGlLab03Ctrl",
-                templateUrl: './templates/light.html'
+                controller : 'webGlLab04Ctrl',
+                templateUrl: './templates/lights.html'
             }).
             otherwise({
+                controller : 'webGlLab04Ctrl',
                 redirectTo: '/objects'
             });
     }

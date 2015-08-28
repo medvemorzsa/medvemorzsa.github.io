@@ -1,0 +1,19 @@
+<div id="fileUpload" class="w3-modal">
+    <div class="w3-modal-dialog">
+        <div class="w3-modal-content w3-card-4">
+            <header class="w3-container w3-theme">
+                <a href="#" class="w3-closebtn">&times;</a>
+                <h2>Upload scene</h2>                                        
+            </header>
+            <div class="w3-container">
+                <div class="w3-group">
+                    <label for="file">File:</label>
+                    <input type="file" id="file" ng-model="file" accept="application/json" />
+                </div>
+            </div>
+            <div class="container w3-center w3-padding-medium">
+                <a href="#" class="w3-btn w3-theme-dark" ng-click="uploadScene($event)">Upload<i class="w3-margin-left w3-right material-icons">file_upload</i></a>
+            </div>
+        </div>
+    </div>
+</div>
