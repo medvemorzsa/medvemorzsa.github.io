@@ -30,6 +30,7 @@
                vec4 ambientProduct;
                vec4 diffuseProduct;
                vec4 specularProduct;
+               vec3 attenuation;
                bool enabled;
             };            
 
@@ -40,38 +41,14 @@
             void main() 
             {
                 vec3 pos = -(modelViewMatrix * vPosition).xyz;
-                /*
-                vec3 light = lightPosition.xyz;
-                vec3 L = normalize( light - pos );
 
-
-                vec3 E = normalize( -pos );
-                vec3 H = normalize( L + E );
-
-                vec4 NN = vec4(vNormal,0);
-
-                vec3 N = normalize( (modelViewMatrix*NN).xyz);
-
-                vec4 ambient = ambientProduct;
-
-                float Kd = max( dot(L, N), 0.0 );
-                vec4  diffuse = Kd*diffuseProduct;
-
-                float Ks = pow( max(dot(N, H), 0.0), shininess );
-                vec4  specular = Ks * specularProduct;
-
-                if( dot(L, N) < 0.0 ) {
-                    specular = vec4(0.0, 0.0, 0.0, 1.0);
-                } 
-                
-                fColor = ambient + diffuse +specular;               
-                fColor.a = 1.0;
-                */
                 for (int i = 0; i < maxNumLights; i++) {
                     if (lights[i].enabled) {
-                        vec3 light = lights[i].position.xyz;
+                        //vec3 light = lights[i].position.xyz;
+                        vec3 light = (modelViewMatrix * lights[i].position).xyz;
+                        
                         vec3 L = normalize( light - pos );
-
+                        float D = sqrt(dot(light - pos, light - pos));
 
                         vec3 E = normalize( -pos );
                         vec3 H = normalize( L + E );
@@ -92,14 +69,16 @@
                             specular = vec4(0.0, 0.0, 0.0, 1.0);
                         } 
                         
-                        fColor = ambient + diffuse +specular;               
-                        fColor.a = 1.0;
-                    }
-                    else {
-                        //fColor[i] = vec4(0.0, 0.0, 0.0, 1.0);
-                        //fColor[i].a = 1.0;
+                        float divisor = (lights[i].attenuation[0] + lights[i].attenuation[1] * D + lights[i].attenuation[2] * D * D);
+                        float att = 1.0;
+                        if (divisor != 0.0) 
+                            att = 1.0 / divisor;
+                        fColor = fColor + ambient + att * (diffuse + specular);
                     }
                 }
+                fColor = clamp(fColor, vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
+                fColor.a = 1.0;
+                
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
             } 
         </script>
@@ -111,7 +90,8 @@
             varying vec4 fColor;
             
             void main() {
-                gl_FragColor = fColor;
+                for (int i = 0; i < maxNumLights; i++)
+                    gl_FragColor = fColor;
             }
         </script>
         

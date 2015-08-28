@@ -64,21 +64,6 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.ytop = 10.0;
     $scope.bottom = -10.0;
 
-    $scope.scene.lights.push({
-        pos: vec4(0.0, -10.0, 50.0, 0.0),
-        vAmbient: vec4(0.2, 0.2, 0.2, 1.0),
-        vDiffuse: vec4(1.0, 1.0, 1.0, 1.0),
-        vSpecular: vec4(1.0, 1.0, 1.0, 1.0),
-        enabled: 1
-    });
-    $scope.scene.lights.push({
-        pos: vec4(-20.0, 0.0, 20.0, 0.0),
-        vAmbient: vec4(0.5, 0.5, 0.5, 1.0),
-        vDiffuse: vec4(1.0, 1.0, 1.0, 1.0),
-        vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
-        enabled: 1
-    });
-    
     // WebGL initialization
     $scope.initWebGL = function() {
         // Configure canvas and WebGL
@@ -97,7 +82,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         
         $scope.gl.enable($scope.gl.DEPTH_TEST);
         $scope.gl.depthFunc($scope.gl.LEQUAL);
-
+        
         $scope.program = initShaders($scope.gl, "vertex-shader", "fragment-shader");
         $scope.gl.useProgram($scope.program);
         
@@ -168,9 +153,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].diffuseProduct"), flatten(diffuseProduct));
                 $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].specularProduct"), flatten(specularProduct));
                 $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].position"), flatten($scope.scene.lights[i].pos));
+                $scope.gl.uniform3fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].attenuation"), flatten($scope.scene.lights[i].attenuation));
                 $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].enabled"), $scope.scene.lights[i].enabled);
             } else {
-                $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].enabled"), 0);
+                $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].enabled"), false);
             }
         }
         
@@ -965,9 +951,9 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 4.0,
                 true,
                 vec4(1.0, 1.0, 1.0, 1.0),
-                vec4(1.0, 0.8, 1.0, 1.0),
-                vec4(1.0, 1.0, 1.0, 1.0),
-                80.0,
+                vec4(0.4, 0.4, 0.0, 1.0),
+                vec4(0.4, 0.4, 0.4, 1.0),
+                10.0,
                 vec3(-4.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
@@ -981,10 +967,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 2.0,
                 4.0,
                 true,
-                vec4(1.0, 0.0, 1.0, 1.0),
+                vec4(0.5, 0.5, 0.5, 1.0),
                 vec4(1.0, 0.0, 0.0, 1.0),
-                vec4(0.6, 0.6, 0.6, 1.0),
-                100.0,
+                vec4(0.2, 0.2, 0.2, 1.0),
+                10.0,
                 vec3(0.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
@@ -995,7 +981,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 "Sphere #01",
                 48,
                 2.0,
-                vec4(1.0, 1.0, 1.0, 1.0),
+                vec4(0.6, 0.6, 0.6, 1.0),
                 vec4(0.0, 1.0, 0.0, 1.0),
                 vec4(1.0, 1.0, 1.0, 1.0),
                 100.0,
@@ -1004,6 +990,22 @@ app.controller("webGlLab03Ctrl", function($scope) {
             ).generate()
         );
         
+        $scope.scene.lights.push({
+            pos: vec4(-50.0, 50.0, 50.0, 0.0),
+            vAmbient: vec4(0.2, 0.2, 0.2, 1.0),
+            vDiffuse: vec4(1.0, 1.0, 1.0, 1.0),
+            vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
+            attenuation: vec3(1.0, 0.0, 0.0),
+            enabled: true
+        });
+        $scope.scene.lights.push({
+            pos: vec4(0.0, -20.0, 150.0, 0.0),
+            vAmbient: vec4(0.4, 0.4, 0.4, 1.0),
+            vDiffuse: vec4(0.7, 0.7, 0.7, 1.0),
+            vSpecular: vec4(1.0, 1.0, 1.0, 1.0),
+            attenuation: vec3(1.0, 0.0, 0.0),
+            enabled: true
+        });
         $scope.varLoading = false;
     }
 });
