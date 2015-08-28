@@ -322,18 +322,31 @@ app.controller("webGlLab04Ctrl", function($scope) {
             form.$setPristine();
             form.$setUntouched();
         }
-        console.log(form.id);
-        console.log(form);
-        if ($scope.oldSelectedObject != null) {
-            $scope.selectedObject = $scope.oldSelectedObject;
-            $scope.oldSelectedObject = null;
+        if (form.$name == "object_form") {
+            if ($scope.oldSelectedObject != null) {
+                $scope.selectedObject = $scope.oldSelectedObject;
+                $scope.oldSelectedObject = null;
+            }
+            if ($scope.selectedObject != null) {
+                $scope.selectable_objects = $scope.selectedObject;
+                $scope.loadObject();
+            }
+            else {
+                $scope.obj = angular.copy($scope.baseObj);
+            }
         }
-        if ($scope.selectedObject != null) {
-            $scope.selectable_objects = $scope.selectedObject;
-            $scope.loadObject();
-        }
-        else {
-            $scope.obj = angular.copy($scope.baseObj);
+        if (form.$name == "light_form") {
+            if ($scope.oldSelectedLight != null) {
+                $scope.selectedLight = $scope.oldSelectedLight;
+                $scope.oldSelectedLight = null;
+            }
+            if ($scope.selectedLight != null) {
+                $scope.selectable_lights = $scope.selectedLight;
+                $scope.loadLight();
+            }
+            else {
+                $scope.light = angular.copy($scope.baseLight);
+            }
         }
             
         $scope.editMode=false;
