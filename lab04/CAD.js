@@ -40,8 +40,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
     $scope.obj = angular.copy($scope.baseObj);
     
     $scope.baseLight = {
-        pos: vec4(0.0, 0.0, 10.0, 0.0),
-        vAmbient: vec4(0.1, 0.1, 0.1, 1.0),
+        pos: vec4(0.0, 0.0, 30.0, 0.0),
+        vAmbient: vec4(0.5, 0.5, 0.5, 1.0),
         vDiffuse: vec4(0.0, 0.0, 0.0, 1.0),
         vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
         attenuation: vec3(1.0, 0.0, 0.0),
@@ -146,6 +146,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
         $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.vertices), $scope.gl.STATIC_DRAW);
 
+        var hasLight = false;
         for (var i = 0; i < $scope.MAX_NUM_LIGHTS; i++) {
             if (i < $scope.scene.lights.length) {
                 var ambientProduct = mult($scope.scene.lights[i].vAmbient, object.vAmbient);
@@ -158,9 +159,22 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].position"), flatten($scope.scene.lights[i].pos));
                 $scope.gl.uniform3fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].attenuation"), flatten($scope.scene.lights[i].attenuation));
                 $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].enabled"), $scope.scene.lights[i].enabled);
+                hasLight = hasLight || $scope.scene.lights[i].enabled;
             } else {
                 $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].enabled"), false);
             }
+        }
+        if (!(hasLight)) {
+            var ambientProduct = mult($scope.baseLight.vAmbient, object.vAmbient);
+            var diffuseProduct = mult($scope.baseLight.vDiffuse, object.vDiffuse);
+            var specularProduct = mult($scope.baseLight.vSpecular, object.vSpecular);                
+            
+            $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[0].ambientProduct"), flatten(ambientProduct));
+            $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[0].diffuseProduct"), flatten(diffuseProduct));
+            $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[0].specularProduct"), flatten(specularProduct));
+            $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[0].position"), flatten($scope.baseLight.pos));
+            $scope.gl.uniform3fv($scope.gl.getUniformLocation($scope.program, "lights[0].attenuation"), flatten($scope.baseLight.attenuation));
+            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "lights[0].enabled"), true);
         }
         
         $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), object.shininess);
@@ -991,7 +1005,6 @@ app.controller("webGlLab03Ctrl", function($scope) {
             ).generate()
         );
         
-        $scope.scene.lights.push($scope.baseLight);
         $scope.scene.lights.push({
             pos: vec4(-50.0, 50.0, 50.0, 0.0),
             vAmbient: vec4(0.0, 0.0, 0.0, 1.0),
@@ -1003,12 +1016,11 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.scene.lights.push({
             pos: vec4(0.0, -20.0, 150.0, 0.0),
             vAmbient: vec4(0.0, 0.0, 0.0, 1.0),
-            vDiffuse: vec4(0.0, 0.0, 0.0, 1.0),
+            vDiffuse: vec4(0.4, 0.4, 0.4, 1.0),
             vSpecular: vec4(1.0, 1.0, 1.0, 1.0),
             attenuation: vec3(1.0, 0.0, 0.0),
             enabled: true
         });
-        
         $scope.varLoading = false;
     }
 });
