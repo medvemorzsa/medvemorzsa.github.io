@@ -44,8 +44,8 @@
 
                 for (int i = 0; i < maxNumLights; i++) {
                     if (lights[i].enabled) {
-                        //vec3 light = lights[i].position.xyz;
-                        vec3 light = (modelViewMatrix * lights[i].position).xyz;
+                        //vec3 light = -lights[i].position.xyz;
+                        vec3 light = -(modelViewMatrix * lights[i].position).xyz;
                         
                         vec3 L = normalize( light - pos );
                         float D = sqrt(dot(light - pos, light - pos));

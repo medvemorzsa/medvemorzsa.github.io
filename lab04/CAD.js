@@ -39,6 +39,15 @@ app.controller("webGlLab03Ctrl", function($scope) {
     };
     $scope.obj = angular.copy($scope.baseObj);
     
+    $scope.baseLight = {
+        pos: vec4(0.0, 0.0, 10.0, 0.0),
+        vAmbient: vec4(0.1, 0.1, 0.1, 1.0),
+        vDiffuse: vec4(0.0, 0.0, 0.0, 1.0),
+        vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
+        attenuation: vec3(1.0, 0.0, 0.0),
+        enabled: true
+    }
+    
     $scope.canvas = null;
     $scope.gl = null;
     $scope.nBuffer = null;
@@ -137,18 +146,12 @@ app.controller("webGlLab03Ctrl", function($scope) {
         $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
         $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.vertices), $scope.gl.STATIC_DRAW);
 
-        var ambientProduct = mult($scope.scene.lights[0].vAmbient, object.vAmbient);
-        var diffuseProduct = mult($scope.scene.lights[0].vDiffuse, object.vDiffuse);
-        var specularProduct = mult($scope.scene.lights[0].vSpecular, object.vSpecular);
-                
-        /*
-        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "ambientProduct"), flatten(ambientProduct));
-        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "diffuseProduct"), flatten(diffuseProduct));
-        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "specularProduct"), flatten(specularProduct));
-        $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lightPosition"), flatten($scope.scene.lights[0].pos));
-        */
         for (var i = 0; i < $scope.MAX_NUM_LIGHTS; i++) {
             if (i < $scope.scene.lights.length) {
+                var ambientProduct = mult($scope.scene.lights[i].vAmbient, object.vAmbient);
+                var diffuseProduct = mult($scope.scene.lights[i].vDiffuse, object.vDiffuse);
+                var specularProduct = mult($scope.scene.lights[i].vSpecular, object.vSpecular);                
+                
                 $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].ambientProduct"), flatten(ambientProduct));
                 $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].diffuseProduct"), flatten(diffuseProduct));
                 $scope.gl.uniform4fv($scope.gl.getUniformLocation($scope.program, "lights[" + i + "].specularProduct"), flatten(specularProduct));
@@ -555,8 +558,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 
                 for (var i = 0; i < this.fragments; i++) {
                     var p1 = $scope.vertexTranslate($scope.vertexRotate(top_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                    var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                    var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                    var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                    var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     this.vertices.push(p1, p2, p3);                     
                     var normal = $scope.normal(p1, p2, p3);
                     for (var k = 0; k < 3; k++)
@@ -659,16 +662,16 @@ app.controller("webGlLab03Ctrl", function($scope) {
 
                 for (var i = 0; i < this.fragments; i++) {
                     var p1 = $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                    var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                    var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                    var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                    var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     this.vertices.push(p1, p2, p3);
                     var normal = $scope.normal(p1, p3, p2);
                     for (var k = 0; k < 3; k++)
                         this.normals.push(normal);
                     
                     p1 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                    p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                    p3 = $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                    p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                    p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     this.vertices.push(p1, p2, p3);
                     var normal = $scope.normal(p1, p3, p2);
                     for (var k = 0; k < 3; k++)
@@ -678,8 +681,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 if (this.closed) {
                     for (var i = 0; i < this.fragments; i++)  {
                         var p1 = $scope.vertexTranslate($scope.vertexRotate(top_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                        var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                        var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                        var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                        var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         this.vertices.push(p1, p2, p3);
                         var normal = $scope.normal(p1, p2, p3);
                         for (var k = 0; k < 3; k++)
@@ -772,8 +775,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
 
                 for (var j = 0; j < this.fragments; j++) {
                     var p1 = $scope.vertexTranslate($scope.vertexRotate(top_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                    var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                    var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                    var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                    var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     this.vertices.push(p1, p2, p3);
                     var normal = $scope.normal(p1, p2, p3);
                     for (var k = 0; k < 3; k++)
@@ -782,16 +785,16 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 for (var i = 0; i < this.fragments - 2; i++)
                     for (var j = 0; j < this.fragments; j++) {
                         var p1 = $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                        var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                        var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                        var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                        var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         this.vertices.push(p1, p2, p3);
                         var normal = $scope.normal(p1, p3, p2);
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
                         
                         p1 = $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                        p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                        p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                        p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                        p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         this.vertices.push(p1, p2, p3);
                         var normal = $scope.normal(p1, p3, p2);
                         for (var k = 0; k < 3; k++)
@@ -800,8 +803,8 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 
                 for (var j = 0; j < this.fragments; j++) {
                     var p1 = $scope.vertexTranslate($scope.vertexRotate(bottom_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                    var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(this.fragments - 2) * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
-                    var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(this.fragments - 2) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                    var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(this.fragments - 2) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
+                    var p3 = $scope.vertexTranslate($scope.vertexRotate(datas[(this.fragments - 2) * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                     this.vertices.push(p1, p2, p3);
                     var normal = $scope.normal(p1, p2, p3);
                     for (var k = 0; k < 3; k++)
@@ -942,7 +945,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
     
     if ($scope.initWebGL()) {   
         $scope.render();
-        
+
         $scope.scene.objects.push(
             $scope.createCone(
                 "Cone #01",
@@ -957,8 +960,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 vec3(-4.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
-        );
-        
+        );        
         $scope.scene.objects.push(
             $scope.createCylinder(
                 "Cylinger #01",
@@ -974,8 +976,7 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 vec3(0.0, 0.0, 0.0),
                 vec3(0.0, 0.0, 0.0)
             ).generate()
-        );
-        
+        );        
         $scope.scene.objects.push(
             $scope.createSphere(
                 "Sphere #01",
@@ -990,9 +991,10 @@ app.controller("webGlLab03Ctrl", function($scope) {
             ).generate()
         );
         
+        $scope.scene.lights.push($scope.baseLight);
         $scope.scene.lights.push({
             pos: vec4(-50.0, 50.0, 50.0, 0.0),
-            vAmbient: vec4(0.2, 0.2, 0.2, 1.0),
+            vAmbient: vec4(0.0, 0.0, 0.0, 1.0),
             vDiffuse: vec4(1.0, 1.0, 1.0, 1.0),
             vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
             attenuation: vec3(1.0, 0.0, 0.0),
@@ -1000,12 +1002,13 @@ app.controller("webGlLab03Ctrl", function($scope) {
         });
         $scope.scene.lights.push({
             pos: vec4(0.0, -20.0, 150.0, 0.0),
-            vAmbient: vec4(0.4, 0.4, 0.4, 1.0),
-            vDiffuse: vec4(0.7, 0.7, 0.7, 1.0),
+            vAmbient: vec4(0.0, 0.0, 0.0, 1.0),
+            vDiffuse: vec4(0.0, 0.0, 0.0, 1.0),
             vSpecular: vec4(1.0, 1.0, 1.0, 1.0),
             attenuation: vec3(1.0, 0.0, 0.0),
             enabled: true
         });
+        
         $scope.varLoading = false;
     }
 });
