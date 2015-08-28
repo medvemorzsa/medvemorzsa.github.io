@@ -1,112 +1,182 @@
-[
-    {
-        "name": "Cone #01",
-        "fragments": 24,
-        "type": 0,
-        "radius": 2,
-        "height": 4,
-        "closed": true,
-        "vAmbient": [
-            1,
-            0,
-            1,
-            1
-        ],
-        "vDiffuse": [
-            1,
-            0.8,
-            0,
-            1
-        ],
-        "vSpecular": [
-            1,
-            0.8,
-            0,
-            1
-        ],
-        "shininess": 100,
-        "pos": [
-            -4,
-            0,
-            0
-        ],
-        "rotation": [
-            0,
-            0,
-            0
-        ]
-    },
-    {
-        "name": "Cylinger #01",
-        "fragments": 24,
-        "type": 1,
-        "top_radius": 1,
-        "bottom_radius": 2,
-        "height": 4,
-        "closed": true,
-        "vAmbient": [
-            1,
-            0,
-            1,
-            1
-        ],
-        "vDiffuse": [
-            1,
-            0.7,
-            0,
-            1
-        ],
-        "vSpecular": [
-            1,
-            0,
-            1,
-            1
-        ],
-        "shininess": 100,
-        "pos": [
-            0,
-            0,
-            0
-        ],
-        "rotation": [
-            0,
-            0,
-            0
-        ]
-    },
-    {
-        "name": "Sphere #01",
-        "fragments": 24,
-        "type": 2,
-        "radius": 2,
-        "vAmbient": [
-            0,
-            1,
-            1,
-            1
-        ],
-        "vDiffuse": [
-            0,
-            1,
-            0,
-            1
-        ],
-        "vSpecular": [
-            0,
-            0,
-            1,
-            1
-        ],
-        "shininess": 100,
-        "pos": [
-            4,
-            0,
-            0
-        ],
-        "rotation": [
-            0,
-            0,
-            0
-        ]
-    }
-]
+{
+    "objects": [
+        {
+            "name": "Cone #01",
+            "fragments": 48,
+            "type": 0,
+            "radius": 2,
+            "height": 4,
+            "closed": true,
+            "vAmbient": [
+                1,
+                1,
+                1,
+                1
+            ],
+            "vDiffuse": [
+                0.4,
+                0.4,
+                0,
+                1
+            ],
+            "vSpecular": [
+                0.4,
+                0.4,
+                0.4,
+                1
+            ],
+            "shininess": 10,
+            "pos": [
+                -4,
+                0,
+                0
+            ],
+            "rotation": [
+                0,
+                0,
+                0
+            ]
+        },
+        {
+            "name": "Cylinger #01",
+            "fragments": 48,
+            "type": 1,
+            "top_radius": 1,
+            "bottom_radius": 2,
+            "height": 4,
+            "closed": true,
+            "vAmbient": [
+                0.5,
+                0.5,
+                0.5,
+                1
+            ],
+            "vDiffuse": [
+                1,
+                0,
+                0,
+                1
+            ],
+            "vSpecular": [
+                0.2,
+                0.2,
+                0.2,
+                1
+            ],
+            "shininess": 60,
+            "pos": [
+                0,
+                0,
+                0
+            ],
+            "rotation": [
+                0,
+                0,
+                0
+            ]
+        },
+        {
+            "name": "Sphere #01",
+            "fragments": 48,
+            "type": 2,
+            "radius": 2,
+            "vAmbient": [
+                0.6,
+                0.6,
+                0.6,
+                1
+            ],
+            "vDiffuse": [
+                0,
+                1,
+                0,
+                1
+            ],
+            "vSpecular": [
+                1,
+                1,
+                1,
+                1
+            ],
+            "shininess": 100,
+            "pos": [
+                4,
+                0,
+                0
+            ],
+            "rotation": [
+                0,
+                0,
+                0
+            ]
+        }
+    ],
+    "lights": [
+        {
+            "name": "Light #01",
+            "enabled": true,
+            "vAmbient": [
+                0,
+                0,
+                0,
+                1
+            ],
+            "vDiffuse": [
+                1,
+                1,
+                1,
+                1
+            ],
+            "vSpecular": [
+                0,
+                0,
+                0,
+                1
+            ],
+            "attenuation": [
+                1,
+                0,
+                0
+            ],
+            "pos": [
+                -50,
+                50,
+                50,
+                0
+            ]
+        },
+        {
+            "name": "Light #02",
+            "enabled": true,
+            "vAmbient": [
+                0,
+                0,
+                0,
+                1
+            ],
+            "vDiffuse": [
+                0.4,
+                0.4,
+                0.4,
+                1
+            ],
+            "vSpecular": [
+                1,
+                1,
+                1,
+                1
+            ],
+            "attenuation": [
+                1,
+                0,
+                0
+            ],
+            "pos": [
+                0,
+                -20,
+                150,
+                0
+            ]
+        }
+    ]
+}

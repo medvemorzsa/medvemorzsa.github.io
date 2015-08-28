@@ -939,6 +939,16 @@ app.controller("webGlLab03Ctrl", function($scope) {
         catch (err) {
             console.log(err);
         }
+        try {
+            angular.forEach($scope.scene.lights, function(light) {
+                light.ambient = undefined;
+                light.diffuse = undefined;
+                light.specular = undefined;
+            });
+        }
+        catch (err) {
+            console.log(err);
+        }
         var jsonData = angular.toJson($scope.scene, 4);
         
         angular.forEach($scope.scene.objects, function(object) {
@@ -950,6 +960,11 @@ app.controller("webGlLab03Ctrl", function($scope) {
                 object.normals = [];
                 object.generate();
             }
+        });
+        angular.forEach($scope.scene.lights, function(light) {
+            light.ambient = $scope.toHex(light.vAmbient);
+            light.diffuse = $scope.toHex(light.vDiffuse);
+            light.specular = $scope.toHex(light.vSpecular);
         });
         
         var jsonDataWindow = window.open("data:text/json," + encodeURIComponent(jsonData), "_blank");
