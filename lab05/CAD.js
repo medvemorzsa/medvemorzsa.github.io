@@ -154,6 +154,8 @@ app.controller("webGlLab04Ctrl", function($scope) {
         $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
         $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.vertices), $scope.gl.STATIC_DRAW);
 
+        $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "texEnabled"), false);
+        
         var hasLight = false;
         for (var i = 0; i < $scope.MAX_NUM_LIGHTS; i++) {
             if (i < $scope.scene.lights.length) {

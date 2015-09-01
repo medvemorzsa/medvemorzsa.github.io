@@ -1,11 +1,11 @@
 <!doctype html>
 <html>
     <head>
-        <title>Lab #04 - CAD with Lighting</title>
+        <title>Lab #05 - CAD with Texture</title>
         
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
-        <link rel="shortcut icon" type="image/x-icon" href="./lab04.ico">
+        <link rel="shortcut icon" type="image/x-icon" href="./lab05.ico">
         
         <link rel="stylesheet" href="../css/w3.css" />
         <link rel="stylesheet" href="../css/w3-theme-teal.css" />
@@ -22,9 +22,12 @@
             uniform mat4 projectionMatrix;
 
             varying vec4 fColor;
-            uniform vec4 ambientProduct, diffuseProduct, specularProduct;
             uniform float shininess;
 
+            attribute  vec2 vTexCoord;
+            varying vec2 fTexCoord;
+            uniform bool texEnabled;
+            
             struct lightProperties { 
                vec4 position;
                vec4 ambientProduct;
@@ -35,8 +38,6 @@
             };            
 
             uniform lightProperties lights[maxNumLights];
-
-            uniform vec4 lightPosition;
             
             void main() 
             {
@@ -79,6 +80,8 @@
                 fColor = clamp(fColor, vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
                 fColor.a = 1.0;
                 
+                fTexCoord = vTexCoord;
+              
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
             } 
         </script>
@@ -89,9 +92,14 @@
             precision mediump float;
             varying vec4 fColor;
             
+            varying vec2 fTexCoord;
+
+            uniform sampler2D Tex;
+
+            uniform bool texEnabled;
+            
             void main() {
-                for (int i = 0; i < maxNumLights; i++)
-                    gl_FragColor = fColor;
+                gl_FragColor = (texEnabled) ? fColor * texture2D(Tex, fTexCoord) : fColor;
             }
         </script>
         
