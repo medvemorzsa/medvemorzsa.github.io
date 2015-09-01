@@ -1,0 +1,143 @@
+<form id="object_form" name="object_form" role="form">
+    <div>
+        <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode))" title="Create new object" ng-click="newObject()"><i class="material-icons">add</i></button>
+        <select ng-model="selectable_objects" ng-show="(!(editMode)) && (scene.objects.length != 0)" ng-options="obj.name for obj in scene.objects | orderBy: 'name' " ng-change="loadObject()"></select>
+        <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Edit selected object" ng-click="editObject()"><i class="material-icons">edit</i></button>
+        <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Delete selected object" ng-click="deleteObject()"><i class="material-icons">delete</i></button>
+        <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && ((scene.objects.length > 0) || (scene.lights.length > 0))" title="Download scene into JSON file" ng-click="downloadScene()"><i class="material-icons">file_download</i></button>
+        <a href="#fileUpload" class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode))" title="Upload objects from JSON file"><i class="material-icons">file_upload</i></a>
+    </div>
+    <div class="w3-container w3-theme-light"><h5>Object</h5></div>
+    <div class="w3-container">
+        <div class="w3-group">
+            <label for="obj.name">Name:</label>
+            <input type="text" ng-model="obj.name" ng-disabled="(varLoading) || (!(editMode))" ng-blur="checkRenaming($event)"/>
+            <input type="hidden" ng-model="obj.name_changed" />
+        </div>
+        <div class="w3-group">
+            <label for="obj.type">Type:</label>
+            <select ng-model="obj.type" ng-disabled="(varLoading) || (!(editMode)) || (selectedObject != null)" ng-change="autoRename()">
+                <option value="0" label="Cone">Cone</option>
+                <option value="1" label="Cylinder">Cylinder</option>
+                <option value="2" label="Sphere">Sphere</option>
+            </select>
+        </div>
+        <div class="w3-group tall">
+            <label for="obj.fragments">Fragments:&nbsp;</label><span ng-bind="obj.fragments"></span><br />
+            <input class="w3-range" type="range" ng-model="obj.fragments" min="9" max="72" step="1" list="fragmentsList" ng-disabled="(varLoading) || (!(editMode))">
+            <datalist id="fragmentsList" name="fragmentsList">
+                <option value="9">
+                <option value="18">
+                <option value="27">
+                <option value="36">
+                <option value="45">
+                <option value="54">
+                <option value="63">
+                <option value="72">
+            </datalist>
+            <span class="left_align">9</span>
+            <span class="right_align">72</span>
+        </div>                
+    </div>
+    <div class="w3-container w3-theme-light"><h5>Attributes</h5></div>
+    <div class="w3-container">
+        <div class="w3-group" ng-show="obj.type != 1">
+            <label for="obj.radius">Radius:</label>
+            <input type="number" ng-model="obj.radius" min="0.0" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+        </div>
+        <div class="w3-group" ng-show="obj.type == 1">
+            <label for="obj.bottom_radius">Bottom radius:</label>
+            <input type="number" ng-model="obj.bottom_radius" min="0.0" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+        </div>
+        <div class="w3-group" ng-show="obj.type == 1">
+            <label for="obj.top_radius">Top radius:</label>
+            <input type="number" ng-model="obj.top_radius" min="0.0" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+        </div>
+        <div class="w3-group" ng-show="obj.type != 2">
+            <label for="obj.height">Height:</label>
+            <input type="number" ng-model="obj.height" min="0.0" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+        </div>
+        <div class="w3-group" ng-show="obj.type != 2">                        
+            <label class="w3-checkbox">
+                Closed:
+                <input type="checkbox" ng-model="obj.closed" ng-disabled="(varLoading) || (!(editMode))" />
+                <span class="w3-checkmark"></span>
+            </label>
+        </div>                
+    </div>
+    <div class="w3-container w3-theme-light"><h5>Material</h5></div>
+    <div class="w3-container">
+        <div class="w3-group">
+            <label for="obj.ambient">Ambient:</label>
+            <input style="width:20%" type="number" ng-model="obj.vAmbient[0]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.ambient = toHex(obj.vAmbient)"/>
+            <input style="width:20%" type="number" ng-model="obj.vAmbient[1]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.ambient = toHex(obj.vAmbient)"/>
+            <input style="width:20%" type="number" ng-model="obj.vAmbient[2]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.ambient = toHex(obj.vAmbient)"/>
+            <input type="color" ng-model="obj.ambient" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.vAmbient = toRGB(obj.ambient)"/>
+        </div>
+        <div class="w3-group">
+            <label for="obj.diffuse">Diffuse:</label>
+            <input style="width:20%" type="number" ng-model="obj.vDiffuse[0]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.diffuse = toHex(obj.vDiffuse)"/>
+            <input style="width:20%" type="number" ng-model="obj.vDiffuse[1]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.diffuse = toHex(obj.vDiffuse)"/>
+            <input style="width:20%" type="number" ng-model="obj.vDiffuse[2]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.diffuse = toHex(obj.vDiffuse)"/>
+            <input type="color" ng-model="obj.diffuse" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.vDiffuse = toRGB(obj.diffuse)"/>
+        </div>
+        <div class="w3-group">
+            <label for="obj.specular">Specular:</label>
+            <input style="width:20%" type="number" ng-model="obj.vSpecular[0]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.specular = toHex(obj.vSpecular)"/>
+            <input style="width:20%" type="number" ng-model="obj.vSpecular[1]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.specular = toHex(obj.vSpecular)"/>
+            <input style="width:20%" type="number" ng-model="obj.vSpecular[2]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.specular = toHex(obj.vSpecular)"/>
+            <input type="color" ng-model="obj.specular" ng-disabled="(varLoading) || (!(editMode))" ng-change="obj.vSpecular = toRGB(obj.specular)"/>
+        </div>
+        <div class="w3-group tall">
+            <label for="obj.shininess">Shininess:&nbsp;</label><span ng-bind="obj.shininess"></span><br />
+            <input class="w3-range" type="range" ng-model="obj.shininess" min="0.0" max="100.0" step="0.1" list="shininessList" ng-disabled="(varLoading) || (!(editMode))">
+            <datalist id="shininessList" name="shininessList">
+                <option value="0">
+                <option value="10.0">
+                <option value="20.0">
+                <option value="30.0">
+                <option value="40.0">
+                <option value="50.0">
+                <option value="60.0">
+                <option value="70.0">
+                <option value="80.0">
+                <option value="90.0">
+                <option value="100.0">
+            </datalist>
+            <span class="left_align">0.0</span>
+            <span class="right_align">100.0</span>
+        </div>                                            
+    </div>
+    <div class="w3-container w3-theme-light"><h5>Position</h5></div>
+    <div class="w3-container">
+        <div class="w3-group">
+            <div>
+                <label for="obj.pos_x">X:&nbsp;</label><input type="number" ng-model="obj.pos_x" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+            </div>
+            <div>
+                <label for="obj.pos_y">Y:&nbsp;</label><input type="number" ng-model="obj.pos_y" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+            </div>
+            <div>
+                <label for="obj.pos_z">Z:&nbsp;</label><input type="number" ng-model="obj.pos_z" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+            </div>
+        </div>
+    </div>
+    <div class="w3-container w3-theme-light"><h5>Rotation</h5></div>
+    <div class="w3-container">
+        <div class="w3-group">
+            <div>
+                <label for="obj.rot_x">X:&nbsp;</label><input type="number" ng-model="obj.rot_x" min="-360" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+            </div>
+            <div>
+                <label for="obj.rot_y">Y:&nbsp;</label><input type="number" ng-model="obj.rot_y" min="-360" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+            </div>
+            <div>
+                <label for="obj.rot_z">Z:&nbsp;</label><input type="number" ng-model="obj.rot_z" min="-360" max="360" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+            </div>
+        </div>
+    </div>
+    <div class="container w3-center">
+        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))" ng-click="object_form.submit();saveObject(object_form);">Done<i class="w3-margin-left w3-right material-icons">done</i></button>
+        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))" ng-click="reset(object_form)">Cancel<i class="w3-margin-left w3-right material-icons">cancel</i></button>
+    </div>
+</form>

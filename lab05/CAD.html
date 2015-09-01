@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Lab #04 - CAD with Lighting</title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        
+        <link rel="shortcut icon" type="image/x-icon" href="./lab04.ico">
+        
+        <link rel="stylesheet" href="../css/w3.css" />
+        <link rel="stylesheet" href="../css/w3-theme-teal.css" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="CAD.css" />
+
+        <script id="vertex-shader" type="x-shader/x-vertex">
+            const int maxNumLights = 16; 
+            
+            attribute vec4 vPosition;
+            attribute vec3 vNormal;
+
+            uniform mat4 modelViewMatrix;
+            uniform mat4 projectionMatrix;
+
+            varying vec4 fColor;
+            uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+            uniform float shininess;
+
+            struct lightProperties { 
+               vec4 position;
+               vec4 ambientProduct;
+               vec4 diffuseProduct;
+               vec4 specularProduct;
+               vec3 attenuation;
+               bool enabled;
+            };            
+
+            uniform lightProperties lights[maxNumLights];
+
+            uniform vec4 lightPosition;
+            
+            void main() 
+            {
+                vec3 pos = -(modelViewMatrix * vPosition).xyz;
+
+                for (int i = 0; i < maxNumLights; i++) {
+                    if (lights[i].enabled) {
+                        vec3 light = -lights[i].position.xyz;
+                        //vec3 light = -(modelViewMatrix * lights[i].position).xyz;
+                        
+                        vec3 L = normalize( light - pos );
+                        float D = sqrt(dot(light - pos, light - pos));
+
+                        vec3 E = normalize( -pos );
+                        vec3 H = normalize( L + E );
+
+                        vec4 NN = vec4(vNormal,0);
+
+                        vec3 N = normalize( (modelViewMatrix*NN).xyz);
+
+                        vec4 ambient = lights[i].ambientProduct;
+
+                        float Kd = max( dot(L, N), 0.0 );
+                        vec4 diffuse = Kd*lights[i].diffuseProduct;
+
+                        float Ks = pow( max(dot(N, H), 0.0), shininess );
+                        vec4 specular = Ks * lights[i].specularProduct;
+
+                        if( dot(L, N) < 0.0 ) {
+                            specular = vec4(0.0, 0.0, 0.0, 1.0);
+                        } 
+                        
+                        float divisor = (lights[i].attenuation[0] + lights[i].attenuation[1] * D + lights[i].attenuation[2] * D * D);
+                        float att = 1.0;
+                        if (divisor != 0.0) 
+                            att = 1.0 / divisor;
+                        fColor = fColor + ambient + att * (diffuse + specular);
+                    }
+                }
+                fColor = clamp(fColor, vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
+                fColor.a = 1.0;
+                
+                gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+            } 
+        </script>
+
+        <script id="fragment-shader" type="x-shader/x-fragment">
+            const int maxNumLights = 16; 
+
+            precision mediump float;
+            varying vec4 fColor;
+            
+            void main() {
+                for (int i = 0; i < maxNumLights; i++)
+                    gl_FragColor = fColor;
+            }
+        </script>
+        
+    </head>
+    <body>
+        <div class="w3-row">
+            <section class="w3-col s12 m12 l12">
+                <header class="w3-container w3-theme">
+                    <h2>Description</h2>
+                </header>
+                <section>
+                    <p>
+                        This lab was created for <a href="https://www.coursera.org/course/webgl" target="webgl">Interactive Computer Graphics with WebGL</a> course on <a href="https://www.coursera.org" target="coursera">Coursera</a>.
+                    </p>
+                    <p>
+                        In this lab you can create cone, cylinder, sphere and lights. You can change some attributes, location and rotation of every objects. You can download objects as JSON file. Upload function isn't available in this version:(.
+                    </p>
+                    <p>
+                        I hope you'll enjoy it!
+                    </p>
+                </section>
+            </section>
+        </div>
+        <div class="w3-row" ng-app="webGlLab04App" ng-controller="webGlLab04Ctrl">
+            <section class="w3-col s12 m4 l3">
+                <header class="w3-container w3-theme">
+                    <nav class="w3-topnav w3-theme">
+                      <a href="#objects"><h2>Objects</h2></a>
+                      <a href="#lights"><h2>Lights</h2></a>
+                    </nav>                    
+                </header>
+                <section ng-view>                
+                </section>
+            </section>
+            <section class="w3-col s12 m8 l9">
+                <header class="w3-container w3-theme">
+                    <h2>Canvas</h2>
+                </header>
+                <section id="canvas" name="canvas" resize>
+                    <canvas id="gl-canvas" name="gl-canvas" >
+                    Oops ... your browser doesn't support the HTML5 canvas element
+                    </canvas>
+                </section>
+            </section>
+        </div>
+        <footer class="w3-row w3-theme" style="padding-bottom:8px;padding-top:8px;">
+            <div class="w3-col s4 m4 l3">
+                <span style="padding-left:8px;">Author:&nbsp;Richard&nbsp;Kovacs</span>
+            </div>
+            <div class="w3-col s8 m8 l9" style="text-align:right;padding-right:8px;">
+                <span>Powered by:</span>
+                <a href="http://www.w3schools.com/w3css/default.asp" target="w3css"><img src="../icons/w3css.gif" alt="W3CSS" title="W3CSS" height="24px"/></a>&nbsp;
+                <a href="https://www.angularjs.org/" target="angularjs"><img src="../icons/AngularJS.png" alt="AngularJS" title="AngularJS" height="24px"/></a>&nbsp;
+                <a href="https://jquery.com/" target="jquery"><img src="../icons/jQuery.png" alt="jQuery" title="jQuery" height="24px"/></a>&nbsp;
+                <a href="https://www.khronos.org/webgl/" target="webgl"><img src="../icons/WebGL.png" alt="WebGL" title="WebGL" height="24px"/></a>
+            </div>
+        </footer>
+
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.3/angular-route.min.js"></script>
+        <script type="text/javascript" src="../common/webgl-utils.js"></script>
+        <script type="text/javascript" src="../common/initShaders.js"></script>
+        <script type="text/javascript" src="../common/MV.js"></script>
+        <script type="text/javascript" src="CAD.js"></script>
+    </body>
+</html>

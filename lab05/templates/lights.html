@@ -1,0 +1,73 @@
+<form id="light_form" name="light_form" role="form">
+    <div>
+        <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode))" ng-disabled="scene.lights.length == MAX_NUM_LIGHTS" title="Create new light" ng-click="newLight()"><i class="material-icons">add</i></button>
+        <select ng-model="selectable_lights" ng-show="(!(editMode)) && (scene.lights.length != 0)" ng-options="light.name for light in scene.lights | orderBy: 'name' " ng-change="loadLight()"></select>
+        <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedLight !== null)" title="Edit selected light" ng-click="editLight()"><i class="material-icons">edit</i></button>
+        <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedLight !== null)" title="Delete selected light" ng-click="deleteLight()"><i class="material-icons">delete</i></button>
+        <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && ((scene.objects.length > 0) || (scene.lights.length > 0))" title="Download scene into JSON file" ng-click="downloadScene()"><i class="material-icons">file_download</i></button>
+        <a href="#fileUpload" class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode))" title="Upload scene from JSON file"><i class="material-icons">file_upload</i></a>
+    </div>
+    <div class="w3-container w3-theme-light"><h5>Light</h5></div>
+    <div class="w3-container">
+        <div class="w3-group">
+            <label for="light.name">Name:</label>
+            <input type="text" ng-model="light.name" ng-disabled="(varLoading) || (!(editMode))" ng-blur="checkRenamingLight($event)"/>
+            <input type="hidden" ng-model="light.name_changed" />
+        </div>           
+        <div class="w3-group" ng-show="light.type != 2">                        
+            <label class="w3-checkbox">
+                Enabled:
+                <input type="checkbox" ng-model="light.enabled" ng-disabled="(varLoading)" ng-change="switchLight($event)"/>
+                <span class="w3-checkmark"></span>
+            </label>
+        </div>                
+    </div>
+    <div class="w3-container w3-theme-light"><h5>Attributes</h5></div>
+    <div class="w3-container">
+        <div class="w3-group">
+            <label for="light.ambient">Ambient:</label>
+            <input style="width:20%" type="number" ng-model="light.vAmbient[0]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.ambient = toHex(light.vAmbient)"/>
+            <input style="width:20%" type="number" ng-model="light.vAmbient[1]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.ambient = toHex(light.vAmbient)"/>
+            <input style="width:20%" type="number" ng-model="light.vAmbient[2]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.ambient = toHex(light.vAmbient)"/>
+            <input type="color" ng-model="light.ambient" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.vAmbient = toRGB(light.ambient)"/>
+        </div>
+        <div class="w3-group">
+            <label for="light.diffuse">Diffuse:</label>
+            <input style="width:20%" type="number" ng-model="light.vDiffuse[0]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.diffuse = toHex(light.vDiffuse)"/>
+            <input style="width:20%" type="number" ng-model="light.vDiffuse[1]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.diffuse = toHex(light.vDiffuse)"/>
+            <input style="width:20%" type="number" ng-model="light.vDiffuse[2]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.diffuse = toHex(light.vDiffuse)"/>
+            <input type="color" ng-model="light.diffuse" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.vDiffuse = toRGB(light.diffuse)"/>
+        </div>
+        <div class="w3-group">
+            <label for="light.specular">Specular:</label>
+            <input style="width:20%" type="number" ng-model="light.vSpecular[0]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.specular = toHex(light.vSpecular)"/>
+            <input style="width:20%" type="number" ng-model="light.vSpecular[1]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.specular = toHex(light.vSpecular)"/>
+            <input style="width:20%" type="number" ng-model="light.vSpecular[2]" min="0.0" max="1.0" step="any" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.specular = toHex(light.vSpecular)"/>
+            <input type="color" ng-model="light.specular" ng-disabled="(varLoading) || (!(editMode))" ng-change="light.vSpecular = toRGB(light.specular)"/>
+        </div>
+        <div class="w3-group">
+            <label for="light.attenuation">Attenuation:</label>
+            <input style="width:20%" type="number" ng-model="light.attenuation[0]" min="0.0" step="0.1" ng-disabled="(varLoading) || (!(editMode))"/>
+            <input style="width:20%" type="number" ng-model="light.attenuation[1]" min="0.0" step="0.1" ng-disabled="(varLoading) || (!(editMode))"/>
+            <input style="width:20%" type="number" ng-model="light.attenuation[2]" min="0.0" step="0.1" ng-disabled="(varLoading) || (!(editMode))"/>
+        </div>
+    </div>
+    <div class="w3-container w3-theme-light"><h5>Position</h5></div>
+    <div class="w3-container">
+        <div class="w3-group">
+            <div>
+                <label for="light.pos">X:&nbsp;</label><input type="number" ng-model="light.pos[0]" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+            </div>
+            <div>
+                <label for="light.pos">Y:&nbsp;</label><input type="number" ng-model="light.pos[1]" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+            </div>
+            <div>
+                <label for="light.pos">Z:&nbsp;</label><input type="number" ng-model="light.pos[2]" step="any" ng-disabled="(varLoading) || (!(editMode))"/>
+            </div>
+        </div>
+    </div>
+    <div class="container w3-center">
+        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))" ng-click="light_form.submit();saveLight(light_form);">Done<i class="w3-margin-left w3-right material-icons">done</i></button>
+        <button class="w3-btn w3-theme-dark" ng-show="editMode" ng-disabled="(varLoading) || (!(editMode))" ng-click="reset(light_form)">Cancel<i class="w3-margin-left w3-right material-icons">cancel</i></button>
+    </div>
+</form>
