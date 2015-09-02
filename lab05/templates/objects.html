@@ -16,7 +16,7 @@
         </div>
         <div class="w3-group">
             <label for="obj.type">Type:</label>
-            <select ng-model="obj.type" ng-disabled="(varLoading) || (!(editMode)) || (selectedObject != null)" ng-change="autoRename()">
+            <select type="text" ng-model="obj.type" ng-disabled="(varLoading) || (!(editMode)) || (selectedObject != null)" ng-change="autoRename()">
                 <option value="0" label="Cone">Cone</option>
                 <option value="1" label="Cylinder">Cylinder</option>
                 <option value="2" label="Sphere">Sphere</option>
