@@ -524,7 +524,7 @@ app
                         datas.push($scope.vertexRotateY(v, cos_angle, sin_angle));
                     }
                     
-                    var patchWH = $scope.texSize / this.fragments;
+                    var patchWH = 1.0 / this.fragments;
                     for (var i = 0; i < this.fragments; i++) {
                         var p1 = $scope.vertexTranslate($scope.vertexRotate(top_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -534,9 +534,9 @@ app
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
                         this.textCoords.push(
-                            vec2(patchWH * (i + 1) / $scope.texSize, 0.0), 
-                            vec2(patchWH * i / $scope.texSize, 1.0), 
-                            vec2(patchWH * (i + 1) / $scope.texSize, 1.0)
+                            vec2(patchWH * (i + 1), 0.0), 
+                            vec2(patchWH * i, 1.0), 
+                            vec2(patchWH * (i + 1), 1.0)
                         );
                     }
                     if (this.closed) {
@@ -549,9 +549,9 @@ app
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
                             this.textCoords.push(
-                                vec2(patchWH * (i + 0.5 + this.fragments % 2)  / $scope.texSize, 0.0), 
-                                vec2(patchWH * (i + this.fragments % 2) / $scope.texSize, patchWH / $scope.texSize), 
-                                vec2(patchWH * (i + 1 + this.fragments % 2) / $scope.texSize, patchWH  / $scope.texSize)
+                                vec2(patchWH * (i + 0.5 + this.fragments % 2), 0.0), 
+                                vec2(patchWH * (i + this.fragments % 2), patchWH), 
+                                vec2(patchWH * (i + 1 + this.fragments % 2), patchWH)
                             );
                         }
                     }
@@ -644,7 +644,7 @@ app
                         datas.push($scope.vertexRotateY(v, cos_angle, sin_angle));
                     }
 
-                    var patchWH = $scope.texSize / this.fragments;
+                    var patchWH = 1.0 / this.fragments;
                     for (var i = 0; i < this.fragments; i++) {
                         var p1 = $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -654,9 +654,9 @@ app
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
                         this.textCoords.push(
-                            vec2(patchWH * i  / $scope.texSize, 0.0), 
-                            vec2(patchWH * i / $scope.texSize, 1.0), 
-                            vec2(patchWH * (i + 1) / $scope.texSize, 0.0)
+                            vec2(patchWH * i, 0.0), 
+                            vec2(patchWH * i, 1.0), 
+                            vec2(patchWH * (i + 1), 0.0)
                         );
                         
                         p1 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -667,9 +667,9 @@ app
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
                         this.textCoords.push(
-                            vec2(patchWH * (i + 1) / $scope.texSize, 0.0), 
-                            vec2(patchWH * i / $scope.texSize, 1.0), 
-                            vec2(patchWH * (i + 1) / $scope.texSize, 1.0)
+                            vec2(patchWH * (i + 1), 0.0), 
+                            vec2(patchWH * i, 1.0), 
+                            vec2(patchWH * (i + 1), 1.0)
                         );
                     }
                     
@@ -683,9 +683,9 @@ app
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
                             this.textCoords.push(
-                                vec2(patchWH * (i - 0.5)  / $scope.texSize, 0.0), 
-                                vec2(patchWH * (i - 1) / $scope.texSize, patchWH / $scope.texSize), 
-                                vec2(patchWH * (i) / $scope.texSize, patchWH  / $scope.texSize)
+                                vec2(patchWH * (i - 0.5), 0.0), 
+                                vec2(patchWH * (i - 1), patchWH), 
+                                vec2(patchWH * (i), patchWH)
                             );
                         }
                         for (var i = 0; i < this.fragments; i++) {
@@ -697,9 +697,9 @@ app
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
                             this.textCoords.push(
-                                vec2(patchWH * (i + 0.5 + this.fragments % 2)  / $scope.texSize, 0.0), 
-                                vec2(patchWH * (i + this.fragments % 2) / $scope.texSize, patchWH / $scope.texSize), 
-                                vec2(patchWH * (i + 1 + this.fragments % 2) / $scope.texSize, patchWH  / $scope.texSize)
+                                vec2(patchWH * (i + 0.5 + this.fragments % 2), 0.0), 
+                                vec2(patchWH * (i + this.fragments % 2), patchWH), 
+                                vec2(patchWH * (i + 1 + this.fragments % 2), patchWH)
                             );
                         }
                     }
@@ -782,7 +782,7 @@ app
                         }
                     }
 
-                    var patchWH = $scope.texSize / this.fragments;
+                    var patchWH = 1.0 / this.fragments;
                     for (var j = 0; j < this.fragments; j++) {
                         var p1 = $scope.vertexTranslate($scope.vertexRotate(top_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -792,9 +792,9 @@ app
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
                         this.textCoords.push(
-                            vec2((patchWH * j + 0.5 * patchWH) / $scope.texSize, (this.fragments - 1) * patchWH / $scope.texSize), 
-                            vec2(patchWH * j / $scope.texSize, 1.0), 
-                            vec2(patchWH * (j + 1) / $scope.texSize, 1.0)
+                            vec2((patchWH * j + 0.5 * patchWH), (this.fragments - 1) * patchWH), 
+                            vec2(patchWH * j, 1.0), 
+                            vec2(patchWH * (j + 1), 1.0)
                         );
                     }
                     for (var i = 0; i < this.fragments - 2; i++)
@@ -807,9 +807,9 @@ app
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
                             this.textCoords.push(
-                                vec2(patchWH * i / $scope.texSize, patchWH * (j + 1) / $scope.texSize), 
-                                vec2(patchWH * (i + 1) / $scope.texSize, patchWH * (j +1)/ $scope.texSize), 
-                                vec2(patchWH * i / $scope.texSize, patchWH * (j + 2) / $scope.texSize)
+                                vec2(patchWH * i, patchWH * (j + 1)), 
+                                vec2(patchWH * (i + 1), patchWH * (j +1)), 
+                                vec2(patchWH * i, patchWH * (j + 2))
                             );
                             
                             p1 = $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -820,9 +820,9 @@ app
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
                             this.textCoords.push(
-                                vec2(patchWH * i / $scope.texSize, patchWH * (j + 2) / $scope.texSize), 
-                                vec2(patchWH * (i + 1) / $scope.texSize, patchWH * (j+1) / $scope.texSize), 
-                                vec2(patchWH * (i + 1)/ $scope.texSize, patchWH * (j + 2) / $scope.texSize)
+                                vec2(patchWH * i, patchWH * (j + 2)), 
+                                vec2(patchWH * (i + 1), patchWH * (j+1)), 
+                                vec2(patchWH * (i + 1), patchWH * (j + 2))
                             );
                         }
                     
@@ -835,9 +835,9 @@ app
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
                         this.textCoords.push(
-                            vec2((patchWH * j + 0.5 * patchWH) / $scope.texSize, (this.fragments - 1) * patchWH / $scope.texSize), 
-                            vec2(patchWH * j / $scope.texSize, 1.0), 
-                            vec2(patchWH * (j + 1) / $scope.texSize, 1.0)
+                            vec2((patchWH * j + 0.5 * patchWH), (this.fragments - 1) * patchWH), 
+                            vec2(patchWH * j, 1.0), 
+                            vec2(patchWH * (j + 1), 1.0)
                         );
                     }
                     
