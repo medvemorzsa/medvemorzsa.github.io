@@ -110,11 +110,11 @@
     </div>
     <div class="w3-container w3-theme-light"><h5>Textures</h5></div>
     <div class="w3-container">
-        <div class="w3-group" ng-repeat="texture in obj.textures | orderBy: 'url' " >                        
+        <div class="w3-group" ng-repeat="texture in obj.textures | orderBy: 'name' " >                        
             <label class="w3-checkbox">
                 <input type="checkbox" ng-model="texture.enabled" ng-disabled="(varLoading) || (!(editMode))" />
                 <span class="w3-checkmark"></span>
-                :{{texture.url}}
+                :{{texture.name}}
             </label>
         </div>         
     </div>

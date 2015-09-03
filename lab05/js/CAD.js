@@ -190,7 +190,7 @@ app
                     $scope.loadObject();
                 }
                 else {
-                    $scope.obj = angular.copy($scope.baseObj());
+                    $scope.obj = angular.copy($scope.baseObj().init());
                 }
             }
             if (form.$name == "light_form") {
@@ -297,7 +297,7 @@ app
             $scope.editMode = true;
             $scope.oldSelectedObject = $scope.selectedObject;
             $scope.selectedObject = null;
-            $scope.obj = angular.copy($scope.baseObj());
+            $scope.obj = angular.copy($scope.baseObj().init());
             $scope.obj.name = $scope.types[parseInt($scope.obj.type)] + "_" + String($scope.numObj);
         }
         
@@ -361,7 +361,7 @@ app
         // Load datas of object into UI components
         $scope.loadObject = function() {
             if (($scope.selectable_objects == null) || (typeof $scope.selectable_objects === "undefined")) {
-                $scope.obj = angular.copy($scope.baseObj());
+                $scope.obj = angular.copy($scope.baseObj().init());
                 return;
             }
             
@@ -1245,10 +1245,14 @@ app
                     rot_x: 0.0,
                     rot_y: 0.0,
                     rot_z: 0.0,
-                    textures: [{'url':'Checkboard', enabled:true}, {'url':'Terrain map', enabled:false}]
+                    textures: [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}],
+                    
+                    init: function() {                        
+                        return this;
+                    }
                 }
             };
-            $scope.obj = angular.copy($scope.baseObj());
+            $scope.obj = angular.copy($scope.baseObj().init());
             
             $scope.baseLight = {
                 name: "Untitled",
