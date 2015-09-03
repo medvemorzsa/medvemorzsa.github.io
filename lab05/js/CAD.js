@@ -1,7 +1,7 @@
 var app = angular.module("webGlLab05App", ['ngRoute']);
 
 app
-    .controller("webGlLab05Ctrl", function($scope) {
+    .controller("webGlLab05Ctrl", function($scope, $location, $rootScope) {
         // WebGL initialization
         $scope.initWebGL = function() {
             // Configure canvas and WebGL
@@ -1060,7 +1060,6 @@ app
                         $scope.selectable_lights = $scope.selectedLight;
                     }
 
-                    console.log($scope.scene);
                     $scope.render();
                     
                     return true;
@@ -1072,8 +1071,11 @@ app
                     return false;
                 }    
                 finally {
+                    $rootScope.$apply(function() {
+                        $location.path("/objects");
+                        $location.replace();
+                    });
                     $scope.loading = false;
-                    $location.path("/objects");
                 }
             };
             reader.readAsText(file);
@@ -1164,7 +1166,7 @@ app
             $scope.bottom = -10.0;
 
             if ($scope.initWebGL()) {   
-                
+                /*
                 $scope.scene.objects.push(
                     $scope.createCone(
                         "Cone #01",
@@ -1215,7 +1217,7 @@ app
                 
                 $scope.numObj = $scope.scene.objects.length;
                 $scope.numLight = $scope.scene.lights.length;        
-                
+                */
                 $scope.render();
                 
                 $scope.varLoading = false;                
