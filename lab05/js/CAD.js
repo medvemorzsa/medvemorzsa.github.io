@@ -38,6 +38,14 @@ app
             $scope.gl.vertexAttribPointer($scope.vPosition, 4, $scope.gl.FLOAT, false, 0, 0);
             $scope.gl.enableVertexAttribArray($scope.vPosition);
             
+            $scope.tBuffer = $scope.gl.createBuffer();
+            $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.tBuffer);
+            
+            $scope.vTexCoord = $scope.gl.getAttribLocation($scope.program, "vTexCoord");
+            $scope.gl.vertexAttribPointer($scope.vTexCoord, 2, $scope.gl.FLOAT, false, 0, 0);
+            $scope.gl.enableVertexAttribArray($scope.vTexCoord);
+            
+            
             $scope.modelViewMatrixLoc = $scope.gl.getUniformLocation($scope.program, "modelViewMatrix");
             $scope.projectionMatrixLoc = $scope.gl.getUniformLocation($scope.program, "projectionMatrix");
             
@@ -75,8 +83,6 @@ app
             $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.vBuffer);
             $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.vertices), $scope.gl.STATIC_DRAW);
 
-            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "texEnabled"), false);
-            
             var hasLight = false;
             for (var i = 0; i < $scope.MAX_NUM_LIGHTS; i++) {
                 if (i < $scope.scene.lights.length) {
@@ -110,6 +116,46 @@ app
             
             $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), object.shininess);
 
+            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "texEnabled"), true);
+            $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.tBuffer);
+            $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.textCoords), $scope.gl.STATIC_DRAW);
+            
+            texture1 = $scope.gl.createTexture();
+            $scope.gl.bindTexture($scope.gl.TEXTURE_2D, texture1);
+
+            var checkboardImage = new Uint8Array(4 * $scope.texSize * $scope.texSize);
+
+            for (var i = 0; i < $scope.texSize; i++) {
+                for (var j = 0; j < $scope.texSize; j++) {
+                    var patchx = Math.floor(i / ($scope.texSize / object.fragments));
+                    var patchy = Math.floor(j / ($scope.texSize / object.fragments));
+                    var c = 0;
+                    if (patchx % 2 ^ patchy % 2)
+                        c = 255;
+                    checkboardImage[4*i*$scope.texSize+4*j] = c;
+                    checkboardImage[4*i*$scope.texSize+4*j+1] = c;
+                    checkboardImage[4*i*$scope.texSize+4*j+2] = c;
+                    checkboardImage[4*i*$scope.texSize+4*j+3] = 255;
+                }
+            }
+            
+            $scope.gl.pixelStorei($scope.gl.UNPACK_FLIP_Y_WEBGL, true);
+            $scope.gl.texImage2D($scope.gl.TEXTURE_2D, 0, $scope.gl.RGBA, $scope.texSize, $scope.texSize, 0, $scope.gl.RGBA, $scope.gl.UNSIGNED_BYTE, checkboardImage);
+            $scope.gl.generateMipmap($scope.gl.TEXTURE_2D);
+            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MIN_FILTER, $scope.gl.NEAREST_MIPMAP_LINEAR);
+            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.NEAREST);    
+/*
+            $scope.gl.texImage2D($scope.gl.TEXTURE_2D, 0, $scope.gl.RGBA, $scope.gl.RGBA, $scope.gl.UNSIGNED_BYTE, image1);
+            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.LINEAR);
+            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MIN_FILTER, $scope.gl.LINEAR);
+            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_S, $scope.gl.CLAMP_TO_EDGE);
+            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_T, $scope.gl.CLAMP_TO_EDGE);
+            $scope.gl.bindTexture($scope.gl.TEXTURE_2D, null);  
+*/
+            $scope.gl.activeTexture($scope.gl.TEXTURE0);
+            $scope.gl.bindTexture($scope.gl.TEXTURE_2D, texture1);
+            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Tex0"), 0);            
+            
             $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, object.vertices.length);
         }
         
@@ -144,7 +190,7 @@ app
                     $scope.loadObject();
                 }
                 else {
-                    $scope.obj = angular.copy($scope.baseObj);
+                    $scope.obj = angular.copy($scope.baseObj());
                 }
             }
             if (form.$name == "light_form") {
@@ -251,7 +297,7 @@ app
             $scope.editMode = true;
             $scope.oldSelectedObject = $scope.selectedObject;
             $scope.selectedObject = null;
-            $scope.obj = angular.copy($scope.baseObj);
+            $scope.obj = angular.copy($scope.baseObj());
             $scope.obj.name = $scope.types[parseInt($scope.obj.type)] + "_" + String($scope.numObj);
         }
         
@@ -315,7 +361,7 @@ app
         // Load datas of object into UI components
         $scope.loadObject = function() {
             if (($scope.selectable_objects == null) || (typeof $scope.selectable_objects === "undefined")) {
-                $scope.obj = angular.copy($scope.baseObj);
+                $scope.obj = angular.copy($scope.baseObj());
                 return;
             }
             
@@ -364,6 +410,7 @@ app
                         $scope.obj.diffuse,
                         $scope.obj.specular,
                         parseFloat($scope.obj.shininess),
+                        $scope.obj.textures,
                         vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z), 
                         vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
                     ).generate();
@@ -381,6 +428,7 @@ app
                         $scope.obj.diffuse,
                         $scope.obj.specular,
                         parseFloat($scope.obj.shininess),
+                        $scope.obj.textures,
                         vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z), 
                         vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
                     ).generate();
@@ -395,6 +443,7 @@ app
                         $scope.obj.diffuse,
                         $scope.obj.specular,
                         parseFloat($scope.obj.shininess),
+                        $scope.obj.textures,
                         vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z), 
                         vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z)
                     ).generate();
@@ -406,7 +455,7 @@ app
         }
         
         // Create cone object 
-        $scope.createCone = function(_name, _fragments, _radius, _height, _closed, _ambient, _diffuse, _specular, _shininess, _pos, _rotation) {
+        $scope.createCone = function(_name, _fragments, _radius, _height, _closed, _ambient, _diffuse, _specular, _shininess, _textures, _pos, _rotation) {
             return {  
                 name: _name,
                 fragments: _fragments,
@@ -421,10 +470,12 @@ app
                 vDiffuse: (typeof _diffuse === "string") ? $scope.toRGB(_diffuse) : _diffuse,
                 vSpecular: (typeof _specular === "string") ? $scope.toRGB(_specular) : _specular,
                 shininess: _shininess,
+                textures: _textures,
                 pos: _pos,
                 rotation: _rotation,
                 vertices: [],
                 normals: [],
+                textCoords: [],
                 
                 update: function() {
                     this.name = $scope.obj.name;
@@ -439,6 +490,7 @@ app
                     this.vDiffuse = $scope.obj.vDiffuse;
                     this.vSpecular = $scope.obj.vSpecular;
                     this.shininess = parseFloat($scope.obj.shininess);
+                    this.textures = $scope.obj.textures;
                     this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
                     this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
                     
@@ -447,6 +499,8 @@ app
 
                 generate: function() {                
                     this.vertices = [];
+                    this.normals = [];
+                    this.textCoords = [];
                     this.radius = (this.radius == null) ? 1.0 : this.radius;
                     this.height = (this.height == null) ? 1.0 : this.height;
                     this.pos[0] = (this.pos[0] == null) ? 0.0 : this.pos[0];
@@ -470,6 +524,7 @@ app
                         datas.push($scope.vertexRotateY(v, cos_angle, sin_angle));
                     }
                     
+                    var patchWH = $scope.texSize / this.fragments;
                     for (var i = 0; i < this.fragments; i++) {
                         var p1 = $scope.vertexTranslate($scope.vertexRotate(top_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -478,6 +533,11 @@ app
                         var normal = $scope.normal(p1, p2, p3);
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
+                        this.textCoords.push(
+                            vec2(patchWH * (i + 1) / $scope.texSize, 0.0), 
+                            vec2(patchWH * i / $scope.texSize, 1.0), 
+                            vec2(patchWH * (i + 1) / $scope.texSize, 1.0)
+                        );
                     }
                     if (this.closed) {
                         for (var i = 0; i < this.fragments; i++)  {                  
@@ -488,6 +548,11 @@ app
                             var normal = $scope.normal(p1, p2, p3);
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
+                            this.textCoords.push(
+                                vec2(patchWH * (i + 0.5 + this.fragments % 2)  / $scope.texSize, 0.0), 
+                                vec2(patchWH * (i + this.fragments % 2) / $scope.texSize, patchWH / $scope.texSize), 
+                                vec2(patchWH * (i + 1 + this.fragments % 2) / $scope.texSize, patchWH  / $scope.texSize)
+                            );
                         }
                     }
                     
@@ -497,7 +562,7 @@ app
         }
         
         // Create cylinder object 
-        $scope.createCylinder = function(_name, _fragments, _top_radius, _bottom_radius, _height, _closed, _ambient, _diffuse, _specular, _shininess, _pos, _rotation) {
+        $scope.createCylinder = function(_name, _fragments, _top_radius, _bottom_radius, _height, _closed, _ambient, _diffuse, _specular, _shininess, _textures, _pos, _rotation) {
             return {  
                 name: _name,
                 fragments: _fragments,
@@ -513,10 +578,12 @@ app
                 vDiffuse: (typeof _diffuse === "string") ? $scope.toRGB(_diffuse) : _diffuse,
                 vSpecular: (typeof _specular === "string") ? $scope.toRGB(_specular) : _specular,
                 shininess: _shininess,
+                textures: _textures,
                 pos: _pos,
                 rotation: _rotation,
                 vertices: [],
                 normals: [],
+                textCoords: [],
                 
                 update: function() {
                     this.name = $scope.obj.name;
@@ -532,6 +599,7 @@ app
                     this.vDiffuse = $scope.obj.vDiffuse;
                     this.vSpecular = $scope.obj.vSpecular;
                     this.shininess = parseFloat($scope.obj.shininess);
+                    this.textures = $scope.obj.textures;
                     this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
                     this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
                     
@@ -540,6 +608,8 @@ app
                 
                 generate: function() {
                     this.vertices = [];
+                    this.normals = [];
+                    this.textCoords = [];
                     
                     this.bottom_radius = (this.bottom_radius == null) ? 1.0 : this.bottom_radius;
                     this.top_radius = (this.top_radius == null) ? 1.0 : this.top_radius;
@@ -574,6 +644,7 @@ app
                         datas.push($scope.vertexRotateY(v, cos_angle, sin_angle));
                     }
 
+                    var patchWH = $scope.texSize / this.fragments;
                     for (var i = 0; i < this.fragments; i++) {
                         var p1 = $scope.vertexTranslate($scope.vertexRotate(datas[i], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -582,6 +653,11 @@ app
                         var normal = $scope.normal(p1, p3, p2);
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
+                        this.textCoords.push(
+                            vec2(patchWH * i  / $scope.texSize, 0.0), 
+                            vec2(patchWH * i / $scope.texSize, 1.0), 
+                            vec2(patchWH * (i + 1) / $scope.texSize, 0.0)
+                        );
                         
                         p1 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         p2 = $scope.vertexTranslate($scope.vertexRotate(datas[i + this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -590,6 +666,11 @@ app
                         var normal = $scope.normal(p1, p3, p2);
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
+                        this.textCoords.push(
+                            vec2(patchWH * (i + 1) / $scope.texSize, 0.0), 
+                            vec2(patchWH * i / $scope.texSize, 1.0), 
+                            vec2(patchWH * (i + 1) / $scope.texSize, 1.0)
+                        );
                     }
                     
                     if (this.closed) {
@@ -601,6 +682,11 @@ app
                             var normal = $scope.normal(p1, p2, p3);
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
+                            this.textCoords.push(
+                                vec2(patchWH * (i - 0.5)  / $scope.texSize, 0.0), 
+                                vec2(patchWH * (i - 1) / $scope.texSize, patchWH / $scope.texSize), 
+                                vec2(patchWH * (i) / $scope.texSize, patchWH  / $scope.texSize)
+                            );
                         }
                         for (var i = 0; i < this.fragments; i++) {
                             var p1 = $scope.vertexTranslate($scope.vertexRotate(bottom_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -610,6 +696,11 @@ app
                             var normal = $scope.normal(p1, p2, p3);
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
+                            this.textCoords.push(
+                                vec2(patchWH * (i + 0.5 + this.fragments % 2)  / $scope.texSize, 0.0), 
+                                vec2(patchWH * (i + this.fragments % 2) / $scope.texSize, patchWH / $scope.texSize), 
+                                vec2(patchWH * (i + 1 + this.fragments % 2) / $scope.texSize, patchWH  / $scope.texSize)
+                            );
                         }
                     }
                     
@@ -619,7 +710,7 @@ app
         }
 
         // Create sphere object 
-        $scope.createSphere = function(_name, _fragments, _radius, _ambient, _diffuse, _specular, _shininess, _pos, _rotation) {
+        $scope.createSphere = function(_name, _fragments, _radius, _ambient, _diffuse, _specular, _shininess, _textures, _pos, _rotation) {
             return {  
                 name: _name,
                 fragments: _fragments,
@@ -632,10 +723,12 @@ app
                 vDiffuse: (typeof _diffuse === "string") ? $scope.toRGB(_diffuse) : _diffuse,
                 vSpecular: (typeof _specular === "string") ? $scope.toRGB(_specular) : _specular,
                 shininess: _shininess,
+                textures: _textures,
                 pos: _pos,
                 rotation: _rotation,
                 vertices: [],
                 normals: [],
+                textCoords: [],
                 
                 update: function() {
                     this.name = $scope.obj.name;
@@ -648,6 +741,7 @@ app
                     this.vDiffuse = $scope.obj.vDiffuse;
                     this.vSpecular = $scope.obj.vSpecular;
                     this.shininess = parseFloat($scope.obj.shininess);
+                    this.textures = $scope.obj.textures;
                     this.pos = vec3($scope.obj.pos_x, $scope.obj.pos_y, $scope.obj.pos_z);
                     this.rotation = vec3($scope.obj.rot_x, $scope.obj.rot_y, $scope.obj.rot_z);
                     
@@ -657,6 +751,7 @@ app
                 generate: function() {               
                     this.vertices = [];
                     this.normals = [];
+                    this.textCoords = [];
                     
                     this.radius = (this.radius == null) ? 1.0 : this.radius;
                     this.pos[0] = (this.pos[0] == null) ? 0.0 : this.pos[0];
@@ -687,6 +782,7 @@ app
                         }
                     }
 
+                    var patchWH = $scope.texSize / this.fragments;
                     for (var j = 0; j < this.fragments; j++) {
                         var p1 = $scope.vertexTranslate($scope.vertexRotate(top_vertex, this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                         var p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -695,6 +791,11 @@ app
                         var normal = $scope.normal(p1, p2, p3);
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
+                        this.textCoords.push(
+                            vec2((patchWH * j + 0.5 * patchWH) / $scope.texSize, (this.fragments - 1) * patchWH / $scope.texSize), 
+                            vec2(patchWH * j / $scope.texSize, 1.0), 
+                            vec2(patchWH * (j + 1) / $scope.texSize, 1.0)
+                        );
                     }
                     for (var i = 0; i < this.fragments - 2; i++)
                         for (var j = 0; j < this.fragments; j++) {
@@ -705,6 +806,11 @@ app
                             var normal = $scope.normal(p1, p3, p2);
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
+                            this.textCoords.push(
+                                vec2(patchWH * i / $scope.texSize, patchWH * (j + 1) / $scope.texSize), 
+                                vec2(patchWH * (i + 1) / $scope.texSize, patchWH * (j +1)/ $scope.texSize), 
+                                vec2(patchWH * i / $scope.texSize, patchWH * (j + 2) / $scope.texSize)
+                            );
                             
                             p1 = $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
                             p2 = $scope.vertexTranslate($scope.vertexRotate(datas[(i + 1) * this.fragments + j], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -713,6 +819,11 @@ app
                             var normal = $scope.normal(p1, p3, p2);
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
+                            this.textCoords.push(
+                                vec2(patchWH * i / $scope.texSize, patchWH * (j + 2) / $scope.texSize), 
+                                vec2(patchWH * (i + 1) / $scope.texSize, patchWH * (j+1) / $scope.texSize), 
+                                vec2(patchWH * (i + 1)/ $scope.texSize, patchWH * (j + 2) / $scope.texSize)
+                            );
                         }
                     
                     for (var j = 0; j < this.fragments; j++) {
@@ -723,6 +834,11 @@ app
                         var normal = $scope.normal(p1, p2, p3);
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
+                        this.textCoords.push(
+                            vec2((patchWH * j + 0.5 * patchWH) / $scope.texSize, (this.fragments - 1) * patchWH / $scope.texSize), 
+                            vec2(patchWH * j / $scope.texSize, 1.0), 
+                            vec2(patchWH * (j + 1) / $scope.texSize, 1.0)
+                        );
                     }
                     
                     return this;
@@ -848,6 +964,7 @@ app
             $scope.light.pos_x = $scope.selectedLight.pos[0];
             $scope.light.pos_y = $scope.selectedLight.pos[1];
             $scope.light.pos_z = $scope.selectedLight.pos[2];
+            
         }
 
         // Switch lights
@@ -919,7 +1036,8 @@ app
             }
                    
             var file = document.getElementById("file").files[0];
-            var reader = new FileReader();        
+            var reader = new FileReader(); 
+            $scope.varLoading = true;
             reader.onload = function(e) {
                 try {
                     var temp_scene = angular.fromJson(e.target.result);
@@ -1024,6 +1142,9 @@ app
                                 }
                             }
                         });
+                        
+                        $scope.selectedObject = null;
+                        $scope.selectable_objects = $scope.selectedObject;                        
                     }
                     
                     if (temp_scene.lights) {
@@ -1053,13 +1174,11 @@ app
                         });
                         
                         $scope.selectedLight = null;
-                        if ($scope.scene.lights.length > 0) {
-                            $scope.selectedLight = $scope.scene.lights[0];
-                        }
-                        $scope.numLigths = $scope.scene.lights.length;
                         $scope.selectable_lights = $scope.selectedLight;
                     }
 
+                    $scope.loadObject();
+                    $scope.loadLight();
                     $scope.render();
                     
                     return true;
@@ -1075,7 +1194,7 @@ app
                         $location.path("/objects");
                         $location.replace();
                     });
-                    $scope.loading = false;
+                    $scope.varLoading = false;
                 }
             };
             reader.readAsText(file);
@@ -1086,6 +1205,8 @@ app
         // Initialization
         $scope.init = function($event) {
             $scope.varLoading = true;
+            
+            $scope.texSize = 256;
             
             $scope.types = ["Cone", "Cylinder", "Sphere"];
             
@@ -1100,31 +1221,34 @@ app
             $scope.selectedObject = null;
             $scope.selectedLight = null;
             
-            $scope.baseObj = {
-                name: "Untitled",
-                name_changed: false,
-                type: "0",
-                fragments: 12,
-                radius: 1.0,
-                bottom_radius: 1.0,
-                top_radius: 1.0,
-                height: 1.0,
-                closed: false,
-                ambient: "#000000",
-                diffuse: "#000000",
-                specular: "#000000",
-                vAmbient: vec4(0.0, 0.0, 0.0, 1.0),
-                vDiffuse: vec4(0.0, 0.0, 0.0, 1.0),
-                vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
-                shininess: 100.0,
-                pos_x: 0.0,
-                pos_y: 0.0,
-                pos_z: 0.0,
-                rot_x: 0.0,
-                rot_y: 0.0,
-                rot_z: 0.0        
+            $scope.baseObj = function() {
+                return {
+                    name: "Untitled",
+                    name_changed: false,
+                    type: "0",
+                    fragments: 12,
+                    radius: 1.0,
+                    bottom_radius: 1.0,
+                    top_radius: 1.0,
+                    height: 1.0,
+                    closed: false,
+                    ambient: "#000000",
+                    diffuse: "#000000",
+                    specular: "#000000",
+                    vAmbient: vec4(0.0, 0.0, 0.0, 1.0),
+                    vDiffuse: vec4(0.0, 0.0, 0.0, 1.0),
+                    vSpecular: vec4(0.0, 0.0, 0.0, 1.0),
+                    shininess: 100.0,
+                    pos_x: 0.0,
+                    pos_y: 0.0,
+                    pos_z: 0.0,
+                    rot_x: 0.0,
+                    rot_y: 0.0,
+                    rot_z: 0.0,
+                    textures: [{'url':'Checkboard', enabled:true}, {'url':'Terrain map', enabled:false}]
+                }
             };
-            $scope.obj = angular.copy($scope.baseObj);
+            $scope.obj = angular.copy($scope.baseObj());
             
             $scope.baseLight = {
                 name: "Untitled",
@@ -1144,6 +1268,7 @@ app
             $scope.gl = null;
             $scope.nBuffer = null;
             $scope.vBuffer = null;
+            $scope.tBuffer = null;
             $scope.program = null;
 
             $scope.modeViewMatrix = null;
@@ -1165,12 +1290,11 @@ app
             $scope.ytop = 10.0;
             $scope.bottom = -10.0;
 
-            if ($scope.initWebGL()) {   
-                /*
+            if ($scope.initWebGL()) {          
                 $scope.scene.objects.push(
                     $scope.createCone(
                         "Cone #01",
-                        48,
+                        12,
                         2.0,
                         4.0,
                         true,
@@ -1178,6 +1302,7 @@ app
                         vec4(0.4, 0.4, 0.0, 1.0),
                         vec4(0.4, 0.4, 0.4, 1.0),
                         10.0,
+                        [{'url':'Checkboard', enabled:true}, {'url':'Terrain map', enabled:false}],
                         vec3(-4.0, 0.0, 0.0),
                         vec3(0.0, 0.0, 0.0)
                     ).generate()
@@ -1185,7 +1310,7 @@ app
                 $scope.scene.objects.push(
                     $scope.createCylinder(
                         "Cylinger #01",
-                        48,
+                        12,
                         1.0,
                         2.0,
                         4.0,
@@ -1194,21 +1319,23 @@ app
                         vec4(1.0, 0.0, 0.0, 1.0),
                         vec4(0.2, 0.2, 0.2, 1.0),
                         60.0,
+                        [{'url':'Checkboard', enabled:true}, {'url':'Terrain map', enabled:false}],
                         vec3(0.0, 0.0, 0.0),
-                        vec3(0.0, 0.0, 0.0)
+                        vec3(-60.0, 0.0, 0.0)
                     ).generate()
                 );        
                 $scope.scene.objects.push(
                     $scope.createSphere(
                         "Sphere #01",
-                        48,
+                        11,
                         2.0,
                         vec4(0.6, 0.6, 0.6, 1.0),
                         vec4(0.0, 1.0, 0.0, 1.0),
                         vec4(1.0, 1.0, 1.0, 1.0),
                         100.0,
+                        [{'url':'Checkboard', enabled:true}, {'url':'Terrain map', enabled:false}],
                         vec3(4.0, 0.0, 0.0),
-                        vec3(0.0, 0.0, 0.0)
+                        vec3(-60.0, 0.0, 0.0)
                     ).generate()
                 );
                 
@@ -1217,12 +1344,13 @@ app
                 
                 $scope.numObj = $scope.scene.objects.length;
                 $scope.numLight = $scope.scene.lights.length;        
-                */
+                
                 $scope.render();
                 
                 $scope.varLoading = false;                
             }
         }
+
     })
 
     // Resize canvas

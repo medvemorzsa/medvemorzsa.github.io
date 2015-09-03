@@ -108,6 +108,16 @@
             <span class="right_align">100.0</span>
         </div>                                            
     </div>
+    <div class="w3-container w3-theme-light"><h5>Textures</h5></div>
+    <div class="w3-container">
+        <div class="w3-group" ng-repeat="texture in obj.textures | orderBy: 'url' " >                        
+            <label class="w3-checkbox">
+                <input type="checkbox" ng-model="texture.enabled" ng-disabled="(varLoading) || (!(editMode))" />
+                <span class="w3-checkmark"></span>
+                :{{texture.url}}
+            </label>
+        </div>         
+    </div>
     <div class="w3-container w3-theme-light"><h5>Position</h5></div>
     <div class="w3-container">
         <div class="w3-group">
