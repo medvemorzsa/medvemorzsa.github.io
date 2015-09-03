@@ -5,7 +5,7 @@
         <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Edit selected object" ng-click="editObject()"><i class="material-icons">edit</i></button>
         <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && (selectedObject !== null)" title="Delete selected object" ng-click="deleteObject()"><i class="material-icons">delete</i></button>
         <button class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode)) && ((scene.objects.length > 0) || (scene.lights.length > 0))" title="Download scene into JSON file" ng-click="downloadScene()"><i class="material-icons">file_download</i></button>
-        <a href="#fileUpload" class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode))" title="Upload objects from JSON file"><i class="material-icons">file_upload</i></a>
+        <a href="#sceneUpload" class="w3-btn w3-padding-small w3-theme-dark" ng-show="(!(editMode))" title="Upload objects from JSON file"><i class="material-icons">file_upload</i></a>
     </div>
     <div class="w3-container w3-theme-light"><h5>Object</h5></div>
     <div class="w3-container">
