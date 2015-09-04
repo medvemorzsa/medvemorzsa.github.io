@@ -140,27 +140,46 @@ app
                             }
                         }
                         
-                        $scope.gl.pixelStorei($scope.gl.UNPACK_FLIP_Y_WEBGL, true);
                         $scope.gl.texImage2D($scope.gl.TEXTURE_2D, 0, $scope.gl.RGBA, $scope.texSize, $scope.texSize, 0, $scope.gl.RGBA, $scope.gl.UNSIGNED_BYTE, checkboardImage);
                         $scope.gl.generateMipmap($scope.gl.TEXTURE_2D);
                         $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MIN_FILTER, $scope.gl.NEAREST_MIPMAP_LINEAR);
                         $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.NEAREST);    
+                        $scope.gl.activeTexture($scope.gl.TEXTURE0);
+                        $scope.gl.bindTexture($scope.gl.TEXTURE_2D, _texture);
+                        $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Tex0"), 0);                            
                     }
-                    else {
-                    }
-                    $scope.gl.activeTexture($scope.gl.TEXTURE0);
-                    $scope.gl.bindTexture($scope.gl.TEXTURE_2D, _texture);
-                    $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Tex0"), 0);                            
+                    else 
+                        if (texture.image != null) {
+                            $scope.gl.texImage2D($scope.gl.TEXTURE_2D, 0, $scope.gl.RGBA, $scope.gl.RGBA, $scope.gl.UNSIGNED_BYTE, texture.image);
+                            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.LINEAR);
+                            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MIN_FILTER, $scope.gl.LINEAR);
+                            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_S, $scope.gl.CLAMP_TO_EDGE);
+                            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_T, $scope.gl.CLAMP_TO_EDGE);
+                            $scope.gl.bindTexture($scope.gl.TEXTURE_2D, null);                              
+                            $scope.gl.activeTexture($scope.gl.TEXTURE0);
+                            $scope.gl.bindTexture($scope.gl.TEXTURE_2D, _texture);
+                            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Tex0"), 0);                            
+                        }
+                        else {
+                            var img = new Image();
+                            img.onload = function() {
+                                texture.image = img;
+                                $scope.gl.texImage2D($scope.gl.TEXTURE_2D, 0, $scope.gl.RGBA, $scope.gl.RGBA, $scope.gl.UNSIGNED_BYTE, texture.image);
+                                $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.LINEAR);
+                                $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MIN_FILTER, $scope.gl.LINEAR);
+                                $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_S, $scope.gl.CLAMP_TO_EDGE);
+                                $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_T, $scope.gl.CLAMP_TO_EDGE);
+                                $scope.gl.bindTexture($scope.gl.TEXTURE_2D, null);                              
+                                $scope.gl.activeTexture($scope.gl.TEXTURE0);
+                                $scope.gl.bindTexture($scope.gl.TEXTURE_2D, _texture);
+                                $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Tex0"), 0);                            
+                                $scope.render();
+                            }
+                            img.src = texture.url;
+                        }
                 }
             });
-/*
-            $scope.gl.texImage2D($scope.gl.TEXTURE_2D, 0, $scope.gl.RGBA, $scope.gl.RGBA, $scope.gl.UNSIGNED_BYTE, image1);
-            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.LINEAR);
-            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MIN_FILTER, $scope.gl.LINEAR);
-            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_S, $scope.gl.CLAMP_TO_EDGE);
-            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_T, $scope.gl.CLAMP_TO_EDGE);
-            $scope.gl.bindTexture($scope.gl.TEXTURE_2D, null);  
-*/
+
             $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "texEnabled"), texturedObject);
             if (texturedObject) {
                 $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.tBuffer);
@@ -397,6 +416,7 @@ app
             $scope.obj.vDiffuse = $scope.selectedObject.vDiffuse;
             $scope.obj.vSpecular = $scope.selectedObject.vSpecular;
             $scope.obj.shininess = $scope.selectedObject.shininess;
+            $scope.obj.textures = $scope.selectedObject.textures;
             $scope.obj.pos_x = $scope.selectedObject.pos[0];
             $scope.obj.pos_y = $scope.selectedObject.pos[1];
             $scope.obj.pos_z = $scope.selectedObject.pos[2];
@@ -480,7 +500,7 @@ app
                 vDiffuse: (typeof _diffuse === "string") ? $scope.toRGB(_diffuse) : _diffuse,
                 vSpecular: (typeof _specular === "string") ? $scope.toRGB(_specular) : _specular,
                 shininess: _shininess,
-                textures: _textures,
+                textures: angular.copy(_textures),
                 pos: _pos,
                 rotation: _rotation,
                 vertices: [],
@@ -550,9 +570,9 @@ app
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
                         this.textCoords.push(
-                            vec2(patchWH * (i + 1), 0.0), 
-                            vec2(patchWH * i, 1.0), 
-                            vec2(patchWH * (i + 1), 1.0)
+                            vec2(patchWH * (i + 0.5), 0.0), 
+                            vec2(patchWH * (i + 1), 1.0), 
+                            vec2(patchWH * i, 1.0)
                         );
                     }
                     if (this.closed) {
@@ -565,9 +585,9 @@ app
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
                             this.textCoords.push(
-                                vec2(patchWH * (i + 0.5 + this.fragments % 2), 0.0), 
-                                vec2(patchWH * (i + this.fragments % 2), patchWH), 
-                                vec2(patchWH * (i + 1 + this.fragments % 2), patchWH)
+                                vec2(patchWH * (i + 0.5), 0.0), 
+                                vec2(patchWH * i, 1.0), 
+                                vec2(patchWH * (i + 1), 1.0)
                             );
                         }
                     }
@@ -594,7 +614,7 @@ app
                 vDiffuse: (typeof _diffuse === "string") ? $scope.toRGB(_diffuse) : _diffuse,
                 vSpecular: (typeof _specular === "string") ? $scope.toRGB(_specular) : _specular,
                 shininess: _shininess,
-                textures: _textures,
+                textures: angular.copy(_textures),
                 pos: _pos,
                 rotation: _rotation,
                 vertices: [],
@@ -704,9 +724,9 @@ app
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
                             this.textCoords.push(
-                                vec2(patchWH * (i - 0.5), 0.0), 
-                                vec2(patchWH * (i - 1), patchWH), 
-                                vec2(patchWH * (i), patchWH)
+                                vec2(patchWH * (i + 0.5), 0.0), 
+                                vec2(patchWH * (i + 1), 1.0), 
+                                vec2(patchWH * i, 1.0)
                             );
                         }
                         for (var i = 0; i < this.fragments; i++) {
@@ -718,9 +738,9 @@ app
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
                             this.textCoords.push(
-                                vec2(patchWH * (i + 0.5 + this.fragments % 2), 0.0), 
-                                vec2(patchWH * (i + this.fragments % 2), patchWH), 
-                                vec2(patchWH * (i + 1 + this.fragments % 2), patchWH)
+                                vec2(patchWH * (i + 0.5), 0.0), 
+                                vec2(patchWH * i, 1.0), 
+                                vec2(patchWH * (i + 1 + this.fragments % 2), 1.0)
                             );
                         }
                     }
@@ -744,7 +764,7 @@ app
                 vDiffuse: (typeof _diffuse === "string") ? $scope.toRGB(_diffuse) : _diffuse,
                 vSpecular: (typeof _specular === "string") ? $scope.toRGB(_specular) : _specular,
                 shininess: _shininess,
-                textures: _textures,
+                textures: angular.copy(_textures),
                 pos: _pos,
                 rotation: _rotation,
                 vertices: [],
@@ -818,9 +838,9 @@ app
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
                         this.textCoords.push(
-                            vec2((patchWH * j + 0.5 * patchWH), (this.fragments - 1) * patchWH), 
-                            vec2(patchWH * j, 1.0), 
-                            vec2(patchWH * (j + 1), 1.0)
+                            vec2(patchWH * (j + 0.5), 0.0), 
+                            vec2(patchWH * (j + 1), patchWH), 
+                            vec2(patchWH * j, patchWH)
                         );
                     }
                     for (var i = 0; i < this.fragments - 2; i++)
@@ -833,9 +853,9 @@ app
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
                             this.textCoords.push(
-                                vec2(patchWH * i, patchWH * (j + 1)), 
-                                vec2(patchWH * (i + 1), patchWH * (j +1)), 
-                                vec2(patchWH * i, patchWH * (j + 2))
+                                vec2(patchWH * j, patchWH * (i + 1)), 
+                                vec2(patchWH * j, patchWH * (i + 2)), 
+                                vec2(patchWH * (j + 1), patchWH * (i + 1))
                             );
                             
                             p1 = $scope.vertexTranslate($scope.vertexRotate(datas[i * this.fragments + (j + 1) % this.fragments], this.rotation[0], this.rotation[1], this.rotation[2]), this.pos[0], this.pos[1], this.pos[2]);
@@ -846,9 +866,9 @@ app
                             for (var k = 0; k < 3; k++)
                                 this.normals.push(normal);
                             this.textCoords.push(
-                                vec2(patchWH * i, patchWH * (j + 2)), 
-                                vec2(patchWH * (i + 1), patchWH * (j+1)), 
-                                vec2(patchWH * (i + 1), patchWH * (j + 2))
+                                vec2(patchWH * (j + 1), patchWH * (i + 1)), 
+                                vec2(patchWH * j, patchWH * (i + 2)), 
+                                vec2(patchWH * (j + 1), patchWH * (i + 2))
                             );
                         }
                     
@@ -861,7 +881,7 @@ app
                         for (var k = 0; k < 3; k++)
                             this.normals.push(normal);
                         this.textCoords.push(
-                            vec2((patchWH * j + 0.5 * patchWH), (this.fragments - 1) * patchWH), 
+                            vec2(patchWH * (j + 0.5), (this.fragments - 1) * patchWH), 
                             vec2(patchWH * j, 1.0), 
                             vec2(patchWH * (j + 1), 1.0)
                         );
@@ -1339,10 +1359,10 @@ app
                         vec4(0.4, 0.4, 0.4, 1.0),
                         10.0,
                         [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
-                        vec3(-4.0, 0.0, 0.0),
+                        vec3(-4.0, -3.0, 0.0),
                         vec3(0.0, 0.0, 0.0)
                     ).generate()
-                );        
+                );  
                 $scope.scene.objects.push(
                     $scope.createCylinder(
                         "Cylinger #01",
@@ -1355,9 +1375,9 @@ app
                         vec4(1.0, 0.0, 0.0, 1.0),
                         vec4(0.2, 0.2, 0.2, 1.0),
                         60.0,
-                        [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
-                        vec3(0.0, 0.0, 0.0),
-                        vec3(-60.0, 0.0, 0.0)
+                        [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:true, url:'./textures/country_map.jpg', image:null}],
+                        vec3(0.0, -3.0, 0.0),
+                        vec3(0.0, 0.0, 0.0)
                     ).generate()
                 );        
                 $scope.scene.objects.push(
@@ -1369,12 +1389,53 @@ app
                         vec4(0.0, 1.0, 0.0, 1.0),
                         vec4(1.0, 1.0, 1.0, 1.0),
                         100.0,
-                        [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
-                        vec3(4.0, 0.0, 0.0),
-                        vec3(-60.0, 0.0, 0.0)
+                        [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:true, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
+                        vec3(4.0, -3.0, 0.0),
+                        vec3(0.0, 0.0, 0.0)
                     ).generate()
                 );
-                
+                $scope.scene.objects.push(
+                    $scope.createSphere(
+                        "Sphere with terrain map",
+                        24,
+                        2.0,
+                        vec4(0.6, 0.6, 0.6, 1.0),
+                        vec4(1.0, 1.0, 1.0, 1.0),
+                        vec4(1.0, 1.0, 1.0, 1.0),
+                        100.0,
+                        [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:true, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
+                        vec3(4.0, 2.0, 0.0),
+                        vec3(0.0, 0.0, 0.0)
+                    ).generate()
+                );
+                $scope.scene.objects.push(
+                    $scope.createSphere(
+                        "Sphere with checkboard",
+                        24,
+                        2.0,
+                        vec4(0.6, 0.6, 0.6, 1.0),
+                        vec4(1.0, 1.0, 1.0, 1.0),
+                        vec4(1.0, 1.0, 1.0, 1.0),
+                        100.0,
+                        [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
+                        vec3(-4.0, 2.0, 0.0),
+                        vec3(0.0, 0.0, 0.0)
+                    ).generate()
+                );
+                $scope.scene.objects.push(
+                    $scope.createSphere(
+                        "Sphere with country map",
+                        24,
+                        2.0,
+                        vec4(0.6, 0.6, 0.6, 1.0),
+                        vec4(1.0, 1.0, 1.0, 1.0),
+                        vec4(1.0, 1.0, 1.0, 1.0),
+                        100.0,
+                        [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:true, url:'./textures/country_map.jpg', image:null}],
+                        vec3(0.0, 2.0, 0.0),
+                        vec3(0.0, 0.0, 0.0)
+                    ).generate()
+                );
                 $scope.scene.lights.push($scope.createLight("Light #01", true, vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec4(0.0, 0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), vec4(-50.0, 50.0, 50.0, 0.0)));
                 $scope.scene.lights.push($scope.createLight("Light #02", true, vec4(0.0, 0.0, 0.0, 1.0), vec4(0.4, 0.4, 0.4, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec3(1.0, 0.0, 0.0), vec4(0.0, -20.0, 150.0, 0.0)));
                 
