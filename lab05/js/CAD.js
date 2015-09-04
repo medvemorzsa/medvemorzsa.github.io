@@ -501,6 +501,12 @@ app
                     this.vertices = [];
                     this.normals = [];
                     this.textCoords = [];
+                    
+                    angular.forEach(this.textures, function(texture) {
+                        if (texture.url != null)
+                            $scope.loadImage(texture);
+                    });
+                    
                     this.radius = (this.radius == null) ? 1.0 : this.radius;
                     this.height = (this.height == null) ? 1.0 : this.height;
                     this.pos[0] = (this.pos[0] == null) ? 0.0 : this.pos[0];
@@ -610,6 +616,11 @@ app
                     this.vertices = [];
                     this.normals = [];
                     this.textCoords = [];
+                    
+                    angular.forEach(this.textures, function(texture) {
+                        if (texture.url != null)
+                            $scope.loadImage(texture);
+                    });
                     
                     this.bottom_radius = (this.bottom_radius == null) ? 1.0 : this.bottom_radius;
                     this.top_radius = (this.top_radius == null) ? 1.0 : this.top_radius;
@@ -752,6 +763,11 @@ app
                     this.vertices = [];
                     this.normals = [];
                     this.textCoords = [];
+                    
+                    angular.forEach(this.textures, function(texture) {
+                        if (texture.url != null)
+                            $scope.loadImage(texture);
+                    });
                     
                     this.radius = (this.radius == null) ? 1.0 : this.radius;
                     this.pos[0] = (this.pos[0] == null) ? 0.0 : this.pos[0];
@@ -1245,9 +1261,15 @@ app
                     rot_x: 0.0,
                     rot_y: 0.0,
                     rot_z: 0.0,
-                    textures: [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}],
+                    textures: [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
                     
-                    init: function() {                        
+                    init: function() {
+                        angular.forEach(this.textures, function(texture) {
+                            if (texture.url != null) {
+                                $scope.loadImage(texture);
+                            }
+                        });
+
                         return this;
                     }
                 }
@@ -1306,7 +1328,7 @@ app
                         vec4(0.4, 0.4, 0.0, 1.0),
                         vec4(0.4, 0.4, 0.4, 1.0),
                         10.0,
-                        [{'url':'Checkboard', enabled:true}, {'url':'Terrain map', enabled:false}],
+                        [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
                         vec3(-4.0, 0.0, 0.0),
                         vec3(0.0, 0.0, 0.0)
                     ).generate()
@@ -1323,7 +1345,7 @@ app
                         vec4(1.0, 0.0, 0.0, 1.0),
                         vec4(0.2, 0.2, 0.2, 1.0),
                         60.0,
-                        [{'url':'Checkboard', enabled:true}, {'url':'Terrain map', enabled:false}],
+                        [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
                         vec3(0.0, 0.0, 0.0),
                         vec3(-60.0, 0.0, 0.0)
                     ).generate()
@@ -1337,7 +1359,7 @@ app
                         vec4(0.0, 1.0, 0.0, 1.0),
                         vec4(1.0, 1.0, 1.0, 1.0),
                         100.0,
-                        [{'url':'Checkboard', enabled:true}, {'url':'Terrain map', enabled:false}],
+                        [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
                         vec3(4.0, 0.0, 0.0),
                         vec3(-60.0, 0.0, 0.0)
                     ).generate()
@@ -1346,13 +1368,32 @@ app
                 $scope.scene.lights.push($scope.createLight("Light #01", true, vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec4(0.0, 0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), vec4(-50.0, 50.0, 50.0, 0.0)));
                 $scope.scene.lights.push($scope.createLight("Light #02", true, vec4(0.0, 0.0, 0.0, 1.0), vec4(0.4, 0.4, 0.4, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec3(1.0, 0.0, 0.0), vec4(0.0, -20.0, 150.0, 0.0)));
                 
-                $scope.numObj = $scope.scene.objects.length;
-                $scope.numLight = $scope.scene.lights.length;        
+                $scope.numObj = $scope.scene.objects.length + 1;
+                $scope.numLight = $scope.scene.lights.length + 1;        
                 
                 $scope.render();
                 
                 $scope.varLoading = false;                
             }
+        }
+        
+        // Load image
+        $scope.loadImage = function(texture) {
+            var img = new Image();
+            img.onload = function() { 
+                texture.image = img; 
+                /*
+                var canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+
+                texture.dataURL = canvas.toDataURL("image/png");
+                */
+            }
+            img.src = texture.url;
         }
 
     })
@@ -1369,10 +1410,12 @@ app
                 };
             };
             scope.$watch(scope.getWindowDimensions, function (newValue, oldValue) {
-                scope.canvas.width = Math.min(newValue.w, newValue.h);
-                scope.canvas.height = Math.min(newValue.w, newValue.h);
-                scope.gl.viewport(0, 0, scope.canvas.width, scope.canvas.height);
-                scope.render();
+                if (scope.canvas) {
+                    scope.canvas.width = Math.min(newValue.w, newValue.h);
+                    scope.canvas.height = Math.min(newValue.w, newValue.h);
+                    scope.gl.viewport(0, 0, scope.canvas.width, scope.canvas.height);
+                    scope.render();
+                }
             }, true);
 
             w.bind('resize', function () {

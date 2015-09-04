@@ -114,7 +114,8 @@
             <label class="w3-checkbox">
                 <input type="checkbox" ng-model="texture.enabled" ng-disabled="(varLoading) || (!(editMode))" />
                 <span class="w3-checkmark"></span>
-                :{{texture.name}}
+                :&nbsp;{{texture.name}}&nbsp;{{texture.dataURL}}
+                <img ng-show="texture.url != null" data-ng-src="{{texture.url}}" height="24px"/>
             </label>
         </div>         
     </div>
