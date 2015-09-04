@@ -76,6 +76,7 @@ app
             });      
         };
 
+        // Object rendering
         $scope.renderObject = function(object) {
             $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.nBuffer);
             $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.normals), $scope.gl.STATIC_DRAW);
@@ -116,34 +117,42 @@ app
             
             $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), object.shininess);
 
-            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "texEnabled"), true);
-            $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.tBuffer);
-            $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.textCoords), $scope.gl.STATIC_DRAW);
-            
-            texture1 = $scope.gl.createTexture();
-            $scope.gl.bindTexture($scope.gl.TEXTURE_2D, texture1);
+            var texturedObject = false;
+            angular.forEach(object.textures, function(texture) {
+                if (texture.enabled) {
+                    texturedObject = true;
+                    var _texture = $scope.gl.createTexture();
+                    $scope.gl.bindTexture($scope.gl.TEXTURE_2D, _texture);
+                    if (texture.url == null) {
+                        var checkboardImage = new Uint8Array(4 * $scope.texSize * $scope.texSize);
 
-            var checkboardImage = new Uint8Array(4 * $scope.texSize * $scope.texSize);
-
-            for (var i = 0; i < $scope.texSize; i++) {
-                for (var j = 0; j < $scope.texSize; j++) {
-                    var patchx = Math.floor(i / ($scope.texSize / object.fragments));
-                    var patchy = Math.floor(j / ($scope.texSize / object.fragments));
-                    var c = 0;
-                    if (patchx % 2 ^ patchy % 2)
-                        c = 255;
-                    checkboardImage[4*i*$scope.texSize+4*j] = c;
-                    checkboardImage[4*i*$scope.texSize+4*j+1] = c;
-                    checkboardImage[4*i*$scope.texSize+4*j+2] = c;
-                    checkboardImage[4*i*$scope.texSize+4*j+3] = 255;
+                        for (var i = 0; i < $scope.texSize; i++) {
+                            for (var j = 0; j < $scope.texSize; j++) {
+                                var patchx = Math.floor(i / ($scope.texSize / object.fragments));
+                                var patchy = Math.floor(j / ($scope.texSize / object.fragments));
+                                var c = 0;
+                                if (patchx % 2 ^ patchy % 2)
+                                    c = 255;
+                                checkboardImage[4*i*$scope.texSize+4*j] = c;
+                                checkboardImage[4*i*$scope.texSize+4*j+1] = c;
+                                checkboardImage[4*i*$scope.texSize+4*j+2] = c;
+                                checkboardImage[4*i*$scope.texSize+4*j+3] = 255;
+                            }
+                        }
+                        
+                        $scope.gl.pixelStorei($scope.gl.UNPACK_FLIP_Y_WEBGL, true);
+                        $scope.gl.texImage2D($scope.gl.TEXTURE_2D, 0, $scope.gl.RGBA, $scope.texSize, $scope.texSize, 0, $scope.gl.RGBA, $scope.gl.UNSIGNED_BYTE, checkboardImage);
+                        $scope.gl.generateMipmap($scope.gl.TEXTURE_2D);
+                        $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MIN_FILTER, $scope.gl.NEAREST_MIPMAP_LINEAR);
+                        $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.NEAREST);    
+                    }
+                    else {
+                    }
+                    $scope.gl.activeTexture($scope.gl.TEXTURE0);
+                    $scope.gl.bindTexture($scope.gl.TEXTURE_2D, _texture);
+                    $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Tex0"), 0);                            
                 }
-            }
-            
-            $scope.gl.pixelStorei($scope.gl.UNPACK_FLIP_Y_WEBGL, true);
-            $scope.gl.texImage2D($scope.gl.TEXTURE_2D, 0, $scope.gl.RGBA, $scope.texSize, $scope.texSize, 0, $scope.gl.RGBA, $scope.gl.UNSIGNED_BYTE, checkboardImage);
-            $scope.gl.generateMipmap($scope.gl.TEXTURE_2D);
-            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MIN_FILTER, $scope.gl.NEAREST_MIPMAP_LINEAR);
-            $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.NEAREST);    
+            });
 /*
             $scope.gl.texImage2D($scope.gl.TEXTURE_2D, 0, $scope.gl.RGBA, $scope.gl.RGBA, $scope.gl.UNSIGNED_BYTE, image1);
             $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.LINEAR);
@@ -152,10 +161,11 @@ app
             $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_T, $scope.gl.CLAMP_TO_EDGE);
             $scope.gl.bindTexture($scope.gl.TEXTURE_2D, null);  
 */
-            $scope.gl.activeTexture($scope.gl.TEXTURE0);
-            $scope.gl.bindTexture($scope.gl.TEXTURE_2D, texture1);
-            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Tex0"), 0);            
-            
+            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "texEnabled"), texturedObject);
+            if (texturedObject) {
+                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.tBuffer);
+                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.textCoords), $scope.gl.STATIC_DRAW);                
+            }
             $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, object.vertices.length);
         }
         
