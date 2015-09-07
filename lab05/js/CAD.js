@@ -118,9 +118,12 @@ app
             $scope.gl.uniform1f($scope.gl.getUniformLocation($scope.program, "shininess"), object.shininess);
 
             var texturedObject = false;
+            var textNum = 0;
+            
             angular.forEach(object.textures, function(texture) {
                 if (texture.enabled) {
                     texturedObject = true;
+
                     var _texture = $scope.gl.createTexture();
                     $scope.gl.bindTexture($scope.gl.TEXTURE_2D, _texture);
                     if (texture.url == null) {
@@ -143,10 +146,10 @@ app
                         $scope.gl.texImage2D($scope.gl.TEXTURE_2D, 0, $scope.gl.RGBA, $scope.texSize, $scope.texSize, 0, $scope.gl.RGBA, $scope.gl.UNSIGNED_BYTE, checkboardImage);
                         $scope.gl.generateMipmap($scope.gl.TEXTURE_2D);
                         $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MIN_FILTER, $scope.gl.NEAREST_MIPMAP_LINEAR);
-                        $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.NEAREST);    
-                        $scope.gl.activeTexture($scope.gl.TEXTURE0);
+                        $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.NEAREST);
+                        $scope.gl.activeTexture($scope.gl.TEXTURE0 + textNum);
                         $scope.gl.bindTexture($scope.gl.TEXTURE_2D, _texture);
-                        $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Tex0"), 0);                            
+                        $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Texture"), textNum);                                                        
                     }
                     else 
                         if (texture.image != null) {
@@ -156,27 +159,30 @@ app
                             $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_S, $scope.gl.CLAMP_TO_EDGE);
                             $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_T, $scope.gl.CLAMP_TO_EDGE);
                             $scope.gl.bindTexture($scope.gl.TEXTURE_2D, null);                              
-                            $scope.gl.activeTexture($scope.gl.TEXTURE0);
+                            $scope.gl.activeTexture($scope.gl.TEXTURE0 + textNum);
                             $scope.gl.bindTexture($scope.gl.TEXTURE_2D, _texture);
-                            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Tex0"), 0);                            
+                            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Texture"), textNum);                                                        
                         }
                         else {
                             var img = new Image();
                             img.onload = function() {
                                 texture.image = img;
+
                                 $scope.gl.texImage2D($scope.gl.TEXTURE_2D, 0, $scope.gl.RGBA, $scope.gl.RGBA, $scope.gl.UNSIGNED_BYTE, texture.image);
                                 $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MAG_FILTER, $scope.gl.LINEAR);
                                 $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_MIN_FILTER, $scope.gl.LINEAR);
                                 $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_S, $scope.gl.CLAMP_TO_EDGE);
                                 $scope.gl.texParameteri($scope.gl.TEXTURE_2D, $scope.gl.TEXTURE_WRAP_T, $scope.gl.CLAMP_TO_EDGE);
                                 $scope.gl.bindTexture($scope.gl.TEXTURE_2D, null);                              
-                                $scope.gl.activeTexture($scope.gl.TEXTURE0);
+                                $scope.gl.activeTexture($scope.gl.TEXTURE0 + textNum);
                                 $scope.gl.bindTexture($scope.gl.TEXTURE_2D, _texture);
-                                $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Tex0"), 0);                            
+                                $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "Texture"), textNum);
+
                                 $scope.render();
                             }
                             img.src = texture.url;
                         }
+                    textNum++;
                 }
             });
 
@@ -185,6 +191,7 @@ app
                 $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.tBuffer);
                 $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.textCoords), $scope.gl.STATIC_DRAW);                
             }
+            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "texEnabled"), texturedObject);
             $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, object.vertices.length);
         }
         
@@ -1253,7 +1260,6 @@ app
             $scope.varLoading = true;
             
             $scope.texSize = 256;
-            
             $scope.types = ["Cone", "Cylinder", "Sphere"];
             
             $scope.scene = {
@@ -1359,7 +1365,7 @@ app
                         vec4(0.4, 0.4, 0.4, 1.0),
                         10.0,
                         [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
-                        vec3(-4.0, -3.0, 0.0),
+                        vec3(-4.0, 0.0, 0.0),
                         vec3(0.0, 0.0, 0.0)
                     ).generate()
                 );  
@@ -1376,7 +1382,7 @@ app
                         vec4(0.2, 0.2, 0.2, 1.0),
                         60.0,
                         [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:true, url:'./textures/country_map.jpg', image:null}],
-                        vec3(0.0, -3.0, 0.0),
+                        vec3(0.0, 0.0, 0.0),
                         vec3(0.0, 0.0, 0.0)
                     ).generate()
                 );        
@@ -1390,21 +1396,7 @@ app
                         vec4(1.0, 1.0, 1.0, 1.0),
                         100.0,
                         [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:true, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
-                        vec3(4.0, -3.0, 0.0),
-                        vec3(0.0, 0.0, 0.0)
-                    ).generate()
-                );
-                $scope.scene.objects.push(
-                    $scope.createSphere(
-                        "Sphere with terrain map",
-                        24,
-                        2.0,
-                        vec4(0.6, 0.6, 0.6, 1.0),
-                        vec4(1.0, 1.0, 1.0, 1.0),
-                        vec4(1.0, 1.0, 1.0, 1.0),
-                        100.0,
-                        [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:true, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
-                        vec3(4.0, 2.0, 0.0),
+                        vec3(4.0, 0.0, 0.0),
                         vec3(0.0, 0.0, 0.0)
                     ).generate()
                 );
@@ -1418,7 +1410,7 @@ app
                         vec4(1.0, 1.0, 1.0, 1.0),
                         100.0,
                         [{name:'Checkboard', enabled:true, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
-                        vec3(-4.0, 2.0, 0.0),
+                        vec3(-4.0, 5.0, 0.0),
                         vec3(0.0, 0.0, 0.0)
                     ).generate()
                 );
@@ -1432,10 +1424,25 @@ app
                         vec4(1.0, 1.0, 1.0, 1.0),
                         100.0,
                         [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:true, url:'./textures/country_map.jpg', image:null}],
-                        vec3(0.0, 2.0, 0.0),
+                        vec3(0.0, 5.0, 0.0),
                         vec3(0.0, 0.0, 0.0)
                     ).generate()
                 );
+                $scope.scene.objects.push(
+                    $scope.createSphere(
+                        "Sphere with terrain map",
+                        24,
+                        2.0,
+                        vec4(0.6, 0.6, 0.6, 1.0),
+                        vec4(1.0, 1.0, 1.0, 1.0),
+                        vec4(1.0, 1.0, 1.0, 1.0),
+                        100.0,
+                        [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:true, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
+                        vec3(4.0, 5.0, 0.0),
+                        vec3(0.0, 0.0, 0.0)
+                    ).generate()
+                );
+
                 $scope.scene.lights.push($scope.createLight("Light #01", true, vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec4(0.0, 0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), vec4(-50.0, 50.0, 50.0, 0.0)));
                 $scope.scene.lights.push($scope.createLight("Light #02", true, vec4(0.0, 0.0, 0.0, 1.0), vec4(0.4, 0.4, 0.4, 1.0), vec4(1.0, 1.0, 1.0, 1.0), vec3(1.0, 0.0, 0.0), vec4(0.0, -20.0, 150.0, 0.0)));
                 

@@ -24,10 +24,10 @@
             varying vec4 fColor;
             uniform float shininess;
 
-            attribute  vec2 vTexCoord;
+            attribute vec2 vTexCoord;
             varying vec2 fTexCoord;
             uniform bool texEnabled;
-            
+                        
             struct lightProperties { 
                vec4 position;
                vec4 ambientProduct;
@@ -81,25 +81,28 @@
                 fColor.a = 1.0;
                 
                 fTexCoord = vTexCoord;
-              
+                
                 gl_Position = projectionMatrix * modelViewMatrix * vPosition;
             } 
         </script>
 
         <script id="fragment-shader" type="x-shader/x-fragment">
-            const int maxNumLights = 16; 
+            const int maxNumTextures = 8;
 
             precision mediump float;
             varying vec4 fColor;
             
             varying vec2 fTexCoord;
 
-            uniform sampler2D Tex;
+            uniform sampler2D Texture;
 
-            uniform bool texEnabled;
+            uniform bool texEnabled;            
             
             void main() {
-                gl_FragColor = (texEnabled) ? fColor * texture2D(Tex, fTexCoord) : fColor;
+                gl_FragColor = fColor;
+                if (texEnabled) {
+                    gl_FragColor = gl_FragColor * texture2D(Texture, fTexCoord);
+                }
             }
         </script>
         
