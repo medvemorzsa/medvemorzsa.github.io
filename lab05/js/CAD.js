@@ -120,6 +120,7 @@ app
             var texturedObject = false;
             var textNum = 0;
             
+            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "texEnabled"), texturedObject);
             angular.forEach(object.textures, function(texture) {
                 if (texture.enabled) {
                     texturedObject = true;
@@ -187,10 +188,8 @@ app
             });
 
             $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "texEnabled"), texturedObject);
-            if (texturedObject) {
-                $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.tBuffer);
-                $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.textCoords), $scope.gl.STATIC_DRAW);                
-            }
+            $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.tBuffer);
+            $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.textCoords), $scope.gl.STATIC_DRAW);                
 
             $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, object.vertices.length);
         }
