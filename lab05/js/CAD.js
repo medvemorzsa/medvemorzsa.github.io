@@ -191,7 +191,7 @@ app
                 $scope.gl.bindBuffer($scope.gl.ARRAY_BUFFER, $scope.tBuffer);
                 $scope.gl.bufferData($scope.gl.ARRAY_BUFFER, flatten(object.textCoords), $scope.gl.STATIC_DRAW);                
             }
-            $scope.gl.uniform1i($scope.gl.getUniformLocation($scope.program, "texEnabled"), texturedObject);
+
             $scope.gl.drawArrays($scope.gl.TRIANGLES, 0, object.vertices.length);
         }
         
@@ -1439,6 +1439,53 @@ app
                         100.0,
                         [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:true, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
                         vec3(4.0, 5.0, 0.0),
+                        vec3(0.0, 0.0, 0.0)
+                    ).generate()
+                );
+                $scope.scene.objects.push(
+                    $scope.createCone(
+                        "Cone #02",
+                        12,
+                        2.0,
+                        4.0,
+                        true,
+                        vec4(1.0, 1.0, 1.0, 1.0),
+                        vec4(0.4, 0.4, 0.0, 1.0),
+                        vec4(0.4, 0.4, 0.4, 1.0),
+                        10.0,
+                        [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
+                        vec3(-4.0, -5.0, 0.0),
+                        vec3(0.0, 0.0, 0.0)
+                    ).generate()
+                );  
+                $scope.scene.objects.push(
+                    $scope.createCylinder(
+                        "Cylinger #02",
+                        12,
+                        1.0,
+                        2.0,
+                        4.0,
+                        true,
+                        vec4(0.5, 0.5, 0.5, 1.0),
+                        vec4(1.0, 0.0, 0.0, 1.0),
+                        vec4(0.2, 0.2, 0.2, 1.0),
+                        60.0,
+                        [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
+                        vec3(0.0, -5.0, 0.0),
+                        vec3(0.0, 0.0, 0.0)
+                    ).generate()
+                );        
+                $scope.scene.objects.push(
+                    $scope.createSphere(
+                        "Sphere #02",
+                        11,
+                        2.0,
+                        vec4(0.6, 0.6, 0.6, 1.0),
+                        vec4(0.0, 1.0, 0.0, 1.0),
+                        vec4(1.0, 1.0, 1.0, 1.0),
+                        100.0,
+                        [{name:'Checkboard', enabled:false, url:null, image:null}, {name:'Terrain map', enabled:false, url:'./textures/terrain_map.png', image:null}, {name:'Country map', enabled:false, url:'./textures/country_map.jpg', image:null}],
+                        vec3(4.0, -5.0, 0.0),
                         vec3(0.0, 0.0, 0.0)
                     ).generate()
                 );
